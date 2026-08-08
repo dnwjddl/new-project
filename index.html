@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Dynamic token budgets를 위한 efficient video encoder 연구 제안과 최신 선행연구 분석"
+    />
+    <title>Dynamic Video Representation Research Brief</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 이동</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="페이지 맨 위로">
+        <span class="wordmark-mark" aria-hidden="true"></span>
+        DVR Lab
+      </a>
+      <nav class="site-nav" aria-label="주요 섹션">
+        <a href="#verdict">판정</a>
+        <a href="#flagship">추천안</a>
+        <a href="#topics">세 주제</a>
+        <a href="#experiments">실험</a>
+        <a href="#landscape">선행연구</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="intro-band" id="top">
+        <div class="page-shell intro-copy">
+          <p class="eyebrow">RESEARCH BRIEF · LITERATURE SWEEP THROUGH 2026-08-08</p>
+          <h1>One Video, Any Budget</h1>
+          <p class="intro-lead">
+            목표는 token 수만 줄이는 compressor가 아니다. <strong>영상의 미래를 이해하는 데 충분한 상태</strong>를
+            만들고, budget이 허용하는 만큼만 encoder 계산과 표현을 점진적으로 확장하는 video encoder다.
+          </p>
+          <div class="thesis-line">
+            <span class="thesis-label">핵심 thesis</span>
+            <p>
+              영상이 요구하는 token 수는 pixel complexity가 아니라
+              <strong>아직 해소되지 않은 predictive uncertainty</strong>로 결정되어야 한다.
+            </p>
+          </div>
+        </div>
+
+        <figure class="page-shell overview-figure">
+          <img
+            src="assets/predictive-anytime-encoder.png"
+            alt="시간에 따라 들어오는 영상이 단계적 encoder를 거쳐 gist, event, detail token으로 압축되고 작은 memory state가 다음 시점으로 전달되는 개념도"
+          />
+          <figcaption>
+            개념도: cheap gist는 항상 계산하고, unresolved event와 region만 더 깊게 처리한다. 결과 표현의 모든
+            prefix는 독립적으로 사용할 수 있다.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section-band" id="verdict">
+        <div class="page-shell">
+          <div class="section-heading">
+            <p class="section-index">01 · RESEARCH VERDICT</p>
+            <h2>세 아이디어는 좋다. 다만 그대로는 두 개가 이미 붐비는 영역이다.</h2>
+            <p>
+              VideoFlexTok은 이미 time-causal encoder, nested dropout, DINOv2 REPA, streaming tokenization을
+              generation 축에서 제시했다. Query-aware hierarchy와 streaming memory도 2025–2026년에 강한
+              경쟁작이 빠르게 생겼다. 아래처럼 novelty의 중심을 이동시키는 것이 안전하다.
+            </p>
+          </div>
+
+          <div class="decision-grid">
+            <article class="decision-card recommended">
+              <div class="card-topline">
+                <span class="topic-number">01</span>
+                <span class="status-chip">FLAGSHIP</span>
+              </div>
+              <h3>Predictive Anytime Encoder</h3>
+              <p class="card-subtitle">원안 1을 강화하고 원안 3의 predictive state를 흡수</p>
+              <dl class="score-list">
+                <div><dt>Potential</dt><dd>높음</dd></div>
+                <div><dt>Novelty</dt><dd>4 / 5</dd></div>
+                <div><dt>Feasibility</dt><dd>4 / 5</dd></div>
+              </dl>
+              <p>
+                reconstruction 대신 multi-horizon future latent prediction으로 모든 token prefix를 학습하고,
+                내부 encoder depth와 active token 수도 함께 줄인다.
+              </p>
+            </article>
+
+            <article class="decision-card">
+              <div class="card-topline">
+                <span class="topic-number">02</span>
+                <span class="status-chip caution">REFRAME</span>
+              </div>
+              <h3>Persistent Queryable Token Tree</h3>
+              <p class="card-subtitle">원안 2의 query-aware routing을 multi-query 문제로 전환</p>
+              <dl class="score-list">
+                <div><dt>Potential</dt><dd>중상</dd></div>
+                <div><dt>Novelty</dt><dd>3 / 5</dd></div>
+                <div><dt>Feasibility</dt><dd>4 / 5</dd></div>
+              </dl>
+              <p>
+                query마다 tree를 다시 만들지 않는다. 영상을 한 번 encode한 latent tree를 여러 query가 필요한
+                branch만 펼쳐 재사용하는 것이 핵심이다.
+              </p>
+            </article>
+
+            <article class="decision-card">
+              <div class="card-topline">
+                <span class="topic-number">03</span>
+                <span class="status-chip danger">CROWDED</span>
+              </div>
+              <h3>Predictive Memory Codec</h3>
+              <p class="card-subtitle">원안 3의 remember / forget 기준을 재정의</p>
+              <dl class="score-list">
+                <div><dt>Potential</dt><dd>중간</dd></div>
+                <div><dt>Novelty</dt><dd>3 / 5</dd></div>
+                <div><dt>Feasibility</dt><dd>3 / 5</dd></div>
+              </dl>
+              <p>
+                단순 novelty나 similarity가 아니라, token을 지웠을 때 미래 예측 손실이 얼마나 증가하는지를
+                memory value로 사용해야 기존 streaming memory와 구분된다.
+              </p>
+            </article>
+          </div>
+
+          <aside class="warning-note">
+            <span class="note-kicker">가장 중요한 경고</span>
+            <p>
+              dense encoder를 전부 실행한 뒤 output token만 줄이면 efficient <em>LLM input</em>이지 efficient
+              <em>video encoder</em>는 아니다. 논문은 encoder GFLOPs, latency, peak memory까지 실제로 낮춰야 한다.
+              이 문제를 직접 지적한 EarlyTom도 이미 등장했다.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section-band accent-band" id="flagship">
+        <div class="page-shell">
+          <div class="section-heading compact">
+            <p class="section-index">02 · RECOMMENDED FLAGSHIP</p>
+            <h2>Predictive Anytime Matryoshka Video Encoder</h2>
+            <p class="working-title">Working title: <em>One Video, Any Budget: Predictively Sufficient Anytime Video Encoding</em></p>
+          </div>
+
+          <div class="claim-block">
+            <span>한 문장 claim</span>
+            <p>
+              우리는 임의의 token·FLOP budget에서 유효한 nested causal video state를 학습하며, 각 prefix가
+              현재 pixel을 복원하는 대신 여러 시간 간격의 미래 semantic state를 예측하도록 한다.
+            </p>
+          </div>
+
+          <div class="architecture" aria-label="추천 encoder 구조도">
+            <div class="arch-column input-column">
+              <span class="arch-label">STREAM</span>
+              <div class="frame-strip" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <small>x≤t</small>
+            </div>
+            <div class="arch-arrow" aria-hidden="true">→</div>
+            <div class="encoder-stack">
+              <div class="encoder-stage stage-gist">
+                <span>Shallow causal blocks</span>
+                <strong>Gist tokens</strong>
+                <small>항상 실행</small>
+              </div>
+              <div class="encoder-stage stage-event">
+                <span>Residual gate</span>
+                <strong>Event refinement</strong>
+                <small>필요한 token만 계속</small>
+              </div>
+              <div class="encoder-stage stage-detail">
+                <span>Deep sparse blocks</span>
+                <strong>Object / motion detail</strong>
+                <small>high budget에서만</small>
+              </div>
+            </div>
+            <div class="arch-arrow" aria-hidden="true">→</div>
+            <div class="output-column">
+              <span class="arch-label">NESTED STATE</span>
+              <div class="token-tier tier-one"><i></i><i></i><i></i><i></i></div>
+              <div class="token-tier tier-two"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="token-tier tier-three"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <small>Z¹ ⊂ Z² ⊂ Z³</small>
+            </div>
+            <div class="teacher-column">
+              <span class="arch-label">FROZEN TEACHER</span>
+              <strong>V-JEPA 2</strong>
+              <small>t+1 · t+4 · t+16</small>
+              <div class="teacher-link" aria-hidden="true">predict future latents</div>
+            </div>
+          </div>
+
+          <div class="budget-lab" aria-labelledby="budget-title">
+            <div class="budget-copy">
+              <p class="tool-label">CONCEPTUAL BUDGET LAB</p>
+              <h3 id="budget-title">Budget을 올리면 전체를 다시 계산하지 않고 unresolved state만 확장한다.</h3>
+              <p id="budget-description">
+                Gist stage는 장면과 주행동을 유지한다. 가장 작은 budget에서도 독립적으로 유효해야 한다.
+              </p>
+              <div class="budget-stats" aria-live="polite">
+                <div><span>Output tokens</span><strong id="token-count">8</strong></div>
+                <div><span>Active stages</span><strong id="stage-count">1 / 4</strong></div>
+                <div><span>Representation</span><strong id="representation-label">Gist</strong></div>
+              </div>
+            </div>
+            <div class="budget-control">
+              <div class="budget-visual" id="budget-visual" aria-hidden="true"></div>
+              <label for="budget-range">Compute / token budget</label>
+              <input id="budget-range" type="range" min="1" max="4" value="1" step="1" />
+              <div class="range-labels" aria-hidden="true">
+                <span>Tiny</span><span>Small</span><span>Base</span><span>Full</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contribution-grid">
+            <div>
+              <span class="contribution-number">C1</span>
+              <h3>Predictive rate–distortion</h3>
+              <p>
+                distortion을 pixel reconstruction이 아니라 multi-horizon frozen teacher latent error로 정의한다.
+                token은 미래 상태를 설명할 수 있을 때만 가치가 있다.
+              </p>
+            </div>
+            <div>
+              <span class="contribution-number">C2</span>
+              <h3>Anytime encoder execution</h3>
+              <p>
+                nested output뿐 아니라 encoder 내부에서도 쉬운 token을 일찍 멈춘다. 하나의 weight로
+                token–FLOP Pareto frontier 전체를 제공한다.
+              </p>
+            </div>
+            <div>
+              <span class="contribution-number">C3</span>
+              <h3>Unknown-query sufficiency</h3>
+              <p>
+                write 시점에는 질문을 보지 않고 상태를 만든다. 이후 unseen understanding query와 streaming
+                memory에서 표현의 재사용성을 검증한다.
+              </p>
+            </div>
+          </div>
+
+          <div class="objective-panel">
+            <div>
+              <p class="tool-label">TRAINING OBJECTIVE</p>
+              <h3>각 budget prefix가 서로 다른 미래 horizon을 놓치지 않게 한다.</h3>
+            </div>
+            <code>
+              L = Σ<sub>b,h</sub> w<sub>b,h</sub> · d(P<sub>h</sub>(Z<sup>b</sup><sub>≤t</sub>),
+              stopgrad(E<sub>teacher</sub>(x<sub>t+h</sub>))) + λ<sub>nest</sub>L<sub>consistency</sub>
+              + λ<sub>cost</sub>E[FLOPs] + λ<sub>task</sub>L<sub>distill</sub>
+            </code>
+          </div>
+
+          <div class="training-grid">
+            <div class="plain-column">
+              <p class="tool-label">NO-SCRATCH RECIPE</p>
+              <h3>현실적인 학습 순서</h3>
+              <ol>
+                <li>V-JEPA 2를 frozen teacher로 두고 pretrained video ViT student를 초기화한다.</li>
+                <li>register/proxy tokens, causal adapters, predictor, budget router만 먼저 학습한다.</li>
+                <li>가능성이 확인되면 student 마지막 block과 LoRA를 점진적으로 연다.</li>
+                <li>LLM 연결은 encoder 가설이 검증된 뒤 projector/SFT 단계로 분리한다.</li>
+              </ol>
+            </div>
+            <div class="plain-column">
+              <p class="tool-label">FOUR FALSIFIABLE HYPOTHESES</p>
+              <h3>논문이 반드시 증명해야 할 것</h3>
+              <ol>
+                <li>한 모델의 모든 budget이 budget별 전용 모델에 근접한다.</li>
+                <li>predictive objective가 DINO/reconstruction보다 temporal reasoning을 잘 보존한다.</li>
+                <li>in-encoder routing이 post-hoc pruning보다 실제 TTFT와 GFLOPs를 줄인다.</li>
+                <li>router가 oracle budget과의 간격을 의미 있게 좁힌다.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-band" id="topics">
+        <div class="page-shell">
+          <div class="section-heading">
+            <p class="section-index">03 · THREE TOPICS, REBUILT</p>
+            <h2>각 아이디어를 논문 단위로 구체화하면</h2>
+            <p>탭을 눌러 각 안의 실제 novelty, 학습 방식, 결정적 실험과 중단 기준을 비교할 수 있다.</p>
+          </div>
+
+          <div class="topic-tabs" role="tablist" aria-label="연구 주제 선택">
+            <button role="tab" aria-selected="true" aria-controls="topic-panel-1" id="topic-tab-1" data-topic="1">
+              <span>01</span> Anytime Encoder
+            </button>
+            <button role="tab" aria-selected="false" aria-controls="topic-panel-2" id="topic-tab-2" data-topic="2">
+              <span>02</span> Queryable Tree
+            </button>
+            <button role="tab" aria-selected="false" aria-controls="topic-panel-3" id="topic-tab-3" data-topic="3">
+              <span>03</span> Memory Codec
+            </button>
+          </div>
+
+          <article class="topic-panel is-active" id="topic-panel-1" role="tabpanel" aria-labelledby="topic-tab-1">
+            <div class="topic-summary">
+              <div>
+                <p class="topic-overline">TOPIC 01 · PRIMARY</p>
+                <h3>Temporal reasoning을 보존하는 실제 dynamic encoder</h3>
+              </div>
+              <p>
+                VideoFlexTok의 “generation을 understanding으로 바꾼다”만으로는 약하다. time-causal과 streaming도
+                이미 들어 있다. novelty는 <strong>future-semantic sufficiency + internal conditional compute</strong>다.
+              </p>
+            </div>
+            <div class="topic-columns">
+              <section>
+                <h4>Method</h4>
+                <ul>
+                  <li>시점별 gist register를 shallow block에서 생성</li>
+                  <li>predictive residual이 큰 event/region만 deeper block으로 전달</li>
+                  <li>각 depth의 residual token을 합치면 nested representation 형성</li>
+                  <li>V-JEPA 2 teacher의 현재 및 미래 latent를 여러 horizon에서 distill</li>
+                  <li>budget-conditioned stochastic training으로 하나의 weight 유지</li>
+                </ul>
+              </section>
+              <section>
+                <h4>Decisive experiment</h4>
+                <p>
+                  같은 output token 수와 같은 encoder GFLOPs에서 reconstruction/DINO teacher 대비 TempCompass의
+                  direction·order, Something-Something v2, action anticipation을 동시에 개선해야 한다.
+                </p>
+                <h4>Kill criterion</h4>
+                <p>
+                  frozen proxy가 full V-JEPA feature의 temporal score를 보존하지 못하거나, routing overhead를 포함한
+                  latency가 fixed encoder 대비 줄지 않으면 구조를 축소한다.
+                </p>
+              </section>
+            </div>
+          </article>
+
+          <article class="topic-panel" id="topic-panel-2" role="tabpanel" aria-labelledby="topic-tab-2" hidden>
+            <div class="topic-summary">
+              <div>
+                <p class="topic-overline">TOPIC 02 · SECOND PAPER CANDIDATE</p>
+                <h3>한 번 저장하고, 질문마다 필요한 가지에서만 detail을 연다</h3>
+              </div>
+              <p>
+                VideoTree는 query를 보며 tree를 만들고, QTS+/VideoRouter는 flat dense tokens에서 query-relevant
+                evidence를 고른다. 우리는 <strong>query 전에 만든 persistent latent tree</strong>를 여러 질문이 공유한다.
+              </p>
+            </div>
+
+            <div class="tree-diagram" aria-label="query-agnostic latent tree와 query router 개념도">
+              <div class="tree-video">
+                <span>Encode once</span>
+                <div class="mini-frames"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <div class="tree-root">Global gist</div>
+              <div class="tree-level tree-level-two">
+                <div>Event A</div><div>Event B</div><div>Event C</div>
+              </div>
+              <div class="tree-level tree-level-three">
+                <div>A₁</div><div>A₂</div><div>B₁</div><div>B₂</div><div>C₁</div><div>C₂</div>
+              </div>
+              <div class="query-path">
+                <span>Query router</span>
+                <strong>Gist → Event B → B₂</strong>
+              </div>
+            </div>
+
+            <div class="topic-columns">
+              <section>
+                <h4>Method</h4>
+                <ul>
+                  <li>scene/event boundary에 맞춘 temporal latent tree를 query 없이 생성</li>
+                  <li>parent token은 summary, child token은 parent가 잃은 predictive residual로 학습</li>
+                  <li>query router가 top-down beam으로 branch와 depth를 budget 안에서 결정</li>
+                  <li>global gist를 항상 남겨 잘못된 early routing의 복구 경로 제공</li>
+                  <li>동일 영상에 연속 query가 들어오는 multi-query cost를 직접 평가</li>
+                </ul>
+              </section>
+              <section>
+                <h4>Decisive experiment</h4>
+                <p>
+                  query 1개가 아니라 5·10·20개가 같은 영상에 순차적으로 들어올 때, VideoTree/QTS+/flat top-k보다
+                  total encoder+retrieval latency와 accuracy의 Pareto frontier가 좋아야 한다.
+                </p>
+                <h4>Kill criterion</h4>
+                <p>
+                  동일 total token budget에서 learned tree가 flat top-k를 이기지 못하거나, 초반 branch miss가
+                  answer-critical evidence를 반복적으로 제거하면 독립 논문 대신 flagship의 optional readout으로 낮춘다.
+                </p>
+              </section>
+            </div>
+          </article>
+
+          <article class="topic-panel" id="topic-panel-3" role="tabpanel" aria-labelledby="topic-tab-3" hidden>
+            <div class="topic-summary">
+              <div>
+                <p class="topic-overline">TOPIC 03 · HIGH RISK</p>
+                <h3>기억의 가치는 “다시 보기 어려움”이 아니라 “미래를 바꾸는 정도”다</h3>
+              </div>
+              <p>
+                recent streaming methods도 surprise, semantic salience, object anchor를 사용한다. 차별점은 token을
+                제거했을 때 <strong>multi-horizon future prediction이 얼마나 악화되는지</strong>를 memory utility로
+                학습하는 것이다.
+              </p>
+            </div>
+
+            <div class="memory-diagram" aria-label="coarse-to-fine streaming memory codec 개념도">
+              <div class="stream-row">
+                <span>t−3</span><span>t−2</span><span>t−1</span><strong>t</strong><i>→</i><em>future</em>
+              </div>
+              <div class="memory-row gist-memory">
+                <label>Gist memory</label>
+                <div><i></i><i></i><i></i><i></i><i></i></div>
+                <span>always retained</span>
+              </div>
+              <div class="memory-row residual-memory">
+                <label>Residual memory</label>
+                <div><i></i><i class="evicted"></i><i></i><i class="evicted"></i><i></i><i></i><i class="evicted"></i></div>
+                <span>evict low Δprediction-loss</span>
+              </div>
+              <div class="prediction-arrow">memory state predicts future teacher latents</div>
+            </div>
+
+            <div class="topic-columns">
+              <section>
+                <h4>Method</h4>
+                <ul>
+                  <li>모든 chunk는 tiny gist를 write하고 필요할 때 residual tier 추가</li>
+                  <li>token utility를 leave-one-out future latent loss 증가량으로 정의</li>
+                  <li>비싼 counterfactual score를 작은 eviction policy에 distill</li>
+                  <li>오래된 sibling residual은 상위 gist로 consolidate</li>
+                  <li>query는 write가 아니라 read 시점에만 memory scope를 선택</li>
+                </ul>
+              </section>
+              <section>
+                <h4>Decisive experiment</h4>
+                <p>
+                  OVO-Bench의 backward tracing과 forward active response에서 동일 고정 memory로 SimpleStream,
+                  StreamMem, CausalMem보다 좋아야 하며 current-scene perception을 희생하지 않아야 한다.
+                </p>
+                <h4>Kill criterion</h4>
+                <p>
+                  강한 recent-window baseline을 넘지 못하거나, future prediction utility와 unseen-query QA utility의
+                  상관이 낮으면 “latent reasoning” 주장은 버리고 memory analysis로 범위를 줄인다.
+                </p>
+              </section>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band comparison-band">
+        <div class="page-shell">
+          <div class="section-heading">
+            <p class="section-index">04 · NOVELTY BOUNDARY</p>
+            <h2>VideoFlexTok과 무엇이 정확히 다른가</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>축</th><th>VideoFlexTok</th><th>제안하는 flagship</th><th>검증 포인트</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Primary goal</th>
+                  <td>generation용 flexible tokenizer</td>
+                  <td>understanding용 anytime encoder</td>
+                  <td>temporal reasoning / anticipation</td>
+                </tr>
+                <tr>
+                  <th>Training signal</th>
+                  <td>flow reconstruction + DINOv2 REPA</td>
+                  <td>multi-horizon V-JEPA latent prediction</td>
+                  <td>predictive sufficiency at every prefix</td>
+                </tr>
+                <tr>
+                  <th>Budget structure</th>
+                  <td>tail prefix over per-frame registers</td>
+                  <td>gist + learned event/region residuals</td>
+                  <td>non-linear, content-adaptive refinement</td>
+                </tr>
+                <tr>
+                  <th>Encoder compute</th>
+                  <td>token output length 중심</td>
+                  <td>active tokens와 depth를 함께 조절</td>
+                  <td>encoder GFLOPs / latency 포함</td>
+                </tr>
+                <tr>
+                  <th>Streaming</th>
+                  <td>sliding-window encode, decoded-frame conditioning</td>
+                  <td>causal latent state 자체를 계속 갱신</td>
+                  <td>bounded state, unknown future query</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">
+            time-causal attention과 “streaming 가능” 자체는 novelty로 주장하지 않는다. 두 요소는 VideoFlexTok이 이미
+            명시적으로 보여준다.
+          </p>
+        </div>
+      </section>
+
+      <section class="section-band" id="experiments">
+        <div class="page-shell">
+          <div class="section-heading">
+            <p class="section-index">05 · EXPERIMENT DESIGN</p>
+            <h2>성능표 하나가 아니라 Pareto frontier 전체를 이겨야 한다</h2>
+          </div>
+
+          <div class="experiment-matrix">
+            <div class="matrix-header">Question</div>
+            <div class="matrix-header">Metric</div>
+            <div class="matrix-header">Benchmark</div>
+            <div class="matrix-header">Must-beat baseline</div>
+
+            <div>현재 의미를 보존하는가?</div>
+            <div>accuracy vs tokens</div>
+            <div>PerceptionTest · MVBench · Video-MME</div>
+            <div>uniform / M3-style pooler</div>
+
+            <div>시간을 실제로 이해하는가?</div>
+            <div>direction · order · anticipation</div>
+            <div>TempCompass · SSv2 · EPIC-Kitchens</div>
+            <div>DINO distillation / full feature</div>
+
+            <div>encoder가 실제로 빨라지는가?</div>
+            <div>GFLOPs · TTFT · throughput · VRAM</div>
+            <div>동일 hardware 실측</div>
+            <div>EarlyTom · post-hoc pruning</div>
+
+            <div>긴 영상에서 유지되는가?</div>
+            <div>accuracy–duration slope</div>
+            <div>LongVideoBench · MLVU · Video-MME long</div>
+            <div>EVS · QTS+ · VideoRouter</div>
+
+            <div>streaming memory가 필요한가?</div>
+            <div>past / present / future split</div>
+            <div>OVO-Bench · StreamingBench</div>
+            <div>SimpleStream · StreamMem</div>
+          </div>
+
+          <div class="must-report">
+            <h3>반드시 보고할 efficiency 지표</h3>
+            <div>
+              <span>Encoder FLOPs</span><span>Output tokens</span><span>End-to-end TTFT</span>
+              <span>Peak VRAM</span><span>Throughput</span><span>Accuracy–log(compute) AUC</span>
+            </div>
+          </div>
+
+          <div class="roadmap">
+            <div class="roadmap-step">
+              <span>WEEK 1–2</span>
+              <h3>Falsify cheaply</h3>
+              <p>Frozen V-JEPA features, 3 budgets, tiny proxy. SSv2/TempCompass subset에서 objective 차이만 본다.</p>
+            </div>
+            <div class="roadmap-step">
+              <span>WEEK 3–5</span>
+              <h3>Prove real efficiency</h3>
+              <p>in-encoder gate와 stage exit를 넣고 동일 GPU에서 latency·GFLOPs를 측정한다.</p>
+            </div>
+            <div class="roadmap-step">
+              <span>WEEK 6–9</span>
+              <h3>Scale evidence</h3>
+              <p>long-video와 VLM 연결, 강한 baseline, multi-seed ablation을 Slurm으로 병렬 수행한다.</p>
+            </div>
+            <div class="roadmap-step">
+              <span>WEEK 10+</span>
+              <h3>Stress the claim</h3>
+              <p>unknown query, streaming, multi-query reuse, failure case로 claim의 경계를 명확히 한다.</p>
+            </div>
+          </div>
+
+          <aside class="go-no-go">
+            <div>
+              <span>EARLY GO / NO-GO</span>
+              <h3>첫 번째로 확인할 단 하나의 결과</h3>
+            </div>
+            <p>
+              동일 32-token budget에서 V-JEPA future-latent objective가 DINO current-frame alignment보다
+              TempCompass temporal score를 유의미하게 높이면서 appearance task를 유지하는가? 아니면 핵심 가설부터
+              다시 세운다.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section-band landscape-band" id="landscape">
+        <div class="page-shell">
+          <div class="section-heading">
+            <p class="section-index">06 · LITERATURE LANDSCAPE</p>
+            <h2>가까운 연구와 남아 있는 공간</h2>
+            <p>
+              아래는 이 proposal과 직접 충돌하거나 반드시 baseline으로 고려해야 할 연구다. 출판 상태가 다른
+              arXiv/withdrawn submission도 novelty 검사 목적상 포함했다.
+            </p>
+          </div>
+
+          <div class="landscape-grid">
+            <a class="paper-card" href="https://videoflextok.epfl.ch/" target="_blank" rel="noreferrer">
+              <span>ICML 2026 Spotlight</span><h3>VideoFlexTok</h3>
+              <p>time-causal, nested dropout, DINOv2 REPA, generation, streaming tokenization.</p>
+            </a>
+            <a class="paper-card" href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/43e41fa7544d2ee435c72305702de61f-Abstract-Conference.html" target="_blank" rel="noreferrer">
+              <span>NeurIPS 2025</span><h3>VaporTok</h3>
+              <p>content-conditioned taildrop와 RL reward로 adaptive video token length를 학습.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2602.04202" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>VTok</h3>
+              <p>spatial keyframe + temporal residual로 understanding과 generation을 함께 압축.</p>
+            </a>
+            <a class="paper-card" href="https://openreview.net/forum?id=dkLto1KNFV" target="_blank" rel="noreferrer">
+              <span>ICLR 2026 withdrawn</span><h3>AdapTok</h3>
+              <p>block-causal scorer와 ILP로 frame별 adaptive token allocation.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2605.30010" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>EarlyTom</h3>
+              <p>vision encoder 내부의 early token compression과 실제 TTFT 개선.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2511.11910" target="_blank" rel="noreferrer">
+              <span>arXiv 2025</span><h3>QTS+</h3>
+              <p>query-aware cross-attention, instance budget prediction, differentiable top-n selection.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2605.05848" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>VideoRouter</h3>
+              <p>query에 따라 global coverage와 high-resolution evidence allocation을 routing.</p>
+            </a>
+            <a class="paper-card" href="https://videotree2024.github.io/" target="_blank" rel="noreferrer">
+              <span>CVPR 2025</span><h3>VideoTree</h3>
+              <p>query-adaptive hierarchical tree를 coarse-to-fine으로 탐색.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2508.15717" target="_blank" rel="noreferrer">
+              <span>arXiv 2025</span><h3>StreamMem</h3>
+              <p>query-agnostic fixed-size KV memory for streaming video understanding.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2606.16353" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>SelectStream</h3>
+              <p>surprise-driven writes, consolidation, query-conditioned latent memory retrieval.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2607.28312" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>ObjectStream</h3>
+              <p>latent object를 persistent memory anchor로 사용해 streaming state change를 보존.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2604.02317" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>SimpleStream</h3>
+              <p>최근 frame만 쓰는 강한 baseline. 복잡한 memory는 반드시 이를 공정하게 넘어야 함.</p>
+            </a>
+          </div>
+
+          <div class="open-space">
+            <p class="tool-label">THE OPEN SPACE</p>
+            <h3>아직 명확히 비어 있는 조합</h3>
+            <p>
+              <strong>predictive semantics로 학습된 nested representation</strong>과
+              <strong>encoder 내부의 anytime compute</strong>, 그리고
+              <strong>unknown-query streaming sufficiency</strong>를 하나의 평가 축으로 묶은 연구는 위의 가장 가까운
+              연구들과 구별된다. 이것이 현재 proposal에서 가장 방어하기 좋은 중심이다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-band final-band">
+        <div class="page-shell final-layout">
+          <div>
+            <p class="section-index">BOTTOM LINE</p>
+            <h2>세 편을 동시에 시작하지 않는다.</h2>
+          </div>
+          <p>
+            먼저 flagship의 가장 작은 실험으로 <strong>future-predictive token hierarchy가 정말 temporal reasoning을
+            더 잘 보존하는지</strong> 확인한다. 성공하면 query tree는 재사용 가능한 readout으로, memory codec은
+            streaming extension으로 자연스럽게 확장된다. 실패하면 큰 학습 전에 가설을 버릴 수 있다.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="page-shell footer-inner">
+        <span>Dynamic Video Representation Research Brief</span>
+        <span>Prepared 2026-08-08 · claims marked as proposals are not measured results</span>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
