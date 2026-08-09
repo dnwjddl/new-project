@@ -36,7 +36,7 @@
     <main id="main">
       <section class="intro-band" id="top">
         <div class="page-shell intro-copy">
-          <p class="eyebrow">RESEARCH BRIEF · LITERATURE SWEEP THROUGH 2026-08-08</p>
+          <p class="eyebrow">RESEARCH BRIEF · LITERATURE SWEEP THROUGH 2026-08-09</p>
           <h1>One Video, Any Budget</h1>
           <p class="intro-lead">
             목표는 token 수만 줄이는 compressor가 아니다. <strong>영상의 미래를 이해하는 데 충분한 상태</strong>를
@@ -67,11 +67,12 @@
         <div class="page-shell">
           <div class="section-heading">
             <p class="section-index">01 · RESEARCH VERDICT</p>
-            <h2>세 아이디어는 좋다. 다만 그대로는 두 개가 이미 붐비는 영역이다.</h2>
+            <h2>셋 다 가능하다. 대신 세 논문이 답할 질문을 섞지 않는다.</h2>
             <p>
               VideoFlexTok은 이미 time-causal encoder, nested dropout, DINOv2 REPA, streaming tokenization을
-              generation 축에서 제시했다. Query-aware hierarchy와 streaming memory도 2025–2026년에 강한
-              경쟁작이 빠르게 생겼다. 아래처럼 novelty의 중심을 이동시키는 것이 안전하다.
+              generation 축에서 제시했다. Query-aware hierarchy와 latent video reasoning에도 2025–2026년의 강한
+              경쟁작이 있다. 그렇다고 세 아이디어가 불가능한 것은 아니다. 각각의 novelty와 결정적 실험을 아래처럼
+              분리하면 독립된 논문 질문이 된다.
             </p>
           </div>
 
@@ -82,7 +83,7 @@
                 <span class="status-chip">FLAGSHIP</span>
               </div>
               <h3>Predictive Anytime Encoder</h3>
-              <p class="card-subtitle">원안 1을 강화하고 원안 3의 predictive state를 흡수</p>
+              <p class="card-subtitle">dynamic token budget과 실제 encoder compute를 함께 줄이는 표현 학습</p>
               <dl class="score-list">
                 <div><dt>Potential</dt><dd>높음</dd></div>
                 <div><dt>Novelty</dt><dd>4 / 5</dd></div>
@@ -97,36 +98,36 @@
             <article class="decision-card">
               <div class="card-topline">
                 <span class="topic-number">02</span>
-                <span class="status-chip caution">REFRAME</span>
+                <span class="status-chip caution">MULTI-QUERY</span>
               </div>
-              <h3>Persistent Queryable Token Tree</h3>
-              <p class="card-subtitle">원안 2의 query-aware routing을 multi-query 문제로 전환</p>
+              <h3>Amortized Queryable Token Tree</h3>
+              <p class="card-subtitle">원안 그대로: 한 번 encode하고 여러 query가 hierarchy를 누적 재사용</p>
               <dl class="score-list">
-                <div><dt>Potential</dt><dd>중상</dd></div>
-                <div><dt>Novelty</dt><dd>3 / 5</dd></div>
+                <div><dt>Potential</dt><dd>높음</dd></div>
+                <div><dt>Novelty</dt><dd>4 / 5</dd></div>
                 <div><dt>Feasibility</dt><dd>4 / 5</dd></div>
               </dl>
               <p>
-                query마다 tree를 다시 만들지 않는다. 영상을 한 번 encode한 latent tree를 여러 query가 필요한
-                branch만 펼쳐 재사용하는 것이 핵심이다.
+                query마다 tree나 dense video tokens를 다시 만들지 않는다. 먼저 열린 branch도 cache하여 다음 질문의
+                encoder·retrieval 비용까지 함께 amortize하는 것이 핵심이다.
               </p>
             </article>
 
             <article class="decision-card">
               <div class="card-topline">
                 <span class="topic-number">03</span>
-                <span class="status-chip danger">CROWDED</span>
+                <span class="status-chip danger">HIGH RISK</span>
               </div>
-              <h3>Predictive Memory Codec</h3>
-              <p class="card-subtitle">원안 3의 remember / forget 기준을 재정의</p>
+              <h3>Adaptive Visual Latent Reasoning</h3>
+              <p class="card-subtitle">기억 선택이 아니라 recurrent visual latent 안에서 reasoning 자체를 수행</p>
               <dl class="score-list">
-                <div><dt>Potential</dt><dd>중간</dd></div>
-                <div><dt>Novelty</dt><dd>3 / 5</dd></div>
+                <div><dt>Potential</dt><dd>매우 높음</dd></div>
+                <div><dt>Novelty</dt><dd>4 / 5</dd></div>
                 <div><dt>Feasibility</dt><dd>3 / 5</dd></div>
               </dl>
               <p>
-                단순 novelty나 similarity가 아니라, token을 지웠을 때 미래 예측 손실이 얼마나 증가하는지를
-                memory value로 사용해야 기존 streaming memory와 구분된다.
+                streaming world-state가 future latent를 예측하고 새 관측과 비교해 belief를 반복 수정한다. budget이
+                늘면 기억만 많아지는 것이 아니라 latent reasoning step도 늘어난다.
               </p>
             </article>
           </div>
@@ -303,7 +304,7 @@
               <span>02</span> Queryable Tree
             </button>
             <button role="tab" aria-selected="false" aria-controls="topic-panel-3" id="topic-tab-3" data-topic="3">
-              <span>03</span> Memory Codec
+              <span>03</span> Latent Reasoning
             </button>
           </div>
 
@@ -347,12 +348,13 @@
           <article class="topic-panel" id="topic-panel-2" role="tabpanel" aria-labelledby="topic-tab-2" hidden>
             <div class="topic-summary">
               <div>
-                <p class="topic-overline">TOPIC 02 · SECOND PAPER CANDIDATE</p>
-                <h3>한 번 저장하고, 질문마다 필요한 가지에서만 detail을 연다</h3>
+                <p class="topic-overline">TOPIC 02 · MULTI-QUERY AMORTIZATION</p>
+                <h3>한 번 encode하고, 여러 질문이 같은 tree와 열린 가지를 재사용한다</h3>
               </div>
               <p>
                 VideoTree는 query를 보며 tree를 만들고, QTS+/VideoRouter는 flat dense tokens에서 query-relevant
-                evidence를 고른다. 우리는 <strong>query 전에 만든 persistent latent tree</strong>를 여러 질문이 공유한다.
+                evidence를 고른다. 원안의 핵심은 처음부터 <strong>query-agnostic hierarchy의 multi-query
+                amortization</strong>이다. tree뿐 아니라 이전 질문이 이미 펼친 branch도 다음 질문이 공유한다.
               </p>
             </div>
 
@@ -369,8 +371,10 @@
                 <div>A₁</div><div>A₂</div><div>B₁</div><div>B₂</div><div>C₁</div><div>C₂</div>
               </div>
               <div class="query-path">
-                <span>Query router</span>
-                <strong>Gist → Event B → B₂</strong>
+                <span>Sequential query reuse</span>
+                <div class="query-reuse"><b>Q1</b><strong>Gist → Event B</strong><small>cache B</small></div>
+                <div class="query-reuse"><b>Q2</b><strong>reuse B → B₂</strong><small>cache B₂</small></div>
+                <div class="query-reuse"><b>Q3</b><strong>reuse B, B₂ → C</strong><small>no re-encode</small></div>
               </div>
             </div>
 
@@ -382,19 +386,21 @@
                   <li>parent token은 summary, child token은 parent가 잃은 predictive residual로 학습</li>
                   <li>query router가 top-down beam으로 branch와 depth를 budget 안에서 결정</li>
                   <li>global gist를 항상 남겨 잘못된 early routing의 복구 경로 제공</li>
-                  <li>동일 영상에 연속 query가 들어오는 multi-query cost를 직접 평가</li>
+                  <li>펼친 branch를 cumulative cache에 남기고 후속 query에서는 추가 evidence만 연다</li>
+                  <li>동일 영상은 다시 encode하지 않고 query 수에 따른 total cost를 직접 평가</li>
                 </ul>
               </section>
               <section>
                 <h4>Decisive experiment</h4>
                 <p>
-                  query 1개가 아니라 5·10·20개가 같은 영상에 순차적으로 들어올 때, VideoTree/QTS+/flat top-k보다
-                  total encoder+retrieval latency와 accuracy의 Pareto frontier가 좋아야 한다.
+                  같은 영상에 Q=1·5·10·20개의 질문이 순차적으로 들어올 때, VideoTree/QTS+/flat top-k보다 cumulative
+                  encoder+routing+LLM cost와 accuracy의 Pareto frontier가 좋아야 한다. Q가 늘수록 평균 query 비용이
+                  내려가는 곡선이 이 논문의 결정적 그림이다.
                 </p>
                 <h4>Kill criterion</h4>
                 <p>
-                  동일 total token budget에서 learned tree가 flat top-k를 이기지 못하거나, 초반 branch miss가
-                  answer-critical evidence를 반복적으로 제거하면 독립 논문 대신 flagship의 optional readout으로 낮춘다.
+                  Q가 늘어도 average cost가 줄지 않거나, 동일 cumulative compute에서 flat cache/top-k보다 정확도가 낮으면
+                  multi-query amortization claim은 성립하지 않는다.
                 </p>
               </section>
             </div>
@@ -403,54 +409,60 @@
           <article class="topic-panel" id="topic-panel-3" role="tabpanel" aria-labelledby="topic-tab-3" hidden>
             <div class="topic-summary">
               <div>
-                <p class="topic-overline">TOPIC 03 · HIGH RISK</p>
-                <h3>기억의 가치는 “다시 보기 어려움”이 아니라 “미래를 바꾸는 정도”다</h3>
+                <p class="topic-overline">TOPIC 03 · HIGH RISK, HIGH REWARD</p>
+                <h3>Memory에 저장하는 것이 아니라, visual latent 안에서 계속 생각한다</h3>
               </div>
               <p>
-                recent streaming methods도 surprise, semantic salience, object anchor를 사용한다. 차별점은 token을
-                제거했을 때 <strong>multi-horizon future prediction이 얼마나 악화되는지</strong>를 memory utility로
-                학습하는 것이다.
+                VideoLatent와 DyLaR도 video QA를 latent space에서 푼다. 따라서 continuous think token만으로는 부족하다.
+                차별점은 query 전부터 유지되는 <strong>streaming causal world-state가 recurrent computation으로 미래를
+                예측하고 belief를 수정</strong>하며, 필요한 만큼 reasoning step을 늘리는 데 있다.
               </p>
             </div>
 
-            <div class="memory-diagram" aria-label="coarse-to-fine streaming memory codec 개념도">
-              <div class="stream-row">
-                <span>t−3</span><span>t−2</span><span>t−1</span><strong>t</strong><i>→</i><em>future</em>
+            <div class="reasoning-diagram" aria-label="streaming visual latent state가 반복적으로 예측하고 수정하는 개념도">
+              <div class="reasoning-input">
+                <span>Streaming observation Zₜ</span>
+                <div class="mini-frames"><i></i><i></i><i></i><i></i><i></i><i></i></div>
               </div>
-              <div class="memory-row gist-memory">
-                <label>Gist memory</label>
-                <div><i></i><i></i><i></i><i></i><i></i></div>
-                <span>always retained</span>
+              <div class="reasoning-flow">
+                <div class="reasoning-state initial"><span>k=0</span><strong>Mₜ⁽⁰⁾</strong><small>observe</small></div>
+                <i>→</i>
+                <div class="reasoning-state"><span>k=1</span><strong>Mₜ⁽¹⁾</strong><small>predict</small></div>
+                <i>→</i>
+                <div class="reasoning-state active"><span>k=2</span><strong>Mₜ⁽²⁾</strong><small>compare + revise</small></div>
+                <i>→</i>
+                <div class="reasoning-state final"><span>k=K</span><strong>Mₜ⁽ᴷ⁾</strong><small>answer / carry</small></div>
               </div>
-              <div class="memory-row residual-memory">
-                <label>Residual memory</label>
-                <div><i></i><i class="evicted"></i><i></i><i class="evicted"></i><i></i><i></i><i class="evicted"></i></div>
-                <span>evict low Δprediction-loss</span>
+              <div class="reasoning-loop">future latent prediction ↺ new evidence · revise belief · halt by uncertainty</div>
+              <div class="reasoning-axes">
+                <div><span>Memory granularity</span><strong>Gist ⊂ Event ⊂ Object-state</strong></div>
+                <div><span>Reasoning depth</span><strong>1 step ⊂ 2 steps ⊂ K steps</strong></div>
               </div>
-              <div class="prediction-arrow">memory state predicts future teacher latents</div>
             </div>
 
             <div class="topic-columns">
               <section>
                 <h4>Method</h4>
                 <ul>
-                  <li>모든 chunk는 tiny gist를 write하고 필요할 때 residual tier 추가</li>
-                  <li>token utility를 leave-one-out future latent loss 증가량으로 정의</li>
-                  <li>비싼 counterfactual score를 작은 eviction policy에 distill</li>
-                  <li>오래된 sibling residual은 상위 gist로 consolidate</li>
-                  <li>query는 write가 아니라 read 시점에만 memory scope를 선택</li>
+                  <li>stream을 한 번만 보며 bounded causal visual state Mₜ를 유지</li>
+                  <li>recurrent operator Mₜ⁽ᵏ⁺¹⁾ = R(Mₜ⁽ᵏ⁾, Zₜ, q?)로 latent thought를 전개</li>
+                  <li>각 step이 future teacher latent를 예측하고 새 관측과의 오차로 belief를 수정</li>
+                  <li>query가 없을 때는 world-state를 갱신하고, query가 오면 필요한 extra rollout만 수행</li>
+                  <li>uncertainty 기반 halting으로 쉬운 장면은 일찍 멈추고 어려운 장면은 더 생각</li>
+                  <li>memory granularity와 recurrent reasoning depth를 동시에 Matryoshka로 학습</li>
                 </ul>
               </section>
               <section>
                 <h4>Decisive experiment</h4>
                 <p>
-                  OVO-Bench의 backward tracing과 forward active response에서 동일 고정 memory로 SimpleStream,
-                  StreamMem, CausalMem보다 좋아야 하며 current-scene perception을 희생하지 않아야 한다.
+                  동일 FLOPs에서 더 깊은 feed-forward encoder, 더 많은 memory token, prediction-only/no-recurrence,
+                  textual CoT, fixed-step recurrence와 비교한다. latent step을 늘릴수록 temporal order·causality·state
+                  change·anticipation·counterfactual 정확도가 체계적으로 올라가야 한다.
                 </p>
                 <h4>Kill criterion</h4>
                 <p>
-                  강한 recent-window baseline을 넘지 못하거나, future prediction utility와 unseen-query QA utility의
-                  상관이 낮으면 “latent reasoning” 주장은 버리고 memory analysis로 범위를 줄인다.
+                  같은 compute의 추가 encoder depth보다 recurrence가 낫지 않거나, reasoning step을 늘려도 어려운
+                  temporal question의 정확도가 오르지 않으면 이것은 latent reasoning이 아니라 반복 계산일 뿐이다.
                 </p>
               </section>
             </div>
@@ -576,7 +588,7 @@
             <div class="roadmap-step">
               <span>WEEK 10+</span>
               <h3>Stress the claim</h3>
-              <p>unknown query, streaming, multi-query reuse, failure case로 claim의 경계를 명확히 한다.</p>
+              <p>unseen dataset, budget calibration, routing failure, hardware별 latency로 flagship claim의 경계를 명확히 한다.</p>
             </div>
           </div>
 
@@ -654,17 +666,32 @@
               <span>arXiv 2026</span><h3>SimpleStream</h3>
               <p>최근 frame만 쓰는 강한 baseline. 복잡한 memory는 반드시 이를 공정하게 넘어야 함.</p>
             </a>
+            <a class="paper-card" href="https://ai.meta.com/research/publications/v-jepa-2-self-supervised-video-models-enable-understanding-prediction-and-planning/" target="_blank" rel="noreferrer">
+              <span>2025</span><h3>V-JEPA 2</h3>
+              <p>video latent prediction으로 understanding, anticipation, planning을 연결하는 핵심 teacher 후보.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2606.22870" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>VideoLatent</h3>
+              <p>video QA triplet만으로 visual latent reasoning을 학습해 3번의 직접적인 선행 비교 대상.</p>
+            </a>
+            <a class="paper-card" href="https://arxiv.org/abs/2608.04124" target="_blank" rel="noreferrer">
+              <span>arXiv 2026</span><h3>DyLaR</h3>
+              <p>query-grounded perception latent 뒤에 reasoning latent를 동적으로 추가. adaptive-step claim의 최신 기준선.</p>
+            </a>
+            <a class="paper-card" href="https://openreview.net/forum?id=fWrhAOQZ5A" target="_blank" rel="noreferrer">
+              <span>ICLR 2026 Workshop</span><h3>DMLR</h3>
+              <p>test-time latent think token refinement와 dynamic visual injection을 결합한 인접 연구.</p>
+            </a>
           </div>
 
           <div class="open-space">
             <p class="tool-label">THE OPEN SPACE</p>
-            <h3>아직 명확히 비어 있는 조합</h3>
-            <p>
-              <strong>predictive semantics로 학습된 nested representation</strong>과
-              <strong>encoder 내부의 anytime compute</strong>, 그리고
-              <strong>unknown-query streaming sufficiency</strong>를 하나의 평가 축으로 묶은 연구는 위의 가장 가까운
-              연구들과 구별된다. 이것이 현재 proposal에서 가장 방어하기 좋은 중심이다.
-            </p>
+            <h3>세 논문이 점유할 서로 다른 공간</h3>
+            <div class="open-space-list">
+              <p><strong>01 · Anytime:</strong> predictive semantics와 encoder 내부 conditional compute를 하나의 nested representation으로 묶는다.</p>
+              <p><strong>02 · Multi-query:</strong> query-agnostic tree와 cumulative branch cache로 질문 수가 늘수록 평균 비용을 낮춘다.</p>
+              <p><strong>03 · Latent reasoning:</strong> query 전 streaming world-state와 adaptive recurrent belief revision을 이중 Matryoshka budget으로 만든다.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -673,12 +700,13 @@
         <div class="page-shell final-layout">
           <div>
             <p class="section-index">BOTTOM LINE</p>
-            <h2>세 편을 동시에 시작하지 않는다.</h2>
+            <h2>하나의 backbone, 세 개의 독립 질문.</h2>
           </div>
           <p>
-            먼저 flagship의 가장 작은 실험으로 <strong>future-predictive token hierarchy가 정말 temporal reasoning을
-            더 잘 보존하는지</strong> 확인한다. 성공하면 query tree는 재사용 가능한 readout으로, memory codec은
-            streaming extension으로 자연스럽게 확장된다. 실패하면 큰 학습 전에 가설을 버릴 수 있다.
+            셋 다 논문이 될 수 있다. 1번은 <strong>얼마나 적게 encode할 수 있는가</strong>, 2번은 <strong>한 번 encode한
+            영상을 몇 개의 query가 얼마나 싸게 공유하는가</strong>, 3번은 <strong>visual latent가 더 오래 생각할수록
+            실제 temporal reasoning이 좋아지는가</strong>를 묻는다. 구현 자산은 공유하되 contribution과 성공 기준은
+            합치지 않는다.
           </p>
         </div>
       </section>
@@ -687,7 +715,7 @@
     <footer>
       <div class="page-shell footer-inner">
         <span>Dynamic Video Representation Research Brief</span>
-        <span>Prepared 2026-08-08 · claims marked as proposals are not measured results</span>
+        <span>Updated 2026-08-09 · claims marked as proposals are not measured results</span>
       </div>
     </footer>
 
