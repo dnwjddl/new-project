@@ -75,7 +75,7 @@
       }
     }
   },
-  "go_signals": {
+  "diagnostics": {
     "shared_k_gain": 0.008695652173913049,
     "shared_monotonic_steps": 2,
     "shared_vs_unshared_kmax": 0.0,

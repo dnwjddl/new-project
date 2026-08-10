@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Streaming Visual Latent Reasoning 상세 연구 제안과 GPU pilot" />
+    <meta name="description" content="Streaming Visual Latent Reasoning 상세 연구 제안과 검증 프로토콜" />
     <title>03 · Streaming Visual Latent Reasoning</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -179,19 +179,19 @@
       <section class="proposal-section tinted" id="pilot">
         <div class="page-shell">
           <div class="detail-heading">
-            <p class="detail-index">04 · GPU PILOT</p>
-            <h2>먼저 “latent step이 실제 정보를 더 계산하는가”만 싸게 판별한다.</h2>
+            <p class="detail-index">04 · EVIDENCE STANDARD</p>
+            <h2>작은 run은 배관만 검사한다. 가설은 정식 benchmark가 판정한다.</h2>
             <p class="section-explainer">
-              첫 pilot은 대형 VLM fine-tuning이 아니다. frozen visual feature와 같은 evidence를 주고 recurrent K-step
-              head가 no-reasoning, 더 깊은 unshared head, 더 큰 memory보다 next-event prediction을 잘하는지 본다.
+              작은 subset과 frozen image feature는 코드·metric·step curve가 정상인지 확인하는 smoke test다.
+              성공·실패 결론은 official split 전체와 strong video backbone, matched compute, 3 seeds에서만 내린다.
             </p>
           </div>
           <div class="pilot-panel">
             <div class="pilot-header">
-              <span class="pilot-status weak" id="pilot-status">FIRST PILOT · WEAK / NO-GO</span>
+              <span class="pilot-status weak" id="pilot-status">SMOKE TEST · NOT EVIDENCE</span>
               <div>
-                <h3 id="pilot-title">단순 recurrent head만으로는 step scaling이 생기지 않았다.</h3>
-                <p id="pilot-summary">2026-08-09 측정. 한 seed의 작은 방향성 실험이며 논문 결과가 아니다. 현재 구조를 그대로 큰 VLM으로 확대하지 않는다는 판정에는 충분하다.</p>
+                <h3 id="pilot-title">작은 run으로 연구 가능성을 판정하지 않는다.</h3>
+                <p id="pilot-summary">2026-08-09의 12-video 결과는 구현 진단 기록이다. 수치의 높고 낮음, 단조성 여부 모두 논문 가설의 근거로 사용하지 않는다.</p>
               </div>
             </div>
             <div class="pilot-grid">
@@ -207,8 +207,8 @@
               </div>
               <p>
                 K=1에서 잠깐 좋아졌지만 단조 증가하지 않았고 K=4는 no-reasoning보다 0.9%p 낮았다. unshared K=4와도
-                같았으며, 마지막 evidence가 틀린 prior를 고친 비율은 1.3%에 불과했다. 따라서 recurrence 자체가 아니라
-                <strong>step마다 풀어야 할 predictive residual과 explicit contradiction target</strong>이 필요하다.
+                같았으며, 마지막 evidence가 틀린 prior를 고친 비율은 1.3%였다. 이 관측은 구현된 metric이 차이를
+                기록한다는 것만 확인한다. <strong>방법의 유효성에 대한 결론은 내리지 않는다.</strong>
               </p>
               <a href="../experiments/latent_reasoning_pilot_results.json">Raw result JSON 보기 →</a>
             </div>
@@ -218,16 +218,16 @@
             <div class="training-lane"><span>TEST A</span><h3>Anytime step curve</h3><p>동일 recurrent head를 K=0·1·2·4로 평가해 추가 step이 next-action accuracy를 단조롭게 높이는지 본다.</p></div>
             <div class="training-lane"><span>TEST B</span><h3>Matched compute</h3><p>같은 attention/MLP 연산을 쓰는 unshared depth와 비교해 recurrence 자체의 이득과 parameter efficiency를 분리한다.</p></div>
             <div class="training-lane"><span>TEST C</span><h3>Late evidence revision</h3><p>마지막 evidence 전후 prediction을 비교해 잘못된 prior confidence가 올바른 class로 실제 이동하는지 측정한다.</p></div>
-            <div class="training-lane"><span>DECISION · CURRENT</span><h3>Narrow before scaling</h3><p>현재는 large VLM 확장을 보류한다. controlled contradiction + prior/posterior future-latent loss가 3 seeds에서 step scaling을 만들 때만 재개한다.</p></div>
+            <div class="training-lane"><span>PAPER STANDARD</span><h3>Official splits, two datasets</h3><p>전체 evaluation set, 3 seeds와 95% CI, matched FLOPs·latency, video-native backbone, 두 benchmark에서만 가설을 판정한다.</p></div>
           </div>
         </div>
       </section>
 
       <section class="proposal-section" id="training">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">05 · SCALE-UP RECIPE</p><h2>Pilot이 통과한 경우에만 pretrained video model로 확장한다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">05 · PAPER-GRADE STUDY</p><h2>Pretrained video model과 공식 split으로 핵심 가설을 직접 검증한다.</h2></div>
           <div class="training-lanes">
-            <div class="training-lane"><span>PHASE A · PROBE</span><h3>Frozen visual latent</h3><p>EK100·SSv2 subset에서 recurrent head와 halting만 학습해 step scaling을 확인한다.</p></div>
+            <div class="training-lane"><span>PHASE A · CONTROL</span><h3>Frozen video latent</h3><p>EK100 official split과 video-native teacher로 recurrent head·halting의 인과 효과를 3 seeds에서 분리한다.</p></div>
             <div class="training-lane"><span>PHASE B · PREDICT</span><h3>V-JEPA teacher</h3><p>multi-horizon future latent와 state-change label을 사용해 query-free prior와 posterior correction을 학습한다.</p></div>
             <div class="training-lane"><span>PHASE C · ADAPT</span><h3>LoRA / last blocks</h3><p>adapter와 마지막 video block을 열어 visual state가 recurrence에 맞는 sufficient statistic이 되게 한다.</p></div>
             <div class="training-lane"><span>PHASE D · QA</span><h3>Frozen reader</h3><p>같은 query head에서 causal QA, anticipation, counterfactual을 평가해 core state의 이득을 분리한다.</p></div>

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Cheap feasibility probe for query-free recurrent visual latent reasoning.
+"""Smoke test for a query-free recurrent visual latent reasoning pipeline.
 
 The script freezes CLIP-L/14, extracts one frame per EPIC-KITCHENS action,
 and predicts the next verb from a short causal action context. It compares a
 plain temporal state, a weight-tied recurrent reasoning head, and a matched-
-compute unshared-depth head. This is a directional pilot, not paper evidence.
+compute unshared-depth head. This only validates plumbing and metrics; it is not
+paper evidence and must not be used to accept or reject the hypothesis.
 """
 
 from __future__ import annotations
@@ -474,7 +475,7 @@ def main() -> None:
 
     shared_curve = results["models"]["shared_recurrent"]["step_curve"]
     shared_scores = [shared_curve[str(step)] for step in range(args.max_steps + 1)]
-    results["go_signals"] = {
+    results["diagnostics"] = {
         "shared_k_gain": shared_scores[-1] - shared_scores[0],
         "shared_monotonic_steps": sum(
             later >= earlier for earlier, later in zip(shared_scores, shared_scores[1:])
@@ -492,7 +493,7 @@ def main() -> None:
     args.results.parent.mkdir(parents=True, exist_ok=True)
     args.results.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"\nSaved results: {args.results}")
-    print(json.dumps(results["go_signals"], indent=2))
+    print(json.dumps(results["diagnostics"], indent=2))
 
 
 if __name__ == "__main__":
