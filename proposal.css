@@ -390,6 +390,10 @@
   font-size: 20px;
 }
 
+.demo-copy {
+  min-width: 0;
+}
+
 .demo-copy > p:not(.mini-label) {
   min-height: 68px;
   margin: 0;
@@ -405,6 +409,9 @@
 }
 
 .demo-copy input {
+  box-sizing: border-box;
+  margin: 0;
+  max-width: 100%;
   width: 100%;
   accent-color: var(--coral);
 }
@@ -651,6 +658,119 @@
 
 .training-lane p {
   margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.protocol-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 34px;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.protocol-strip div {
+  min-width: 0;
+  padding: 16px;
+}
+
+.protocol-strip div + div {
+  border-left: 1px solid var(--line);
+}
+
+.protocol-strip span,
+.protocol-strip strong {
+  display: block;
+}
+
+.protocol-strip span {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.protocol-strip strong {
+  margin-top: 7px;
+  font-size: 12px;
+}
+
+.experiment-roadmap {
+  border-top: 2px solid var(--ink);
+}
+
+.experiment-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 24px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-card.primary {
+  background: #eef3ef;
+  box-shadow: -18px 0 0 #eef3ef, 18px 0 0 #eef3ef;
+}
+
+.experiment-number {
+  color: var(--coral);
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.experiment-copy span {
+  color: var(--teal);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.experiment-copy h3 {
+  margin: 9px 0;
+  font-size: 19px;
+}
+
+.experiment-copy p,
+.experiment-detail p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.experiment-detail {
+  padding-left: 24px;
+  border-left: 1px solid var(--line);
+}
+
+.experiment-detail strong {
+  display: block;
+  margin: 0 0 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.experiment-detail p + strong {
+  margin-top: 16px;
+}
+
+.evaluation-policy {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 28px;
+  margin-top: 34px;
+  padding: 22px 0;
+  border-top: 2px solid var(--teal);
+  border-bottom: 1px solid var(--teal);
+}
+
+.evaluation-policy p {
+  margin: 0;
+}
+
+.evaluation-policy > p:last-child {
   color: var(--muted);
   font-size: 13px;
 }
@@ -991,8 +1111,26 @@
   }
 
   .training-lanes,
-  .pilot-grid {
+  .pilot-grid,
+  .protocol-strip {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .protocol-strip div:nth-child(3),
+  .protocol-strip div:nth-child(5) {
+    border-left: 0;
+  }
+
+  .protocol-strip div:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+
+  .experiment-card {
+    grid-template-columns: 54px minmax(0, 1fr);
+  }
+
+  .experiment-detail {
+    grid-column: 2;
   }
 
   .training-lane:nth-child(3),
@@ -1024,7 +1162,8 @@
   .objective-strip,
   .pilot-header,
   .pilot-verdict,
-  .query-tree-demo {
+  .query-tree-demo,
+  .evaluation-policy {
     grid-template-columns: 1fr;
   }
 
@@ -1091,8 +1230,34 @@
   }
 
   .training-lanes,
-  .pilot-grid {
+  .pilot-grid,
+  .protocol-strip {
     grid-template-columns: 1fr;
+  }
+
+  .protocol-strip div + div,
+  .protocol-strip div:nth-child(3),
+  .protocol-strip div:nth-child(5) {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .experiment-card,
+  .experiment-card.primary {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 14px;
+    box-shadow: none;
+  }
+
+  .experiment-number {
+    font-size: 22px;
+  }
+
+  .experiment-detail {
+    grid-column: 1 / -1;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
   }
 
   .training-lane + .training-lane,

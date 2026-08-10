@@ -15,10 +15,10 @@ const queryCopy = [
 ];
 
 const latentCopy = [
-  ["Observe", "Mₜ⁽⁰⁾", "새 visual evidence를 bounded world-state에 기록한다."],
-  ["Predict", "Mₜ⁽¹⁾", "현재 belief로 다음 semantic state와 필요한 증거를 예측한다."],
-  ["Compare", "Mₜ⁽²⁾", "예측과 새 관측의 불일치를 찾아 기존 belief를 검사한다."],
-  ["Revise", "Mₜ⁽³⁾", "모순이 있으면 latent state를 수정하고 없으면 일찍 멈춘다."],
+  ["Prior", "S⁻ₜ", "이전 posterior state에서 다음 bounded latent prior를 rollout한다."],
+  ["Predict", "μₜ · σₜ", "여러 horizon의 future teacher latent distribution을 예측한다."],
+  ["Innovation", "Iₜ", "실제 관측 residual을 uncertainty로 정규화해 semantic surprise를 계산한다."],
+  ["Correct", "Sₜ", "innovation이 큰 slot만 반복 수정하고 충분히 수렴하면 일찍 멈춘다."],
 ];
 
 function setText(root, selector, value) {

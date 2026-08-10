@@ -420,12 +420,12 @@
             <div class="topic-summary">
               <div>
                 <p class="topic-overline">TOPIC 03 · HIGH RISK, HIGH REWARD</p>
-                <h3>Memory에 저장하는 것이 아니라, visual latent 안에서 계속 생각한다</h3>
+                <h3>Prediction error로 memory와 latent compute를 함께 배분한다</h3>
               </div>
               <p>
-                VideoLatent와 DyLaR도 video QA를 latent space에서 푼다. 따라서 continuous think token만으로는 부족하다.
-                차별점은 query 전부터 유지되는 <strong>streaming causal world-state가 recurrent computation으로 미래를
-                예측하고 belief를 수정</strong>하며, 필요한 만큼 reasoning step을 늘리는 데 있다.
+                Predict–correct 자체는 RSSM·Dreamer에 이미 있고 latent prediction은 V-JEPA가 강하다. 차별점은
+                <strong>uncertainty-calibrated semantic innovation이 고정 state의 memory write와 recurrent correction
+                depth를 공동 제어</strong>해 accuracy–compute Pareto를 개선하는 데 있다.
               </p>
             </div>
 
@@ -435,18 +435,18 @@
                 <div class="mini-frames"><i></i><i></i><i></i><i></i><i></i><i></i></div>
               </div>
               <div class="reasoning-flow">
-                <div class="reasoning-state initial"><span>k=0</span><strong>Mₜ⁽⁰⁾</strong><small>observe</small></div>
+                <div class="reasoning-state initial"><span>stage 1</span><strong>S⁻ₜ</strong><small>prior</small></div>
                 <i>→</i>
-                <div class="reasoning-state"><span>k=1</span><strong>Mₜ⁽¹⁾</strong><small>predict</small></div>
+                <div class="reasoning-state"><span>stage 2</span><strong>μₜ · σₜ</strong><small>predict</small></div>
                 <i>→</i>
-                <div class="reasoning-state active"><span>k=2</span><strong>Mₜ⁽²⁾</strong><small>compare + revise</small></div>
+                <div class="reasoning-state active"><span>stage 3</span><strong>Iₜ</strong><small>innovation</small></div>
                 <i>→</i>
-                <div class="reasoning-state final"><span>k=K</span><strong>Mₜ⁽ᴷ⁾</strong><small>answer / carry</small></div>
+                <div class="reasoning-state final"><span>stage 4</span><strong>Sₜ</strong><small>correct × K</small></div>
               </div>
-              <div class="reasoning-loop">future latent prediction ↺ new evidence · revise belief · halt by uncertainty</div>
+              <div class="reasoning-loop">future distribution ↺ normalized residual · selective write · adaptive correction</div>
               <div class="reasoning-axes">
-                <div><span>Memory granularity</span><strong>Gist ⊂ Event ⊂ Object-state</strong></div>
-                <div><span>Reasoning depth</span><strong>1 step ⊂ 2 steps ⊂ K steps</strong></div>
+                <div><span>Memory budget</span><strong>4 · 8 · 16 · 32 tokens</strong></div>
+                <div><span>Correction depth</span><strong>1 · 2 · 4 · 8 steps</strong></div>
               </div>
             </div>
 
@@ -454,25 +454,25 @@
               <section>
                 <h4>Method</h4>
                 <ul>
-                  <li>stream을 한 번만 보며 bounded causal visual state Mₜ를 유지</li>
-                  <li>recurrent operator Mₜ⁽ᵏ⁺¹⁾ = R(Mₜ⁽ᵏ⁾, Zₜ, q?)로 latent thought를 전개</li>
-                  <li>각 step이 future teacher latent를 예측하고 새 관측과의 오차로 belief를 수정</li>
-                  <li>query가 없을 때는 world-state를 갱신하고, query가 오면 필요한 extra rollout만 수행</li>
-                  <li>uncertainty 기반 halting으로 쉬운 장면은 일찍 멈추고 어려운 장면은 더 생각</li>
-                  <li>memory granularity와 recurrent reasoning depth를 동시에 Matryoshka로 학습</li>
+                  <li>stream을 한 번만 보며 고정 N-token posterior state Sₜ를 유지</li>
+                  <li>multi-horizon teacher latent distribution μₜ·σₜ를 예측</li>
+                  <li>실제 관측 residual을 uncertainty로 정규화해 semantic innovation Iₜ를 계산</li>
+                  <li>Iₜ가 높은 state slot에만 evidence를 write하고 weight-tied corrector를 반복</li>
+                  <li>easy event는 일찍 멈추고 unexpected state change에만 추가 compute를 사용</li>
+                  <li>downstream head는 bounded posterior state만 읽어 anticipation을 수행</li>
                 </ul>
               </section>
               <section>
                 <h4>Decisive experiment</h4>
                 <p>
-                  동일 FLOPs에서 더 깊은 feed-forward encoder, 더 많은 memory token, prediction-only/no-recurrence,
-                  textual CoT, fixed-step recurrence와 비교한다. latent step을 늘릴수록 temporal order·causality·state
-                  change·anticipation·counterfactual 정확도가 체계적으로 올라가야 한다.
+                  EK100과 Ego4D 전체 official split에서 RSSM, raw surprise, fixed depth, larger memory와 비교한다.
+                  calibrated innovation이 같은 평균 FLOPs와 state budget에서 더 높은 anticipation 성능을 만들고,
+                  unexpected event에서 더 빠르고 정확한 posterior correction을 보여야 한다.
                 </p>
                 <h4>Kill criterion</h4>
                 <p>
-                  같은 compute의 추가 encoder depth보다 recurrence가 낫지 않거나, reasoning step을 늘려도 어려운
-                  temporal question의 정확도가 오르지 않으면 이것은 latent reasoning이 아니라 반복 계산일 뿐이다.
+                  같은 compute의 RSSM·raw-surprise controller와 차이가 없거나, correction step을 늘려도 future
+                  prediction과 anticipation이 오르지 않으면 joint innovation controller와 latent reasoning claim을 줄인다.
                 </p>
               </section>
             </div>
@@ -482,7 +482,7 @@
             </div>
             <a class="proposal-link" href="3-proposal/">
               <span>03 proposal</span>
-              <strong>visual latent reasoning 구조와 paper-grade 검증 기준 보기</strong>
+              <strong>predictive latent filtering 방법론과 7단계 정식 실험 보기</strong>
               <i aria-hidden="true">→</i>
             </a>
           </article>
@@ -709,7 +709,7 @@
             <div class="open-space-list">
               <p><strong>01 · Anytime:</strong> predictive semantics와 encoder 내부 conditional compute를 하나의 nested representation으로 묶는다.</p>
               <p><strong>02 · Multi-query:</strong> query-agnostic tree와 cumulative branch cache로 질문 수가 늘수록 평균 비용을 낮춘다.</p>
-              <p><strong>03 · Latent reasoning:</strong> query 전 streaming world-state와 adaptive recurrent belief revision을 이중 Matryoshka budget으로 만든다.</p>
+              <p><strong>03 · Predictive filtering:</strong> calibrated innovation으로 bounded state write와 recurrent correction compute를 공동 배분한다.</p>
             </div>
           </div>
         </div>
@@ -723,8 +723,8 @@
           </div>
           <p>
             셋 다 논문이 될 수 있다. 1번은 <strong>얼마나 적게 encode할 수 있는가</strong>, 2번은 <strong>한 번 encode한
-            영상을 몇 개의 query가 얼마나 싸게 공유하는가</strong>, 3번은 <strong>visual latent가 더 오래 생각할수록
-            실제 temporal reasoning이 좋아지는가</strong>를 묻는다. 구현 자산은 공유하되 contribution과 성공 기준은
+            영상을 몇 개의 query가 얼마나 싸게 공유하는가</strong>, 3번은 <strong>prediction innovation이 bounded
+            memory와 recurrent compute를 효율적으로 배분하는가</strong>를 묻는다. 구현 자산은 공유하되 contribution과 성공 기준은
             합치지 않는다.
           </p>
         </div>

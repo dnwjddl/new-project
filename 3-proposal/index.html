@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Streaming Visual Latent Reasoning 상세 연구 제안과 검증 프로토콜" />
-    <title>03 · Streaming Visual Latent Reasoning</title>
+    <meta name="description" content="Uncertainty-Calibrated Predictive Latent Filtering 연구 제안과 논문급 실험 프로토콜" />
+    <title>03 · Predictive Latent Filtering</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
@@ -28,22 +28,22 @@
         <div class="page-shell proposal-hero-grid">
           <div>
             <p class="proposal-kicker">PROPOSAL 03 · HIGH RISK, HIGH REWARD</p>
-            <h1>Streaming Visual Latent Reasoning</h1>
+            <h1>Predictive Latent Filtering</h1>
             <p class="hero-summary">
-              영상을 저장만 해두고 질문 뒤에 reasoning을 시작하지 않는다. query가 오기 전부터 bounded visual
-              world-state가 미래를 예측하고, 새 관측과 충돌하면 latent 안에서 belief를 반복 수정한다.
+              고정 크기의 causal visual state가 미래 latent distribution을 예측하고, 실제 관측이 도착하면
+              uncertainty로 보정된 semantic innovation을 이용해 memory update와 recurrent computation을 함께 할당한다.
             </p>
             <div class="hero-meta">
-              <div><span>PRIMARY AXIS</span><strong>Latent computation</strong></div>
-              <div><span>QUERY DURING STREAM</span><strong>Optional / unseen</strong></div>
-              <div><span>MAIN METRIC</span><strong>Gain per latent step</strong></div>
+              <div><span>PRIMARY AXIS</span><strong>Predict · correct</strong></div>
+              <div><span>RESOURCE</span><strong>Fixed state budget</strong></div>
+              <div><span>MAIN METRIC</span><strong>Accuracy–FLOPs Pareto</strong></div>
             </div>
           </div>
           <div class="hero-claim">
             <span>ONE-SENTENCE CLAIM</span>
             <p>
-              query-free streaming state에 weight-tied visual latent iterations를 수행하면, memory 크기나 feed-forward
-              depth만 늘리는 것보다 적은 parameter와 bounded memory로 causal·state-change understanding을 개선할 수 있다.
+              uncertainty-calibrated predictive innovation으로 state write와 recurrent depth를 공동 제어하면,
+              고정 memory에서도 긴 video의 anticipation과 temporal representation을 효율적으로 개선할 수 있다.
             </p>
           </div>
         </div>
@@ -53,10 +53,11 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">01 · THE PROBLEM</p>
-            <h2>기억을 많이 남기는 것과 그 기억 위에서 생각하는 것은 다른 연산이다.</h2>
+            <h2>모든 prediction error가 기억하거나 더 생각할 가치가 있는 것은 아니다.</h2>
             <p class="section-explainer">
-              streaming memory는 과거 evidence를 보존하지만, 그 evidence가 암시하는 hidden state와 미래 결과를
-              반복적으로 갱신하지는 않는다. 반대로 최신 latent reasoning은 대체로 query가 주어진 뒤 시작한다.
+              camera shake와 본질적으로 불확실한 motion은 error가 커도 semantic change가 아닐 수 있다. 반대로 짧은
+              object-state change는 작게 보여도 미래 action을 뒤집는다. raw error가 아니라 uncertainty로 정규화한
+              semantic innovation이 state update와 추가 compute를 결정해야 한다.
             </p>
           </div>
 
@@ -67,10 +68,10 @@
               <p>좋은 state는 과거를 더 저장하는 데서 멈추지 않고 “내 예측이 틀렸다”는 신호로 내부 belief를 수정해야 한다.</p>
             </div>
             <div class="failure-list">
-              <div class="failure-item"><span>L1</span><div><h3>Query-conditioned reasoning starts too late</h3><p>질문을 받은 뒤 latent를 생성하면 stream 중간에 축적할 수 있었던 causal computation을 활용하지 못한다.</p></div></div>
+              <div class="failure-item"><span>L1</span><div><h3>Prediction alone is already established</h3><p>latent future prediction 자체는 RSSM·Dreamer·V-JEPA 계열이 이미 강하게 보여줬다. streaming encoder에서 무엇을 새로 제어하는지가 필요하다.</p></div></div>
               <div class="failure-item"><span>L2</span><div><h3>Memory update ≠ iterative reasoning</h3><p>frame을 compression·retrieval하는 것만으로는 동일 state 위에서 여러 번 inference하는 test-time compute가 생기지 않는다.</p></div></div>
-              <div class="failure-item"><span>L3</span><div><h3>More steps can be empty computation</h3><p>latent iteration 수를 늘려도 정답이 오르지 않으면 reasoning이 아니라 weight-tied depth 반복일 뿐이다.</p></div></div>
-              <div class="failure-item"><span>L4</span><div><h3>Prediction without correction is not belief revision</h3><p>future latent loss만 맞추고 새 evidence가 기존 state를 어떻게 뒤집는지 보이지 않으면 world-model claim이 약하다.</p></div></div>
+              <div class="failure-item"><span>L3</span><div><h3>Raw surprise wastes resources</h3><p>예측 불가능하지만 중요하지 않은 변화에 memory와 compute를 쓰면 efficient encoder claim이 무너진다.</p></div></div>
+              <div class="failure-item"><span>L4</span><div><h3>More steps can be empty computation</h3><p>latent iteration이 future prediction과 downstream anticipation을 개선하지 않으면 reasoning이 아니라 weight-tied depth 반복이다.</p></div></div>
             </div>
           </div>
         </div>
@@ -78,42 +79,47 @@
 
       <section class="proposal-section tinted" id="boundary">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">02 · PRIOR-WORK BOUNDARY</p><h2>“Latent reasoning”이라는 이름만으로는 이미 늦다. 언제, 무엇 위에서, 왜 반복하는지가 novelty다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">02 · PRIOR-WORK BOUNDARY</p><h2>Predict–correct 자체도 새롭지 않다. 무엇을 공동 제어하는지가 novelty다.</h2></div>
           <div class="boundary-table">
             <div class="boundary-row header"><span>Work</span><span>What it already solves</span><span>What remains for this proposal</span></div>
             <div class="boundary-row">
-              <h3>VideoLatent<span>arXiv 2026</span></h3>
-              <p>표준 video QA triplet만으로 visual latent reasoning을 학습해 text CoT 없이 video question을 푼다.</p>
-              <p class="missing">query 전 causal world-state, streaming observation 사이의 recurrent prediction–correction은 중심 설정이 아니다.</p>
+              <h3>PlaNet / Dreamer<span>ICML 2019+</span></h3>
+              <p>recurrent state-space model에서 latent prior를 예측하고 새 observation으로 posterior를 갱신한다.</p>
+              <p class="missing">control 중심 world model이다. pretrained video representation의 bounded memory·adaptive compute 공동 제어가 목표가 아니다.</p>
             </div>
             <div class="boundary-row">
-              <h3>DyLaR<span>arXiv 2026-08</span></h3>
-              <p>query-grounded perception latent 뒤 필요한 경우에만 reasoning latent를 동적으로 추가한다.</p>
-              <p class="missing">reasoning이 query 이후 시작하며, unseen query 이전의 belief 형성과 revision을 다루지 않는다.</p>
+              <h3>V-JEPA 2 / 2.1<span>2025–2026</span></h3>
+              <p>masked latent prediction으로 strong temporal representation과 action anticipation을 학습한다.</p>
+              <p class="missing">continuous stream에서 고정 state를 posterior-correct하거나 prediction uncertainty로 compute와 memory를 동시 배분하지 않는다.</p>
             </div>
             <div class="boundary-row">
-              <h3>Future-L1<span>arXiv 2026</span></h3>
-              <p>language decoding 중 future-frame-aligned visual latent span을 interleave해 event prediction을 개선한다.</p>
-              <p class="missing">bounded streaming state를 observation 사이에서 recurrent하게 유지·수정하는 문제와는 다르다.</p>
+              <h3>SPIKE-RL<span>arXiv 2025</span></h3>
+              <p>Bayesian surprise로 기존 belief와 충돌하는 event를 찾고 query-agnostic frame sampling에 사용한다.</p>
+              <p class="missing">surprise가 fixed-size learned state의 posterior correction과 recurrent depth를 함께 제어하지는 않는다.</p>
             </div>
             <div class="boundary-row">
-              <h3>ThinkStream<span>arXiv 2026</span></h3>
-              <p>Watch–Think–Speak로 stream마다 reasoning trace를 갱신하고 이를 compressed memory로 사용한다.</p>
-              <p class="missing">중간 memory가 textual reasoning trace이며, pure visual latent recurrence와 matched-compute 검증이 남는다.</p>
+              <h3>StreamMem / ObjectStream<span>2025–2026</span></h3>
+              <p>질문 없이 visual evidence를 fixed-size KV 또는 persistent object anchor로 보존한다.</p>
+              <p class="missing">memory가 future distribution을 rollout하고 실제 관측의 innovation으로 belief를 correction하는 dynamics는 없다.</p>
             </div>
             <div class="boundary-row">
-              <h3>RD-VLA / Sequential recurrent reasoning<span>arXiv·OpenReview 2025–2026</span></h3>
-              <p>weight-tied latent iteration, adaptive stopping, slow observation 사이 fast recurrent loop의 가능성을 보인다.</p>
-              <p class="missing">pretrained video representation, unknown future query, temporal belief-revision benchmark를 한 설정에서 입증하지 않는다.</p>
+              <h3>SelectStream<span>arXiv 2026</span></h3>
+              <p>surprise-driven windowing과 fixed-capacity latent evidence graph로 streaming memory를 배분한다.</p>
+              <p class="missing">future uncertainty를 줄이기 위한 recurrent computation과 learned posterior filtering을 공동 최적화하지 않는다.</p>
+            </div>
+            <div class="boundary-row">
+              <h3>RD-VLA<span>arXiv 2026</span></h3>
+              <p>weight-tied latent iteration과 convergence 기반 adaptive stopping으로 action을 refinement한다.</p>
+              <p class="missing">video state의 prediction error로 memory write와 correction을 제어하거나 general video representation을 평가하지 않는다.</p>
             </div>
           </div>
 
           <div class="gap-statement">
             <span>THE OPEN GAP</span>
             <p>
-              <strong>질문 없이 진행되는 causal visual pre-reasoning</strong>: bounded state가 observation 사이에서 미래
-              semantic latent를 반복 예측하고, 실제 새 evidence가 도착하면 prediction error로 기존 belief를 명시적으로
-              수정하며, latent step 수에 따라 unseen temporal reasoning이 scale하는가?
+              <strong>Uncertainty-calibrated predictive innovation</strong>: 고정된 causal state에서 reducible semantic
+              prediction error가 어떤 memory slot을 수정할지와 recurrent correction을 얼마나 수행할지를 함께 결정하면,
+              raw surprise·larger memory·fixed depth보다 나은 accuracy–compute trade-off를 만들 수 있는가?
             </p>
           </div>
         </div>
@@ -123,55 +129,56 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">03 · METHOD</p>
-            <h2>A slow visual stream outside, a fast recurrent thought loop inside.</h2>
+            <h2>Predict a distribution, measure semantic innovation, then spend compute only where belief must change.</h2>
             <p class="section-explainer">
-              새 clip은 frozen video encoder로 한 번만 본다. bounded state는 observe update 뒤 K번의 shared latent
-              operator를 통과하며 미래 state를 상상하고 consistency를 검사한다. 다음 clip이 오면 예측 오차가 correction signal이 된다.
+              slow video encoder는 새 chunk를 한 번만 읽는다. bounded posterior state는 다음 teacher latent의
+              multi-horizon distribution을 예측한다. 실제 chunk가 오면 uncertainty-normalized residual을 계산하고,
+              높은 semantic innovation이 발생한 slot에만 recurrent corrector와 memory write를 집중한다.
             </p>
           </div>
 
           <div class="method-canvas">
-            <div class="method-flow" aria-label="Streaming latent reasoning 처리 흐름">
-              <div class="method-node"><span>SLOW CLOCK</span><strong>Frozen visual Zₜ</strong><small>one new chunk</small></div>
+            <div class="method-flow" aria-label="Predictive latent filtering 처리 흐름">
+              <div class="method-node"><span>PRIOR</span><strong>S⁻ₜ = Dθ(Sₜ₋₁)</strong><small>bounded dynamics</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node gist"><span>OBSERVE</span><strong>Bounded state Mₜ⁽⁰⁾</strong><small>write evidence</small></div>
+              <div class="method-node gist"><span>PREDICT</span><strong>p(Zₜ|S⁻ₜ) = μₜ, σₜ</strong><small>multi-horizon future</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node reason"><span>FAST CLOCK × K</span><strong>Shared latent operator Rθ</strong><small>predict · compare · revise</small></div>
+              <div class="method-node reason"><span>INNOVATION</span><strong>Iₜ = d(Zₜ, μₜ) / σₜ</strong><small>semantic surprise</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node event"><span>CARRY / ANSWER</span><strong>Mₜ⁽ᴷ⁾</strong><small>halt by convergence</small></div>
+              <div class="method-node event"><span>CORRECT × K</span><strong>Sₜ = Cθ(S⁻ₜ, Zₜ, Iₜ)</strong><small>selective write · halt</small></div>
             </div>
-            <p class="method-caption">Query adapter는 마지막 state를 읽기만 한다. core pre-reasoning path에는 language query나 textual CoT를 넣지 않는다.</p>
+            <p class="method-caption">Core encoder는 language query나 textual CoT를 사용하지 않는다. downstream task head는 고정된 posterior state만 읽는다.</p>
           </div>
 
           <div class="interactive-demo" data-proposal-demo="latent">
             <div class="demo-copy">
-              <p class="mini-label">INTERACTIVE LATENT LOOP · CONCEPT ONLY</p>
-              <h3 data-demo-label>Observe</h3>
+              <p class="mini-label">INTERACTIVE PREDICT–CORRECT LOOP · CONCEPT ONLY</p>
+              <h3 data-demo-label>Prior</h3>
               <p data-demo-description></p>
-              <label for="latent-step">Latent reasoning step</label>
+              <label for="latent-step">Filtering stage</label>
               <input id="latent-step" type="range" min="1" max="4" value="1" step="1" />
               <div class="demo-readout">
-                <div><span>OPERATION</span><strong data-demo-label>Observe</strong></div>
-                <div><span>WORLD STATE</span><strong data-demo-value>Mₜ⁽⁰⁾</strong></div>
+                <div><span>OPERATION</span><strong data-demo-label>Prior</strong></div>
+                <div><span>STATE</span><strong data-demo-value>S⁻ₜ</strong></div>
               </div>
             </div>
-            <div class="latent-loop" aria-label="관측, 예측, 비교, 수정의 네 단계">
-              <div class="latent-state"><span>K=0</span><strong>OBSERVE</strong><small>evidence</small></div>
-              <div class="latent-state"><span>K=1</span><strong>PREDICT</strong><small>future state</small></div>
-              <div class="latent-state"><span>K=2</span><strong>COMPARE</strong><small>contradiction</small></div>
-              <div class="latent-state"><span>K=3</span><strong>REVISE</strong><small>new belief</small></div>
+            <div class="latent-loop" aria-label="prior, prediction, innovation, correction의 네 단계">
+              <div class="latent-state"><span>STAGE 1</span><strong>PRIOR</strong><small>roll dynamics</small></div>
+              <div class="latent-state"><span>STAGE 2</span><strong>PREDICT</strong><small>μ · σ · horizons</small></div>
+              <div class="latent-state"><span>STAGE 3</span><strong>INNOVATION</strong><small>normalized residual</small></div>
+              <div class="latent-state"><span>STAGE 4</span><strong>CORRECT</strong><small>selective update</small></div>
             </div>
           </div>
 
           <div class="module-grid">
-            <div class="module-item"><span>M1</span><h3>Bounded visual world-state</h3><p>gist, event, object-state slots를 고정된 token budget으로 유지하고 새 observation은 surprise와 predicted relevance로 write한다.</p></div>
-            <div class="module-item"><span>M2</span><h3>Weight-tied fast reasoning loop</h3><p>동일 latent operator를 K번 반복해 state 간 relation과 future hypothesis를 refine하며 random-K training으로 anytime depth를 만든다.</p></div>
-            <div class="module-item"><span>M3</span><h3>Predict–correct asymmetry</h3><p>prior state는 미래 teacher latent를 예측하고, 다음 관측을 본 posterior state는 contradiction target으로 prior belief를 수정한다.</p></div>
+            <div class="module-item"><span>M1</span><h3>Bounded posterior state</h3><p>고정된 N개 latent token이 긴 stream의 stable context와 recent event residual을 유지한다. 영상 길이가 늘어도 state 크기는 증가하지 않는다.</p></div>
+            <div class="module-item"><span>M2</span><h3>Uncertainty-aware predictor</h3><p>하나의 point future가 아니라 여러 horizon의 μ·σ 또는 bounded hypotheses를 예측해 본질적 ambiguity와 모델의 ignorance를 구분한다.</p></div>
+            <div class="module-item"><span>M3</span><h3>Innovation-gated corrector</h3><p>동일 weight-tied corrector를 K번 반복하되 calibrated innovation이 update할 slot과 halting depth를 결정한다.</p></div>
           </div>
 
           <div class="objective-strip">
-            <div><p class="mini-label">TRAINING OBJECTIVE</p><h3>더 오래 생각할수록 prediction과 downstream belief가 함께 좋아져야 한다.</h3></div>
-            <code>Mₜ⁽ᵏ⁺¹⁾ = Rθ(Mₜ⁽ᵏ⁾, Zₜ)<br />L = Σₖ,ₕ d(Pₕ(Mₜ⁽ᵏ⁾), sg(Zteacherₜ₊ₕ))<br />+ λrev Lcontradiction + λtask Lcausal/state<br />+ λmono Σₖ max(0, ℓₖ₊₁ − ℓₖ) + λhalt E[K]</code>
+            <div><p class="mini-label">TRAINING OBJECTIVE</p><h3>예측은 미래를 보존하고, correction은 실제 관측 뒤의 다음 예측을 더 정확하게 만들어야 한다.</h3></div>
+            <code>S⁻ₜ = Dθ(Sₜ₋₁)<br />Iₜ = d(Zₜ, μθ(S⁻ₜ)) / σθ(S⁻ₜ)<br />Sₜ⁽ᵏ⁺¹⁾ = Cθ(Sₜ⁽ᵏ⁾, Zₜ, Iₜ)<br />L = λpred Σₕ NLL(Zₜ₊ₕ | Sₜ) + λpost Lnext(Sₜ)<br />+ λmono Σₖ max(0, ℓₖ₊₁ − ℓₖ) + λhalt E[K] + λtask Lanticipation</code>
           </div>
         </div>
       </section>
@@ -225,34 +232,89 @@
 
       <section class="proposal-section" id="training">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">05 · PAPER-GRADE STUDY</p><h2>Pretrained video model과 공식 split으로 핵심 가설을 직접 검증한다.</h2></div>
-          <div class="training-lanes">
-            <div class="training-lane"><span>PHASE A · CONTROL</span><h3>Frozen video latent</h3><p>EK100 official split과 video-native teacher로 recurrent head·halting의 인과 효과를 3 seeds에서 분리한다.</p></div>
-            <div class="training-lane"><span>PHASE B · PREDICT</span><h3>V-JEPA teacher</h3><p>multi-horizon future latent와 state-change label을 사용해 query-free prior와 posterior correction을 학습한다.</p></div>
-            <div class="training-lane"><span>PHASE C · ADAPT</span><h3>LoRA / last blocks</h3><p>adapter와 마지막 video block을 열어 visual state가 recurrence에 맞는 sufficient statistic이 되게 한다.</p></div>
-            <div class="training-lane"><span>PHASE D · QA</span><h3>Frozen reader</h3><p>같은 query head에서 causal QA, anticipation, counterfactual을 평가해 core state의 이득을 분리한다.</p></div>
+          <div class="detail-heading">
+            <p class="detail-index">05 · PAPER-GRADE STUDY</p>
+            <h2>첫 실험부터 논문 표에 남는다. EK100 전체에서 시작해 Ego4D 재현과 end-to-end adaptation으로 끝낸다.</h2>
+            <p class="section-explainer">모든 단계는 official split 전체, 최소 3 seeds, video-level bootstrap 95% CI를 사용한다. 작은 subset은 코드 디버깅과 throughput 측정에만 허용하며 가설 판정에는 사용하지 않는다.</p>
+          </div>
+
+          <div class="protocol-strip" aria-label="모든 실험에 적용되는 공통 규칙">
+            <div><span>DATA</span><strong>Official full split</strong></div>
+            <div><span>BACKBONE</span><strong>V-JEPA 2 / 2.1</strong></div>
+            <div><span>STATISTICS</span><strong>3 seeds · 95% CI</strong></div>
+            <div><span>CONTROL</span><strong>Matched FLOPs · tokens</strong></div>
+            <div><span>HARDWARE</span><strong>Latency · peak VRAM</strong></div>
+          </div>
+
+          <div class="experiment-roadmap">
+            <article class="experiment-card primary">
+              <div class="experiment-number">01</div>
+              <div class="experiment-copy"><span>START HERE · MAIN TABLE 1</span><h3>Full-Scale Predictive State Benchmark</h3><p>EPIC-KITCHENS-100 전체 train/validation에서 frozen V-JEPA 2 계열 chunk feature를 추출한다. strictly causal sequence를 입력하고 state budget N={8,16,32}에서 next-action anticipation과 multi-horizon future latent를 함께 평가한다.</p></div>
+              <div class="experiment-detail"><strong>Baselines</strong><p>Last observation · temporal mean/EMA · GRU/LSTM · causal Transformer · Mamba/SSM · RSSM predictor-corrector · prediction 없는 bounded memory</p><strong>Report</strong><p>Official verb/noun/action anticipation · future-latent cosine/retrieval · FLOPs · latency · peak memory · stream-length bins</p></div>
+            </article>
+
+            <article class="experiment-card">
+              <div class="experiment-number">02</div>
+              <div class="experiment-copy"><span>OBJECTIVE ABLATION · TABLE 2</span><h3>Does Prediction Improve Representation?</h3><p>architecture와 state 크기를 고정하고 학습 objective만 교체한다. current reconstruction, next-chunk, multi-horizon, action supervision, prediction+anticipation, prediction+posterior correction을 비교한다.</p></div>
+              <div class="experiment-detail"><strong>Decisive evidence</strong><p>future latent error만 좋아지는 것이 아니라 official anticipation도 함께 개선되어야 한다. 그렇지 않으면 world-state representation claim을 줄인다.</p></div>
+            </article>
+
+            <article class="experiment-card">
+              <div class="experiment-number">03</div>
+              <div class="experiment-copy"><span>BELIEF REVISION · FIGURE 3</span><h3>Natural Surprise and Posterior Correction</h3><p>train transition frequency와 frozen-teacher innovation으로 expected/unexpected 기준을 미리 정한 뒤 validation 전체에 고정 적용한다. 실제 evidence 전후에 미래 belief가 얼마나 올바르게 바뀌는지 측정한다.</p></div>
+              <div class="experiment-detail"><strong>Metrics</strong><p>Prior/posterior future error · wrong-to-right correction · right-to-wrong regression · Brier/ECE · unexpected event 이후 recovery time</p><strong>Causal diagnostic</strong><p>같은 activity·object를 갖지만 다음 action이 다른 실제 chunk를 교체한 counterfactual pair를 secondary analysis로 사용한다.</p></div>
+            </article>
+
+            <article class="experiment-card">
+              <div class="experiment-number">04</div>
+              <div class="experiment-copy"><span>RECURRENT COMPUTE · FIGURE 4</span><h3>Latent Step Scaling</h3><p>K={1,2,4,8}에서 weight-tied corrector, 동일 FLOPs의 unshared depth, larger memory, fixed K와 adaptive K를 비교한다. random-K training과 intermediate prediction loss로 각 exit를 직접 학습한다.</p></div>
+              <div class="experiment-detail"><strong>Halting baselines</strong><p>Latent convergence · output entropy · raw surprise · calibrated innovation</p><strong>Report</strong><p>Accuracy–FLOPs Pareto · horizon별 step gain · difficulty별 allocated K · matched-average-compute 결과</p></div>
+            </article>
+
+            <article class="experiment-card">
+              <div class="experiment-number">05</div>
+              <div class="experiment-copy"><span>MEMORY ALLOCATION · TABLE 3</span><h3>Fixed-Budget Streaming Stress Test</h3><p>state budget N={4,8,16,32}에서 whole-video stream을 처리하고 길이가 늘어날 때 state drift와 anticipation degradation을 측정한다. memory와 chunk latency가 stream length에 대해 O(1)인지 확인한다.</p></div>
+              <div class="experiment-detail"><strong>Selection baselines</strong><p>FIFO · reservoir · attention importance · raw error · SPIKE-style surprise · SelectStream-style allocation · calibrated innovation</p></div>
+            </article>
+
+            <article class="experiment-card">
+              <div class="experiment-number">06</div>
+              <div class="experiment-copy"><span>SECOND DATASET · MAIN TABLE 4</span><h3>Ego4D Long-Term Anticipation</h3><p>Ego4D LTA 전체 official train/validation에서 같은 architecture와 가능한 한 고정된 hyperparameter를 사용한다. EK100에서 학습한 state model의 frozen transfer와 Ego4D fine-tuning을 모두 보고한다.</p></div>
+              <div class="experiment-detail"><strong>Decisive evidence</strong><p>EK100에서의 효과가 official Ego4D LTA metric과 긴 action sequence에서도 재현되어야 general video encoder contribution을 주장한다.</p></div>
+            </article>
+
+            <article class="experiment-card">
+              <div class="experiment-number">07</div>
+              <div class="experiment-copy"><span>FINAL SCALE-UP · TABLE 5</span><h3>LoRA and End-to-End Adaptation</h3><p>frozen backbone, predictor/corrector only, last-block LoRA, 마지막 2–4 block LoRA를 순서대로 비교한다. full fine-tuning 없이 핵심 효과가 유지되는지 검증한다.</p></div>
+              <div class="experiment-detail"><strong>Report</strong><p>Accuracy · trainable parameters · GPU-hours · inference latency · peak VRAM. 성능뿐 아니라 adaptation cost까지 최종 efficiency claim에 포함한다.</p></div>
+            </article>
+          </div>
+
+          <div class="evaluation-policy">
+            <p class="mini-label">EVALUATION LOCK</p>
+            <p>Hyperparameter는 EK100 train 내부 participant-disjoint dev에서 선택한다. 공식 validation은 설정을 고정한 뒤 평가하고, Ego4D에서는 EK100에서 선택한 구조를 가능한 한 그대로 유지한다. 모든 baseline은 같은 backbone cache, context, memory token 수와 평균 FLOPs를 사용한다.</p>
           </div>
         </div>
       </section>
 
       <section class="proposal-section tinted" id="evidence">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">06 · EVIDENCE NEEDED</p><h2>좋은 결과는 “K번 돌렸다”가 아니라 K가 필요한 이유를 보여준다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">06 · CONTRIBUTIONS</p><h2>Query 없이도 남는 contribution은 predictive innovation을 어디에 쓰는가에 있다.</h2></div>
           <div class="evidence-grid">
             <div class="contribution-list">
-              <div class="contribution-row"><span>C1</span><div><h3>Query-free causal pre-reasoning</h3><p>language query 이전부터 visual state가 future hypothesis를 계산하는 새로운 video setting.</p></div></div>
-              <div class="contribution-row"><span>C2</span><div><h3>Predict–correct recurrent state</h3><p>prediction error가 새 observation에서 explicit belief revision으로 이어지는 학습 구조.</p></div></div>
-              <div class="contribution-row"><span>C3</span><div><h3>Anytime latent compute</h3><p>random-K와 convergence halting으로 memory를 늘리지 않고 reasoning depth를 동적으로 조절.</p></div></div>
-              <div class="contribution-row"><span>C4</span><div><h3>Reasoning-vs-memory diagnostics</h3><p>recurrence, feed-forward depth, memory size, text CoT를 matched FLOPs로 분리하는 평가 protocol.</p></div></div>
+              <div class="contribution-row"><span>C1</span><div><h3>Predictive streaming representation</h3><p>고정 token 수의 posterior state가 multi-horizon future distribution을 보존하는 causal video encoder.</p></div></div>
+              <div class="contribution-row"><span>C2</span><div><h3>Calibrated semantic innovation</h3><p>raw prediction error를 uncertainty로 정규화해 nuisance motion과 task-relevant state change를 분리.</p></div></div>
+              <div class="contribution-row"><span>C3</span><div><h3>Joint resource controller</h3><p>하나의 innovation signal로 memory slot write와 recurrent correction depth를 공동 할당.</p></div></div>
+              <div class="contribution-row"><span>C4</span><div><h3>Correction and efficiency protocol</h3><p>belief revision, step scaling, bounded-memory stress를 matched FLOPs와 두 official benchmark에서 분리 검증.</p></div></div>
             </div>
             <div class="decisive-figure">
               <p class="mini-label">THE DECISIVE FIGURE</p>
-              <h3>Temporal reasoning accuracy vs latent iterations K</h3>
-              <p>easy task는 일찍 포화하고 hard causal·state-change task만 K에 따라 올라야 한다. 같은 FLOPs의 deeper feed-forward와 larger memory를 넘어야 한다.</p>
+              <h3>Anticipation accuracy vs measured compute</h3>
+              <p>easy·expected event는 일찍 멈추고 unexpected state change에만 추가 correction을 배분해야 한다. 같은 평균 FLOPs의 fixed depth, larger memory, raw-surprise controller보다 높은 Pareto frontier가 필요하다.</p>
               <div class="curve-chart" aria-label="latent reasoning 단계가 늘수록 어려운 task 정확도가 더 빠르게 향상되는 목표 그림">
-                <span class="curve-label ours">Hard temporal: improves with K</span>
-                <span class="curve-label base">Easy / memory-only: saturates</span>
-                <span class="curve-axis-x">latent iterations K →</span>
+                <span class="curve-label ours">Calibrated innovation: higher frontier</span>
+                <span class="curve-label base">Fixed depth / raw surprise</span>
+                <span class="curve-axis-x">measured FLOPs / latency →</span>
               </div>
             </div>
           </div>
@@ -261,28 +323,29 @@
 
       <section class="proposal-section" id="risks">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">07 · KILL TESTS</p><h2>이 주제는 빠르게 죽일 수 있어야 안전하게 크게 시도할 수 있다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">07 · KILL TESTS</p><h2>두 데이터셋의 정식 결과가 아래 반론을 넘지 못하면 claim을 줄인다.</h2></div>
           <div class="risk-grid">
-            <div class="risk-item"><span>NO-GO 01</span><h3>K가 늘어도 성능이 오르지 않는다</h3><p>random-K·intermediate loss 후에도 curve가 평평하면 latent reasoning claim을 중단한다.</p></div>
-            <div class="risk-item"><span>NO-GO 02</span><h3>Unshared depth가 항상 더 낫다</h3><p>matched FLOPs·parameter 조건에서 recurrence의 extrapolation이나 efficiency 이득이 없으면 단순 deeper head다.</p></div>
-            <div class="risk-item"><span>NO-GO 03</span><h3>Belief가 새 증거로 수정되지 않는다</h3><p>controlled contradiction에서 prior confidence만 유지하면 prediction loss를 posterior correction objective로 재설계한다.</p></div>
+            <div class="risk-item"><span>NO-GO 01</span><h3>RSSM이 같은 결과를 낸다</h3><p>같은 state·FLOPs의 standard predictor-corrector와 차이가 없으면 새로운 video filtering mechanism claim은 성립하지 않는다.</p></div>
+            <div class="risk-item"><span>NO-GO 02</span><h3>Raw surprise가 충분하다</h3><p>SPIKE·SelectStream 계열 신호가 같은 Pareto를 만들면 uncertainty calibration과 joint controller contribution을 줄인다.</p></div>
+            <div class="risk-item"><span>NO-GO 03</span><h3>추가 correction이 정보를 만들지 않는다</h3><p>matched compute에서 K가 future prediction·anticipation을 개선하지 않으면 latent reasoning을 빼고 bounded predictive memory로 재정의한다.</p></div>
           </div>
         </div>
       </section>
 
       <section class="proposal-section tinted" id="sources">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">08 · CLOSEST SOURCES</p><h2>3번을 “이미 나온 latent reasoning”과 구분해야 하는 기준선</h2></div>
+          <div class="detail-heading"><p class="detail-index">08 · CLOSEST SOURCES</p><h2>Query를 빼면 world model, predictive representation, streaming allocation이 모두 직접 경쟁자가 된다.</h2></div>
           <div class="source-grid">
-            <a class="source-item" href="https://arxiv.org/abs/2606.22870" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>VideoLatent</h3><p>video QA triplet 기반 visual latent reasoning.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2608.04124" target="_blank" rel="noreferrer"><span>ARXIV 2026-08</span><h3>DyLaR</h3><p>query-grounded perception latent와 adaptive reasoning latent.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2606.05769" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>Future-L1</h3><p>future-frame-aligned interleaved latent visual reasoning.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2603.12938" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>ThinkStream</h3><p>Watch–Think–Speak와 reasoning-compressed streaming memory.</p></a>
-            <a class="source-item" href="https://openreview.net/forum?id=fWrhAOQZ5A" target="_blank" rel="noreferrer"><span>ICLR 2026 WORKSHOP</span><h3>DMLR</h3><p>test-time latent think refinement와 dynamic visual injection.</p></a>
+            <a class="source-item" href="https://proceedings.mlr.press/v97/hafner19a.html" target="_blank" rel="noreferrer"><span>ICML 2019</span><h3>PlaNet / RSSM</h3><p>latent prior prediction과 observation-conditioned posterior update.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2506.09985" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>V-JEPA 2</h3><p>understanding·prediction·planning을 위한 latent predictive video model.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2603.14482" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>V-JEPA 2.1</h3><p>dense predictive objective와 strong anticipation representation.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2509.23433" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>SPIKE-RL</h3><p>Bayesian surprise와 query-agnostic frame allocation.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2606.16353" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>SelectStream</h3><p>surprise-driven fixed-capacity latent evidence allocation.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2602.07845" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>RD-VLA</h3><p>weight-tied recurrent latent depth와 adaptive stopping.</p></a>
-            <a class="source-item" href="https://openreview.net/forum?id=BxWhmN3iSt" target="_blank" rel="noreferrer"><span>OPENREVIEW 2025–2026</span><h3>Sequential recurrent reasoning</h3><p>slow observations 사이 fast iterative reasoning loop.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2508.15717" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>StreamMem</h3><p>query-agnostic bounded streaming memory baseline.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2604.02317" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>SimpleStream</h3><p>복잡한 memory가 반드시 넘어야 할 recent-window baseline.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2607.28312" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>ObjectStream</h3><p>persistent latent object anchor를 이용한 bounded visual memory.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2605.15618" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>Latent Video Prediction Study</h3><p>latent-prediction foundation models의 robustness와 temporal direction 분석.</p></a>
+            <a class="source-item" href="https://ego4d-data.org/docs/benchmarks/forecasting/" target="_blank" rel="noreferrer"><span>OFFICIAL BENCHMARK</span><h3>Ego4D Forecasting</h3><p>long-term action anticipation과 short-term interaction anticipation.</p></a>
           </div>
         </div>
       </section>
@@ -291,7 +354,7 @@
         <a class="proposal-next" href="../"><div><span>BACK TO OVERVIEW</span><h2>세 proposal의 경계와 전체 연구 지도</h2></div><i aria-hidden="true">↗</i></a>
       </div>
     </main>
-    <footer><div class="page-shell footer-inner"><span>Proposal 03 · Streaming Visual Latent Reasoning</span><span>Pilot status will be updated with measured results</span></div></footer>
+    <footer><div class="page-shell footer-inner"><span>Proposal 03 · Predictive Latent Filtering</span><span>Paper-grade experiments have not started yet</span></div></footer>
     <script src="../proposal.js"></script>
   </body>
 </html>
