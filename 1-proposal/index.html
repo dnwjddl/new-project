@@ -325,6 +325,21 @@
           </div>
 
           <div class="compute-assumption">
+            <p class="mini-label">MEASURED CALIBRATION · RTX 3090 / 4090 / A6000</p>
+            <p><strong>공식 checkpoint와 paper-grade audit 완료.</strong> VideoFlexTok K600 encoder는 17-frame clip에서 pre-quantized·quantized latent <code>[1,5,256,6]</code>와 token ID <code>[1,5,256]</code>를 출력한다. RTX 3090 최적 batch는 12였고 0.477 clip/s, peak reserved memory 17.95 GiB였다. 모든 3,568 action stratum을 포함한 deterministic train 16k와 decodable val 9,657개를 8개 GPU로 처리했으며 slowest shard는 train 52.4분, val 43.6분이었다. 3-seed concatenated·fixed-dimension probe 전체 분석은 RTX 4090 한 장에서 8분 23초였다.</p>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">FULL-SPLIT RESULT · EK100 · 3 SEEDS</p>
+            <p><strong>통상적인 action probe는 시간 순서에 거의 둔감했다.</strong> ViCLIP-L/14 frozen feature의 ordered action top-1은 15.02%였지만 reverse는 14.60%(-0.42pp), shuffle은 14.62%(-0.40pp)였다. 반면 한 frame만 반복한 single 조건은 10.24%(-4.78pp)까지 하락했다. 즉 이 probe는 appearance·object 제거에는 반응하지만 순서 교란은 거의 구별하지 못한다. 공식 train 67,217개와 val 9,668개를 사용했고, 손상된 원본 video packet 때문에 train 1개와 val 9개 segment만 동일 규칙으로 제외했다.</p>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">PILOT VERDICT</p>
+            <p><strong>기존 순서는 understanding의 successively refinable coarse-to-fine이 아니다.</strong> Quantized concatenated probe에서 첫 8-token prefix의 action top-1은 4.10%로 256-token의 3.35%보다 높았다. 입력 차원을 모두 18로 맞춘 통제에서도 8-token prefix는 2.77±0.14%, 256-token은 1.83±0.09%였고, 첫 block은 2.69%로 이후 block의 1.15–1.63%보다 강했다. 첫 block은 reverse에도 더 민감해 action과 order 정보가 앞쪽에 섞여 몰려 있었다. 따라서 우리의 목표는 “앞=coarse”를 반복하는 것이 아니라 stable state token과 order-sensitive innovation token을 명시적으로 분리하고, 추가 group이 남은 semantic residual을 단조롭게 줄이게 만드는 것이다.</p>
+          </div>
+
+          <div class="compute-assumption">
             <p class="mini-label">RUN DEFINITION</p>
             <p>논문 결과는 최소 3 seeds다. seed를 독립 Slurm job으로 동시에 배치하고 one-time multi-teacher cache는 모든 objective·budget·baseline이 공유한다. 아래 수치는 ±30% planning range이며 5% throughput calibration 후 H100/A100 allocation을 확정한다.</p>
           </div>

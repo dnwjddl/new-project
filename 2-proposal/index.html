@@ -238,6 +238,21 @@
           </div>
 
           <div class="compute-assumption">
+            <p class="mini-label">MEASURED CALIBRATION · 8 × RTX 3090 / A6000</p>
+            <p><strong>실제 자연어 multi-query workload 완료.</strong> Ego4D NLQ official train은 13,849 queries, val은 4,554 queries이며 query text가 없는 4개 항목은 명시적으로 제외한다. 4초 query-agnostic leaf cache는 train 157,459개와 val 52,027개다. 각 GPU가 서로 다른 영상을 4-reader로 decode해 FP16 CLIP-L/14 feature를 저장했고 decode 실패는 0건이었다. Slowest shard 기준 train 55.2분, val 20.8분이었으며 full 3-seed·20-epoch router/tree 분석은 A6000 한 장에서 76초였다.</p>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">FULL-SPLIT RESULT · EGO4D NLQ · 3 SEEDS</p>
+            <p><strong>Multi-query amortization은 실제 질의에서도 성립했다.</strong> 1,271 train clips·415 val clips와 usable 13,847/4,552 queries 전체를 사용했다. budget 4에서 Q=8이면 shared cache의 total visual cost는 독립 per-query 실행의 14.7%(약 6.8× 절감)였고, query당 열린 leaf는 4.00개에서 3.27개로 줄었다. Uniform tree는 budget 8에서 flat search의 137.5회 대신 47.3회 비교(-65.6%)로 routing했다.</p>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">ACCURACY GAP · THE NEXT METHOD TARGET</p>
+            <p><strong>재사용 가능성만으로 hierarchy의 승리를 주장할 수는 없다.</strong> Raw CLIP의 budget-8 overlap hit는 flat 41.65% 대 uniform tree 31.88%였다. 256-d bottleneck router는 33.44%까지 악화됐고, pretrained geometry를 보존하는 residual alignment(weight 10)는 40.79%로 회복했다. 따라서 query router 자체를 novelty로 밀기보다 frozen geometry를 보존하고, flat ranking을 distill하면서 cache-aware branch utility를 학습해 이 약 10pp tree gap을 닫는 것이 다음 핵심 contribution이다.</p>
+          </div>
+
+          <div class="compute-assumption">
             <p class="mini-label">RUN DEFINITION</p>
             <p>video feature와 query-agnostic tree는 한 번 만들어 모든 query order·cache budget·router baseline이 공유한다. router 학습은 seed별로 나누고, deterministic 7B reader 평가는 video/query shard를 여러 GPU에 data-parallel로 분산한다.</p>
           </div>
