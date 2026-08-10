@@ -820,6 +820,65 @@ input[type="range"] {
   margin-bottom: 9px;
 }
 
+.proposal-link {
+  display: grid;
+  grid-template-columns: 150px 1fr 30px;
+  gap: 20px;
+  align-items: center;
+  margin-top: 34px;
+  padding: 18px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  text-decoration: none;
+}
+
+.proposal-link span {
+  color: var(--coral);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.proposal-link strong {
+  font-size: 15px;
+}
+
+.proposal-link i {
+  font-size: 22px;
+  font-style: normal;
+  text-align: right;
+  transition: transform 160ms ease;
+}
+
+.proposal-link:hover i,
+.proposal-link:focus-visible i {
+  transform: translateX(5px);
+}
+
+.pilot-inline {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 24px;
+  margin-top: 28px;
+  padding: 16px 0;
+  border-top: 1px solid var(--red);
+  border-bottom: 1px solid var(--red);
+}
+
+.pilot-inline span {
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.pilot-inline p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .tree-diagram,
 .reasoning-diagram {
   margin-top: 38px;
@@ -1433,6 +1492,7 @@ footer {
   .objective-panel,
   .training-grid,
   .topic-columns,
+  .pilot-inline,
   .must-report,
   .go-no-go,
   .final-layout {
@@ -1512,6 +1572,21 @@ footer {
 
   .topic-panel {
     min-height: 0;
+  }
+
+  .proposal-link {
+    grid-template-columns: 1fr 26px;
+    gap: 6px 14px;
+  }
+
+  .proposal-link span,
+  .proposal-link strong {
+    grid-column: 1;
+  }
+
+  .proposal-link i {
+    grid-column: 2;
+    grid-row: 1 / 3;
   }
 
   .tree-diagram {

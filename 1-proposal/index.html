@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Predictive Anytime Video Encoder 상세 연구 제안" />
+    <title>01 · Predictive Anytime Encoder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../proposal.css" />
+  </head>
+  <body class="proposal-body">
+    <a class="skip-link" href="#main">본문으로 이동</a>
+    <header class="site-header proposal-header">
+      <a class="wordmark" href="../#topics"><span class="wordmark-mark" aria-hidden="true"></span>DVR Lab</a>
+      <nav class="proposal-nav" aria-label="제안서 이동">
+        <a href="../">Overview</a>
+        <a href="../1-proposal/" aria-current="page">01 Anytime</a>
+        <a href="../2-proposal/">02 Multi-query</a>
+        <a href="../3-proposal/">03 Latent</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="proposal-hero one">
+        <div class="page-shell proposal-hero-grid">
+          <div>
+            <p class="proposal-kicker">PROPOSAL 01 · BROAD REPRESENTATION PROBLEM</p>
+            <h1>Predictive Anytime Video Encoder</h1>
+            <p class="hero-summary">
+              질문을 아직 모르는 상태에서도 짧고 결정적인 사건을 잃지 않는 nested video representation을 만든다.
+              output token 수뿐 아니라 encoder 안에서 실행되는 token과 depth까지 budget에 맞춰 실제로 줄인다.
+            </p>
+            <div class="hero-meta">
+              <div><span>PRIMARY AXIS</span><strong>Representation</strong></div>
+              <div><span>QUERY AT ENCODE</span><strong>Unavailable</strong></div>
+              <div><span>MAIN METRIC</span><strong>Accuracy / encoder FLOPs</strong></div>
+            </div>
+          </div>
+          <div class="hero-claim">
+            <span>ONE-SENTENCE CLAIM</span>
+            <p>
+              미래 semantic state를 예측하기 어려운 event에만 더 많은 token과 encoder depth를 배정하면, 하나의
+              pretrained encoder가 임의의 budget에서 temporal understanding을 보존할 수 있다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="proposal-section" id="problem">
+        <div class="page-shell">
+          <div class="detail-heading">
+            <p class="detail-index">01 · THE PROBLEM</p>
+            <h2>Understanding에서 중요한 정보와 reconstruction에서 비싼 정보는 같지 않다.</h2>
+            <p class="section-explainer">
+              긴 영상 대부분은 반복적이지만 정답을 결정하는 사건은 짧을 수 있다. 평균 pixel error나 현재-frame
+              similarity만 줄이면 그 한순간이 가장 먼저 사라질 가능성이 있다.
+            </p>
+          </div>
+
+          <div class="failure-grid">
+            <div class="failure-vignette">
+              <div>
+                <p class="mini-label">FAILURE SCENE</p>
+                <h3>64초 중 0.5초의 상태 변화가 질문의 정답을 바꾼다.</h3>
+              </div>
+              <div class="event-strip" aria-label="여덟 구간 중 하나의 짧은 중요 사건">
+                <i></i><i></i><i></i><i class="critical"></i><i></i><i></i><i></i><i></i>
+              </div>
+              <p>appearance는 거의 같지만 컵이 비워지는 순간, 손의 방향 전환, 행동 순서 반전은 temporal QA에 결정적이다.</p>
+            </div>
+            <div class="failure-list">
+              <div class="failure-item">
+                <span>L1</span>
+                <div><h3>Pixel fidelity ≠ answer sufficiency</h3><p>texture를 잘 복원해도 state change와 causal order를 잃을 수 있다.</p></div>
+              </div>
+              <div class="failure-item">
+                <span>L2</span>
+                <div><h3>질문을 미리 사용할 수 없다</h3><p>query-aware selector와 달리 encoder는 미래의 다양한 downstream task에 재사용되어야 한다.</p></div>
+              </div>
+              <div class="failure-item">
+                <span>L3</span>
+                <div><h3>Post-hoc pruning은 encoder를 싸게 만들지 않는다</h3><p>dense ViT를 전부 실행한 뒤 token만 줄이면 LLM prefill은 줄지만 vision FLOPs는 그대로다.</p></div>
+              </div>
+              <div class="failure-item">
+                <span>L4</span>
+                <div><h3>Linear prefix는 semantic hierarchy를 보장하지 않는다</h3><p>token 순서가 scene gist → event transition → object state로 조직되어야 작은 budget의 의미가 명확해진다.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="proposal-section tinted" id="boundary">
+        <div class="page-shell">
+          <div class="detail-heading">
+            <p class="detail-index">02 · PRIOR-WORK BOUNDARY</p>
+            <h2>가까운 연구가 해결한 것과 아직 남은 것을 분리한다.</h2>
+          </div>
+
+          <div class="boundary-table">
+            <div class="boundary-row header"><span>Work</span><span>What it already solves</span><span>What remains for this proposal</span></div>
+            <div class="boundary-row">
+              <h3>VideoFlexTok<span>ICML 2026 Spotlight</span></h3>
+              <p>time-causal encoder와 coarse-to-fine flexible token length를 generation·reconstruction에서 입증한다.</p>
+              <p class="missing">Understanding-specific sufficiency, rare temporal event 보존, 실제 encoder conditional compute는 중심 질문이 아니다.</p>
+            </div>
+            <div class="boundary-row">
+              <h3>MoNE<span>arXiv 2024</span></h3>
+              <p>하나의 모델이 token별 nested expert를 선택하여 image·video의 여러 compute budget에서 동작한다.</p>
+              <p class="missing">무엇을 깊게 처리할지를 multi-horizon predictive uncertainty로 정의하지 않으며, reusable nested video state가 목표가 아니다.</p>
+            </div>
+            <div class="boundary-row">
+              <h3>EarlyTom<span>CVPR 2026</span></h3>
+              <p>vision encoder 내부에서 token을 조기에 압축해 FLOPs와 TTFT를 실제로 낮춘다.</p>
+              <p class="missing">여러 budget에서 독립적으로 유효한 semantic hierarchy와 unknown-query temporal sufficiency를 학습하지 않는다.</p>
+            </div>
+            <div class="boundary-row">
+              <h3>M3 / VTok<span>ICLR 2025 / arXiv 2026</span></h3>
+              <p>Matryoshka multimodal token budget과 understanding-generation 공통 tokenizer의 가능성을 보인다.</p>
+              <p class="missing">video encoder의 token·depth joint routing과 temporal prediction 기반의 event priority가 열려 있다.</p>
+            </div>
+          </div>
+
+          <div class="gap-statement">
+            <span>THE OPEN GAP</span>
+            <p>
+              <strong>Unknown-query temporal sufficiency</strong>를 목적함수로 삼으면서, representation length와
+              encoder execution depth를 하나의 budget으로 공동 제어하는 pretrained video encoder는 아직 명확히
+              확립되지 않았다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="proposal-section" id="method">
+        <div class="page-shell">
+          <div class="detail-heading">
+            <p class="detail-index">03 · METHOD</p>
+            <h2>Predict, measure the residual, then spend compute only where belief is unresolved.</h2>
+            <p class="section-explainer">
+              encoder는 모든 chunk에 cheap gist를 쓰고, 미래 latent를 충분히 설명하지 못하는 event와 region만 다음
+              stage로 보낸다. 각 stage의 residual token을 누적하면 Matryoshka representation이 된다.
+            </p>
+          </div>
+
+          <div class="method-canvas">
+            <div class="method-flow" aria-label="Predictive anytime encoder 처리 흐름">
+              <div class="method-node"><span>CAUSAL VIDEO</span><strong>x≤t</strong><small>chunked frames</small></div>
+              <div class="flow-arrow" aria-hidden="true">→</div>
+              <div class="method-node gist"><span>STAGE 1</span><strong>Global / event gist</strong><small>always execute</small></div>
+              <div class="flow-arrow" aria-hidden="true">→</div>
+              <div class="method-node event"><span>UNCERTAINTY GATE</span><strong>Predictive residual</strong><small>route unresolved tokens</small></div>
+              <div class="flow-arrow" aria-hidden="true">→</div>
+              <div class="method-node detail"><span>STAGE 2…K</span><strong>Event → object detail</strong><small>nested residual tokens</small></div>
+            </div>
+            <p class="method-caption">Frozen V-JEPA-style teacher는 t+1, t+4, t+16의 semantic target을 제공하고 inference에서는 제거한다.</p>
+          </div>
+
+          <div class="interactive-demo" data-proposal-demo="anytime">
+            <div class="demo-copy">
+              <p class="mini-label">INTERACTIVE BUDGET TRACE · CONCEPT ONLY</p>
+              <h3 data-demo-label>Scene gist</h3>
+              <p data-demo-description></p>
+              <label for="anytime-budget">Encoder budget</label>
+              <input id="anytime-budget" type="range" min="1" max="4" value="1" step="1" />
+              <div class="demo-readout">
+                <div><span>ACTIVE SEMANTICS</span><strong data-demo-label>Scene gist</strong></div>
+                <div><span>OUTPUT LENGTH</span><strong data-demo-value>8 tokens</strong></div>
+              </div>
+            </div>
+            <div class="demo-stage-track" aria-hidden="true">
+              <div class="demo-stage">GIST</div>
+              <div class="demo-stage">EVENT</div>
+              <div class="demo-stage">OBJECT</div>
+              <div class="demo-stage">MOTION</div>
+            </div>
+          </div>
+
+          <div class="module-grid">
+            <div class="module-item"><span>M1</span><h3>Time-causal nested stem</h3><p>pretrained video ViT를 chunk causal mask와 lightweight adapter로 바꾸고, 얕은 stage의 activation을 독립 representation으로 만든다.</p></div>
+            <div class="module-item"><span>M2</span><h3>Predictive uncertainty router</h3><p>각 token이 여러 미래 horizon의 teacher latent를 얼마나 설명하지 못하는지 예측해 다음 stage의 token과 depth를 선택한다.</p></div>
+            <div class="module-item"><span>M3</span><h3>Semantic residual tokens</h3><p>뒤 token이 앞 token을 반복하지 않고 scene gist가 놓친 event transition과 object state만 추가하도록 residual target을 준다.</p></div>
+          </div>
+
+          <div class="objective-strip">
+            <div><p class="mini-label">TRAINING OBJECTIVE</p><h3>모든 budget prefix에 예측·task·cost 제약을 동시에 건다.</h3></div>
+            <code>L = Σᵦ,ₕ d(Pₕ(Zᵦ≤t), sg(Eteacher(xₜ₊ₕ)))<br />+ λtemp Lorder/state-change + λnest Lmonotonic<br />+ λtask Lunknown-query-distill + λcost E[FLOPs]</code>
+          </div>
+        </div>
+      </section>
+
+      <section class="proposal-section tinted" id="training">
+        <div class="page-shell">
+          <div class="detail-heading">
+            <p class="detail-index">04 · NO-SCRATCH RECIPE</p>
+            <h2>가설을 싸게 검증한 뒤 필요한 부분만 연다.</h2>
+          </div>
+          <div class="training-lanes">
+            <div class="training-lane"><span>PHASE A · PROXY</span><h3>Frozen features</h3><p>V-JEPA 2 또는 pretrained video ViT feature 위에서 3개 budget의 proxy tokens와 predictor만 학습한다.</p></div>
+            <div class="training-lane"><span>PHASE B · ROUTING</span><h3>Adapters + gates</h3><p>causal adapter, register, stage gate를 열고 random-budget training과 cost regularization을 적용한다.</p></div>
+            <div class="training-lane"><span>PHASE C · TEMPORAL</span><h3>Last blocks / LoRA</h3><p>order, direction, state-change에서 이득이 확인된 경우 마지막 encoder block과 LoRA만 미세조정한다.</p></div>
+            <div class="training-lane"><span>PHASE D · VLM</span><h3>Projector + SFT</h3><p>encoder 가설을 먼저 고정한 뒤 동일 LLM과 projector로 downstream QA를 비교한다.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="proposal-section" id="evidence">
+        <div class="page-shell">
+          <div class="detail-heading">
+            <p class="detail-index">05 · EVIDENCE NEEDED</p>
+            <h2>Oral-level claim은 평균 QA 점수가 아니라 Pareto frontier로 증명한다.</h2>
+          </div>
+          <div class="evidence-grid">
+            <div class="contribution-list">
+              <div class="contribution-row"><span>C1</span><div><h3>Predictive rate–distortion</h3><p>understanding용 token value를 multi-horizon future semantics로 다시 정의한다.</p></div></div>
+              <div class="contribution-row"><span>C2</span><div><h3>Token–depth joint anytime encoder</h3><p>한 weight로 output length와 내부 vision FLOPs를 함께 조절한다.</p></div></div>
+              <div class="contribution-row"><span>C3</span><div><h3>Unknown-query temporal sufficiency</h3><p>질문 없이 만든 작은 state가 unseen temporal tasks에도 재사용됨을 보인다.</p></div></div>
+              <div class="contribution-row"><span>C4</span><div><h3>Real efficiency protocol</h3><p>encoder FLOPs, TTFT, throughput, VRAM을 같은 hardware에서 보고한다.</p></div></div>
+            </div>
+            <div class="decisive-figure">
+              <p class="mini-label">THE DECISIVE FIGURE</p>
+              <h3>Temporal accuracy vs actual encoder compute</h3>
+              <p>같은 GFLOPs에서 MoNE·EarlyTom·post-hoc pruning보다 위에 있고, budget 전 구간에서 fixed model envelope에 근접해야 한다.</p>
+              <div class="curve-chart" aria-label="제안법이 baseline보다 높은 정확도 계산량 곡선을 보이는 목표 그림">
+                <span class="curve-label ours">Ours: temporal-predictive anytime</span>
+                <span class="curve-label base">MoNE / EarlyTom / pruning</span>
+                <span class="curve-axis-x">encoder GFLOPs →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="proposal-section tinted" id="risks">
+        <div class="page-shell">
+          <div class="detail-heading"><p class="detail-index">06 · KILL TESTS</p><h2>아래 셋 중 하나가 실패하면 claim을 즉시 줄인다.</h2></div>
+          <div class="risk-grid">
+            <div class="risk-item"><span>NO-GO 01</span><h3>Predictive target가 temporal task를 못 살린다</h3><p>동일 token·FLOPs에서 DINO/current-frame distillation보다 order·direction·anticipation이 오르지 않으면 핵심 objective를 폐기한다.</p></div>
+            <div class="risk-item"><span>NO-GO 02</span><h3>Routing overhead가 이득을 먹는다</h3><p>실측 latency가 fixed encoder보다 낮아지지 않으면 fine-grained gate를 stage-level exit로 단순화한다.</p></div>
+            <div class="risk-item"><span>NO-GO 03</span><h3>작은 budget이 rare event를 버린다</h3><p>appearance는 유지되는데 brief event recall이 급락하면 uniform gist 대신 surprise anchor를 강제한다.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="proposal-section" id="sources">
+        <div class="page-shell">
+          <div class="detail-heading"><p class="detail-index">07 · CLOSEST SOURCES</p><h2>이 논문이 반드시 정면 비교해야 할 연구</h2></div>
+          <div class="source-grid">
+            <a class="source-item" href="https://arxiv.org/abs/2604.12887" target="_blank" rel="noreferrer"><span>ICML 2026 SPOTLIGHT</span><h3>VideoFlexTok</h3><p>generation 축의 flexible-length coarse-to-fine video tokenization.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2407.19985" target="_blank" rel="noreferrer"><span>ARXIV 2024</span><h3>MoNE</h3><p>nested experts와 token-wise adaptive visual compute.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2605.30010" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>EarlyTom</h3><p>vision encoder 내부 early token compression.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2602.04202" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>VTok</h3><p>understanding과 generation을 잇는 spatial-temporal tokenizer.</p></a>
+            <a class="source-item" href="https://openreview.net/forum?id=ii17KMFtmI" target="_blank" rel="noreferrer"><span>ICLR 2025</span><h3>M3</h3><p>Matryoshka multimodal token budget의 image-side 기준점.</p></a>
+            <a class="source-item" href="https://ai.meta.com/research/publications/v-jepa-2-self-supervised-video-models-enable-understanding-prediction-and-planning/" target="_blank" rel="noreferrer"><span>META AI 2025</span><h3>V-JEPA 2</h3><p>future semantic prediction teacher와 pretrained initialization 후보.</p></a>
+          </div>
+        </div>
+      </section>
+
+      <div class="page-shell">
+        <a class="proposal-next" href="../2-proposal/"><div><span>NEXT PROPOSAL</span><h2>02 · Multi-query Amortized Token Tree</h2></div><i aria-hidden="true">→</i></a>
+      </div>
+    </main>
+    <footer><div class="page-shell footer-inner"><span>Proposal 01 · Predictive Anytime Encoder</span><span>Research hypothesis · not a measured claim</span></div></footer>
+    <script src="../proposal.js"></script>
+  </body>
+</html>

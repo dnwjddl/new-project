@@ -1,0 +1,84 @@
+{
+  "status": "completed",
+  "seed": 941002,
+  "device": "NVIDIA GeForce RTX 4090",
+  "metadata": {
+    "selected_videos": 12,
+    "train_videos": 9,
+    "validation_videos": 3,
+    "top_verbs": [
+      0,
+      2,
+      1,
+      5,
+      3,
+      4,
+      10,
+      9,
+      7,
+      6,
+      27,
+      8
+    ],
+    "train_examples": 495,
+    "validation_examples": 230
+  },
+  "models": {
+    "no_reason": {
+      "parameters": 374220,
+      "best_full_accuracy": 0.3217391304347826,
+      "step_curve": {
+        "0": 0.3217391304347826
+      },
+      "late_evidence": {
+        "cropped_accuracy": 0.30869565217391304,
+        "full_accuracy": 0.3217391304347826,
+        "correction_rate_given_wrong_prior": 0.025157232704402517,
+        "corrected_examples": 4,
+        "regressed_examples": 1
+      }
+    },
+    "shared_recurrent": {
+      "parameters": 819468,
+      "best_full_accuracy": 0.3130434782608696,
+      "step_curve": {
+        "0": 0.30434782608695654,
+        "1": 0.3217391304347826,
+        "2": 0.3217391304347826,
+        "3": 0.3173913043478261,
+        "4": 0.3130434782608696
+      },
+      "late_evidence": {
+        "cropped_accuracy": 0.30869565217391304,
+        "full_accuracy": 0.3130434782608696,
+        "correction_rate_given_wrong_prior": 0.012578616352201259,
+        "corrected_examples": 2,
+        "regressed_examples": 1
+      }
+    },
+    "unshared_depth": {
+      "parameters": 2155212,
+      "best_full_accuracy": 0.3130434782608696,
+      "step_curve": {
+        "0": 0.3130434782608696,
+        "1": 0.28695652173913044,
+        "2": 0.3173913043478261,
+        "3": 0.3130434782608696,
+        "4": 0.3130434782608696
+      },
+      "late_evidence": {
+        "cropped_accuracy": 0.30869565217391304,
+        "full_accuracy": 0.3130434782608696,
+        "correction_rate_given_wrong_prior": 0.006289308176100629,
+        "corrected_examples": 1,
+        "regressed_examples": 0
+      }
+    }
+  },
+  "go_signals": {
+    "shared_k_gain": 0.008695652173913049,
+    "shared_monotonic_steps": 2,
+    "shared_vs_unshared_kmax": 0.0,
+    "shared_vs_no_reason": -0.008695652173912993
+  }
+}
