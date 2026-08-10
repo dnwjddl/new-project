@@ -332,9 +332,42 @@
         </div>
       </section>
 
-      <section class="proposal-section tinted" id="sources">
+      <section class="proposal-section tinted" id="compute">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">08 · CLOSEST SOURCES</p><h2>Query를 빼면 world model, predictive representation, streaming allocation이 모두 직접 경쟁자가 된다.</h2></div>
+          <div class="detail-heading">
+            <p class="detail-index">08 · 2–3H COMPUTE PLAN</p>
+            <h2>Frozen predictive filter는 한 GPU로 반복하고, cross-dataset과 LoRA만 선택적으로 병렬화한다.</h2>
+            <p class="section-explainer">RTX 4090 24GB, BF16, cached V-JEPA 2/2.1 chunk latents를 기준으로 한 초기 scheduler budget이다. 한 run은 full official split의 한 configuration·한 seed이며 queue 대기시간은 제외한다. LoRA 단계만 raw video encoder를 다시 실행한다.</p>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">RUN DEFINITION</p>
+            <p>EK100의 filter·objective·correction 분석은 동일 feature cache를 공유한다. 세 seed를 2–3시간 안에 끝내려면 각각 독립 GPU job으로 동시에 실행한다. Ego4D transfer와 end-to-end LoRA는 별도 heavy run으로 분리해 core ablation의 iteration 속도를 유지한다.</p>
+          </div>
+
+          <div class="compute-tier-grid">
+            <div class="compute-tier"><span>LIGHT · EK100 FILTER</span><strong>3 × RTX 4090</strong><small>1 GPU/seed · full official split · 3 seeds parallel</small></div>
+            <div class="compute-tier"><span>MEDIUM · SWEEPS / EGO4D</span><strong>6 × RTX 4090</strong><small>2 GPU/seed · K·memory·correction 또는 LTA</small></div>
+            <div class="compute-tier"><span>HEAVY · VIDEO LORA</span><strong>24 × RTX 4090</strong><small>8 GPU/seed · last 2–4 backbone blocks · three jobs</small></div>
+          </div>
+
+          <div class="compute-table" aria-label="Proposal 03 작업별 계산 자원 추정">
+            <div class="compute-row header"><span>Work unit</span><span>4090 / seed</span><span>3 seeds parallel</span><span>CPU · RAM</span><span>Scratch</span></div>
+            <div class="compute-row"><div class="compute-job"><span>ONE TIME · EK100</span><strong>V-JEPA chunk feature cache</strong><small>strictly causal pooled+dense teacher latents</small></div><div class="compute-cell"><strong>8 GPUs total</strong><span>2–3h target</span></div><div class="compute-cell"><strong>Once</strong><span>shared cache</span></div><div class="compute-cell"><strong>64 cores · 256GB</strong><span>parallel decode</span></div><div class="compute-cell"><strong>0.3–0.8TB</strong><span>feature density dependent</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>EXPERIMENT 01–02</span><strong>Predictive filter + objective ablation</strong><small>full EK100 train/val · N={8,16,32}</small></div><div class="compute-cell"><strong>1 GPU</strong><span>per configuration</span></div><div class="compute-cell"><strong>3 GPUs</strong><span>one per seed</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>40–100GB</strong><span>ckpt+predictions</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>EXPERIMENT 03–05</span><strong>Correction · K · memory sweep</strong><small>natural surprise · K={1,2,4,8} · N={4,8,16,32}</small></div><div class="compute-cell"><strong>2 GPUs</strong><span>per seed shard</span></div><div class="compute-cell"><strong>6 GPUs</strong><span>three jobs</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>per seed</span></div><div class="compute-cell"><strong>0.1–0.25TB</strong><span>traces+profiles</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>ONE TIME · EGO4D</span><strong>LTA V-JEPA feature cache</strong><small>train/val clips · same causal chunk protocol</small></div><div class="compute-cell"><strong>8 GPUs total</strong><span>2–3h target</span></div><div class="compute-cell"><strong>Once</strong><span>seed-independent</span></div><div class="compute-cell"><strong>64 cores · 256GB</strong><span>decode+sharding</span></div><div class="compute-cell"><strong>0.5–1.5TB</strong><span>pooled+dense BF16</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>EXPERIMENT 06</span><strong>Ego4D LTA transfer / fine-tune</strong><small>official metric · frozen transfer + adaptation</small></div><div class="compute-cell"><strong>2 GPUs</strong><span>per seed</span></div><div class="compute-cell"><strong>6 GPUs</strong><span>three jobs</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>per seed</span></div><div class="compute-cell"><strong>0.1–0.3TB</strong><span>ckpt+outputs</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>EXPERIMENT 07</span><strong>Last 2–4 video blocks LoRA</strong><small>raw video · predictor/corrector · full split</small></div><div class="compute-cell"><strong>8 GPUs</strong><span>FSDP/DDP per seed</span></div><div class="compute-cell"><strong>24 GPUs</strong><span>strict 3h target</span></div><div class="compute-cell"><strong>64 cores · 512GB</strong><span>per seed aggregate</span></div><div class="compute-cell"><strong>0.3–0.6TB</strong><span>optimizer+ckpt</span></div></div>
+          </div>
+
+          <div class="compute-formula"><div><p class="mini-label">CALIBRATE BEFORE LAUNCH</p><h3>첫 full experiment 전에 throughput만 측정해 allocation을 확정한다.</h3><p>5% calibration은 dataloader·forward·backward·evaluation 시간을 분리하는 engineering run이다. 분석 결과에는 포함하지 않고, 확정된 GPU 수로 전체 official split을 실행한다.</p></div><code>G_required = ceil(T_1GPU / (2.5h × η_parallel))<br />G_three_seeds = 3 × G_required<br />target utilization ≥ 80% · dataloader wait &lt; 10%</code></div>
+        </div>
+      </section>
+
+      <section class="proposal-section" id="sources">
+        <div class="page-shell">
+          <div class="detail-heading"><p class="detail-index">09 · CLOSEST SOURCES</p><h2>Query를 빼면 world model, predictive representation, streaming allocation이 모두 직접 경쟁자가 된다.</h2></div>
           <div class="source-grid">
             <a class="source-item" href="https://proceedings.mlr.press/v97/hafner19a.html" target="_blank" rel="noreferrer"><span>ICML 2019</span><h3>PlaNet / RSSM</h3><p>latent prior prediction과 observation-conditioned posterior update.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2506.09985" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>V-JEPA 2</h3><p>understanding·prediction·planning을 위한 latent predictive video model.</p></a>

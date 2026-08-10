@@ -229,9 +229,41 @@
         </div>
       </section>
 
-      <section class="proposal-section" id="sources">
+      <section class="proposal-section" id="compute">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">07 · CLOSEST SOURCES</p><h2>이 proposal의 novelty를 가장 강하게 압박하는 연구</h2></div>
+          <div class="detail-heading">
+            <p class="detail-index">07 · 2–3H COMPUTE PLAN</p>
+            <h2>Hierarchy와 router는 가볍지만, full multi-query answer evaluation이 자원의 대부분을 차지한다.</h2>
+            <p class="section-explainer">아래는 RTX 4090 24GB, BF16, Ego4D NLQ official split, Q={1,2,4,8,16} workload를 가정한 초기 추정이다. 한 run은 한 configuration·한 seed이며 queue time은 제외한다. 실제 allocation은 full split의 5% throughput calibration 후 ±30% 범위에서 고정한다.</p>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">RUN DEFINITION</p>
+            <p>video feature와 query-agnostic tree는 한 번 만들어 모든 query order·cache budget·router baseline이 공유한다. router 학습은 seed별로 나누고, deterministic 7B reader 평가는 video/query shard를 여러 GPU에 data-parallel로 분산한다.</p>
+          </div>
+
+          <div class="compute-tier-grid">
+            <div class="compute-tier"><span>LIGHT · TREE + ROUTER</span><strong>3 × RTX 4090</strong><small>1 GPU/seed · full real-query workload training</small></div>
+            <div class="compute-tier"><span>MEDIUM · CACHE EPISODES</span><strong>6 × RTX 4090</strong><small>2 GPU/seed · Q와 cache-budget sweep를 3시간 안에</small></div>
+            <div class="compute-tier"><span>HEAVY · 7B READER EVAL</span><strong>24 × RTX 4090</strong><small>8 GPU/seed model · three trained seeds simultaneous</small></div>
+          </div>
+
+          <div class="compute-table" aria-label="Proposal 02 작업별 계산 자원 추정">
+            <div class="compute-row header"><span>Work unit</span><span>4090 / seed</span><span>3 seeds parallel</span><span>CPU · RAM</span><span>Scratch</span></div>
+            <div class="compute-row"><div class="compute-job"><span>ONE TIME</span><strong>Ego4D NLQ feature + tree cache</strong><small>video shards · temporal nodes · pooled/dense latents</small></div><div class="compute-cell"><strong>8 GPUs total</strong><span>2–3h target</span></div><div class="compute-cell"><strong>Once</strong><span>shared artifact</span></div><div class="compute-cell"><strong>64 cores · 256GB</strong><span>parallel video decode</span></div><div class="compute-cell"><strong>0.5–1.5TB</strong><span>granularity dependent</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE A–B</span><strong>Tree objective + router training</strong><small>official real NLQ · branch utility · cost loss</small></div><div class="compute-cell"><strong>1 GPU</strong><span>per configuration</span></div><div class="compute-cell"><strong>3 GPUs</strong><span>one per seed</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>40–100GB</strong><span>tree+ckpt</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE C–D</span><strong>Cache-aware episode training</strong><small>related/random order · eviction · Q sweep</small></div><div class="compute-cell"><strong>2 GPUs</strong><span>per seed</span></div><div class="compute-cell"><strong>6 GPUs</strong><span>three jobs</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>per seed</span></div><div class="compute-cell"><strong>0.1–0.25TB</strong><span>episode cache</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>RETRIEVAL EVAL</span><strong>Lifecycle cost and cache stress</strong><small>Q={1,2,4,8,16} · order · memory budget</small></div><div class="compute-cell"><strong>1 GPU</strong><span>cached latents</span></div><div class="compute-cell"><strong>3 GPUs</strong><span>all seed models</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>50–150GB</strong><span>traces+predictions</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>FINAL ANSWER EVAL</span><strong>7B MLLM reader over full workload</strong><small>data-parallel video/query shards · no repeated encode</small></div><div class="compute-cell"><strong>8 GPUs</strong><span>per trained seed</span></div><div class="compute-cell"><strong>24 GPUs</strong><span>strict 3h target</span></div><div class="compute-cell"><strong>64 cores · 512GB</strong><span>per seed aggregate</span></div><div class="compute-cell"><strong>0.2–0.5TB</strong><span>KV+responses</span></div></div>
+          </div>
+
+          <div class="compute-formula"><div><p class="mini-label">CALIBRATE BEFORE LAUNCH</p><h3>Router와 reader 시간을 분리해서 측정한다.</h3><p>retrieval-only 결과와 MLLM answer 결과를 같은 run으로 묶으면 병목을 숨기게 된다. 5% calibration으로 query/s와 cache I/O를 측정하되 paper table은 full official workload만 사용한다.</p></div><code>G_router = ceil(T_router,1GPU / (2.5h × η))<br />G_reader = ceil(N_query_workloads / (query_per_sec × 2.0h × 0.8))<br />G_three_seeds = 3 × max(G_router, G_reader)</code></div>
+        </div>
+      </section>
+
+      <section class="proposal-section tinted" id="sources">
+        <div class="page-shell">
+          <div class="detail-heading"><p class="detail-index">08 · CLOSEST SOURCES</p><h2>이 proposal의 novelty를 가장 강하게 압박하는 연구</h2></div>
           <div class="source-grid">
             <a class="source-item" href="https://videotree2024.github.io/" target="_blank" rel="noreferrer"><span>CVPR 2025</span><h3>VideoTree</h3><p>query-adaptive hierarchical long-video understanding.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2511.11910" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>QTS+</h3><p>query-aware token selection과 adaptive visual budget.</p></a>
@@ -246,7 +278,7 @@
       </section>
 
       <div class="page-shell">
-        <a class="proposal-next" href="../3-proposal/"><div><span>NEXT PROPOSAL</span><h2>03 · Streaming Visual Latent Reasoning</h2></div><i aria-hidden="true">→</i></a>
+        <a class="proposal-next" href="../3-proposal/"><div><span>NEXT PROPOSAL</span><h2>03 · Predictive Latent Filtering</h2></div><i aria-hidden="true">→</i></a>
       </div>
     </main>
     <footer><div class="page-shell footer-inner"><span>Proposal 02 · Multi-query Amortization</span><span>Research hypothesis · not a measured claim</span></div></footer>

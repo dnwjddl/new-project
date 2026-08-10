@@ -9,6 +9,8 @@ The brief covers:
 - adaptive recurrent visual latent reasoning for streaming video;
 - novelty boundaries against the closest 2025-2026 work;
 - falsifiable hypotheses, experiments, baselines, and go/no-go criteria.
+- per-proposal RTX 4090-equivalent budgets for 2-3 hour full-split runs,
+  including one-time caches, three-seed parallelism, host RAM, and scratch.
 
 The site is a framework-free static page intended for GitHub Pages.
 

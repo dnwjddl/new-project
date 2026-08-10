@@ -245,9 +245,41 @@
         </div>
       </section>
 
-      <section class="proposal-section" id="sources">
+      <section class="proposal-section" id="compute">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">07 · CLOSEST SOURCES</p><h2>이 논문이 반드시 정면 비교해야 할 연구</h2></div>
+          <div class="detail-heading">
+            <p class="detail-index">07 · 2–3H COMPUTE PLAN</p>
+            <h2>한 configuration을 2–3시간에 끝내려면 proxy는 가볍게, encoder adaptation은 강하게 병렬화해야 한다.</h2>
+            <p class="section-explainer">아래는 RTX 4090 24GB, BF16, optimized attention, pre-sharded dataloader를 가정한 초기 scheduler budget이다. 한 run은 full official split의 한 configuration·한 seed이며 queue 대기시간은 제외한다. 아직 실측 전이므로 ±30% planning range로 사용한다.</p>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">RUN DEFINITION</p>
+            <p>논문 결과는 최소 3 seeds다. 2–3시간 wall-clock을 유지하려면 seed를 순차 실행하지 않고 독립 Slurm job으로 동시에 배치한다. one-time V-JEPA cache는 모든 objective·budget·baseline이 공유하며 반복 run 시간에 포함하지 않는다.</p>
+          </div>
+
+          <div class="compute-tier-grid">
+            <div class="compute-tier"><span>LIGHT · FROZEN PROXY</span><strong>3 × RTX 4090</strong><small>1 GPU/seed · 세 seed 동시 · full EK100 cached features</small></div>
+            <div class="compute-tier"><span>MEDIUM · ADAPTERS + GATES</span><strong>12 × RTX 4090</strong><small>4 GPU/seed · encoder 내부 routing을 실제 실행</small></div>
+            <div class="compute-tier"><span>HEAVY · LAST-BLOCK LORA</span><strong>24 × RTX 4090</strong><small>8 GPU/seed · FSDP/DDP · 세 seed를 3시간 안에 완료</small></div>
+          </div>
+
+          <div class="compute-table" aria-label="Proposal 01 작업별 계산 자원 추정">
+            <div class="compute-row header"><span>Work unit</span><span>4090 / seed</span><span>3 seeds parallel</span><span>CPU · RAM</span><span>Scratch</span></div>
+            <div class="compute-row"><div class="compute-job"><span>ONE TIME</span><strong>EK100 V-JEPA feature cache</strong><small>영상별 sharded causal chunk extraction</small></div><div class="compute-cell"><strong>8 GPUs total</strong><span>2–3h target</span></div><div class="compute-cell"><strong>Once</strong><span>seed-independent</span></div><div class="compute-cell"><strong>64 cores · 256GB</strong><span>decode가 병목이 되지 않게 8 cores/GPU</span></div><div class="compute-cell"><strong>0.3–0.8TB</strong><span>pooled+dense BF16</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE A</span><strong>Frozen proxy train + validation</strong><small>3 budgets · predictor · official metrics</small></div><div class="compute-cell"><strong>1 GPU</strong><span>per configuration</span></div><div class="compute-cell"><strong>3 GPUs</strong><span>one per seed</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>30–80GB</strong><span>logs+checkpoints</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE B</span><strong>Causal adapters + stage gates</strong><small>random-budget training · real encoder FLOPs</small></div><div class="compute-cell"><strong>4 GPUs</strong><span>DDP per seed</span></div><div class="compute-cell"><strong>12 GPUs</strong><span>three jobs</span></div><div class="compute-cell"><strong>32 cores · 256GB</strong><span>per seed</span></div><div class="compute-cell"><strong>0.15–0.3TB</strong><span>activations+ckpt</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE C</span><strong>Last 2–4 blocks LoRA</strong><small>full official train/val · all budget exits</small></div><div class="compute-cell"><strong>8 GPUs</strong><span>FSDP/DDP per seed</span></div><div class="compute-cell"><strong>24 GPUs</strong><span>heavy tier</span></div><div class="compute-cell"><strong>64 cores · 512GB</strong><span>per seed aggregate</span></div><div class="compute-cell"><strong>0.3–0.6TB</strong><span>optimizer+ckpt</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>EVALUATION</span><strong>All-budget Pareto sweep</strong><small>latency·FLOPs·VRAM·accuracy at every exit</small></div><div class="compute-cell"><strong>2 GPUs</strong><span>sharded validation</span></div><div class="compute-cell"><strong>6 GPUs</strong><span>all seed models</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>per seed</span></div><div class="compute-cell"><strong>50–100GB</strong><span>predictions+profiles</span></div></div>
+          </div>
+
+          <div class="compute-formula"><div><p class="mini-label">CALIBRATE BEFORE LAUNCH</p><h3>5% throughput run은 resource 측정용이지 논문 결론용이 아니다.</h3><p>full split 예상 시간이 3시간을 넘으면 GPU 수를 올리거나 gradient accumulation을 줄인다. 모든 scientific result는 여전히 전체 split에서 계산한다.</p></div><code>G_required = ceil(T_1GPU / (2.5h × η_parallel))<br />G_three_seeds = 3 × G_required<br />cache_G = ceil(N_chunks / (throughput_GPU × 2.0h × 0.8))</code></div>
+        </div>
+      </section>
+
+      <section class="proposal-section tinted" id="sources">
+        <div class="page-shell">
+          <div class="detail-heading"><p class="detail-index">08 · CLOSEST SOURCES</p><h2>이 논문이 반드시 정면 비교해야 할 연구</h2></div>
           <div class="source-grid">
             <a class="source-item" href="https://arxiv.org/abs/2604.12887" target="_blank" rel="noreferrer"><span>ICML 2026 SPOTLIGHT</span><h3>VideoFlexTok</h3><p>generation 축의 flexible-length coarse-to-fine video tokenization.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2407.19985" target="_blank" rel="noreferrer"><span>ARXIV 2024</span><h3>MoNE</h3><p>nested experts와 token-wise adaptive visual compute.</p></a>
