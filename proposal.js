@@ -1,10 +1,10 @@
 const demos = document.querySelectorAll("[data-proposal-demo]");
 
 const anytimeCopy = [
-  ["Core state + innovation", "8 tokens", "가장 작은 budget도 persistent state와 짧은 변화 anchor를 role pair로 함께 보존한다."],
-  ["Transition refinement", "24 tokens", "첫 pair가 설명하지 못한 action phase와 long-horizon state transition을 추가한다."],
-  ["Rare-event coverage", "64 tokens", "짧고 드문 contact, direction reversal, object state change의 semantic residual을 보강한다."],
-  ["Residual semantic detail", "128 tokens", "남은 object relation과 fine motion만 추가하며 앞 token의 정보를 반복하지 않는다."],
+  ["Core state + innovation", "8 tokens", "가장 작은 budget도 persistent state와 짧은 변화 anchor를 role pair로 함께 보존한다.", "Next Δ̂ = 0.31"],
+  ["Transition refinement", "24 tokens", "첫 pair가 설명하지 못한 action phase와 long-horizon state transition을 추가한다.", "Next Δ̂ = 0.14"],
+  ["Rare-event coverage", "64 tokens", "짧고 드문 contact, direction reversal, object state change의 semantic residual을 보강한다.", "Next Δ̂ = 0.03 < threshold 0.06"],
+  ["Residual semantic detail", "128 tokens", "남은 object relation과 fine motion만 추가하며 앞 token의 정보를 반복하지 않는다.", "Full path · no next stage"],
 ];
 
 const queryCopy = [
@@ -27,15 +27,22 @@ function setText(root, selector, value) {
 }
 
 function updateAnytime(root, value) {
-  const index = value - 1;
-  const [label, tokens, description] = anytimeCopy[index];
+  const mode = root.dataset.budgetMode || "fixed";
+  const index = mode === "automatic" ? 2 : value - 1;
+  const [label, tokens, description, marginal] = anytimeCopy[index];
   root.querySelectorAll(".demo-stage").forEach((stage, stageIndex) => {
     stage.classList.toggle("is-active", stageIndex <= index);
     stage.classList.toggle("is-current", stageIndex === index);
   });
+  const control = root.querySelector("[data-budget-control]");
+  const input = root.querySelector('input[type="range"]');
+  control?.classList.toggle("is-disabled", mode === "automatic");
+  if (input) input.disabled = mode === "automatic";
   setText(root, "[data-demo-label]", label);
   setText(root, "[data-demo-value]", tokens);
   setText(root, "[data-demo-description]", description);
+  setText(root, "[data-demo-control]", mode === "automatic" ? "Auto stop · K = 3" : `Fixed K = ${index + 1}`);
+  setText(root, "[data-demo-marginal]", mode === "automatic" ? marginal : "Gate logged; hard budget overrides it");
 }
 
 function updateQuery(root, value) {
@@ -67,6 +74,21 @@ demos.forEach((demo) => {
   const input = demo.querySelector('input[type="range"]');
   const type = demo.dataset.proposalDemo;
   const update = type === "anytime" ? updateAnytime : type === "query" ? updateQuery : updateLatent;
+
+  if (type === "anytime") {
+    demo.dataset.budgetMode = "fixed";
+    demo.querySelectorAll("[data-budget-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        demo.dataset.budgetMode = button.dataset.budgetMode;
+        demo.querySelectorAll("[data-budget-mode]").forEach((candidate) => {
+          const active = candidate === button;
+          candidate.classList.toggle("is-active", active);
+          candidate.setAttribute("aria-pressed", String(active));
+        });
+        update(demo, Number(input.value));
+      });
+    });
+  }
 
   update(demo, Number(input.value));
   input.addEventListener("input", (event) => update(demo, Number(event.target.value)));
