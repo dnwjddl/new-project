@@ -46,7 +46,7 @@
             <span class="thesis-label">핵심 thesis</span>
             <p>
               영상이 요구하는 token 수는 pixel complexity가 아니라
-              <strong>아직 해소되지 않은 predictive uncertainty</strong>로 결정되어야 한다.
+              <strong>아직 설명되지 않은 semantic state와 innovation</strong>으로 결정되어야 한다.
             </p>
           </div>
         </div>
@@ -54,11 +54,11 @@
         <figure class="page-shell overview-figure">
           <img
             src="assets/predictive-anytime-encoder.png"
-            alt="시간에 따라 들어오는 영상이 단계적 encoder를 거쳐 gist, event, detail token으로 압축되고 작은 memory state가 다음 시점으로 전달되는 개념도"
+            alt="시간에 따라 들어오는 영상이 단계적 encoder를 거쳐 작은 core와 추가 residual token으로 압축되는 anytime video encoder 개념도"
           />
           <figcaption>
-            개념도: cheap gist는 항상 계산하고, unresolved event와 region만 더 깊게 처리한다. 결과 표현의 모든
-            prefix는 독립적으로 사용할 수 있다.
+            구조 개념도: 작은 core는 항상 계산하고, 앞 group이 설명하지 못한 semantic residual만 더 깊게 처리한다.
+            상세 proposal은 이 일반 구조에 state·innovation 역할을 명시적으로 부여한다.
           </figcaption>
         </figure>
       </section>
@@ -82,16 +82,16 @@
                 <span class="topic-number">01</span>
                 <span class="status-chip">FLAGSHIP</span>
               </div>
-              <h3>Predictive Anytime Encoder</h3>
-              <p class="card-subtitle">dynamic token budget과 실제 encoder compute를 함께 줄이는 표현 학습</p>
+              <h3>State–Innovation Anytime Encoder</h3>
+              <p class="card-subtitle">video-native token role과 실제 encoder compute를 함께 학습</p>
               <dl class="score-list">
                 <div><dt>Potential</dt><dd>높음</dd></div>
                 <div><dt>Novelty</dt><dd>4 / 5</dd></div>
                 <div><dt>Feasibility</dt><dd>4 / 5</dd></div>
               </dl>
               <p>
-                reconstruction 대신 multi-horizon future latent prediction으로 모든 token prefix를 학습하고,
-                내부 encoder depth와 active token 수도 함께 줄인다.
+                모호한 coarse-to-fine 대신 persistence와 innovation을 대칭 token role로 정의한다. 추가 group은
+                작은 budget이 놓친 semantic residual을 맡고, encoder depth와 active token 수도 함께 줄인다.
               </p>
             </article>
 
@@ -147,15 +147,15 @@
         <div class="page-shell">
           <div class="section-heading compact">
             <p class="section-index">02 · RECOMMENDED FLAGSHIP</p>
-            <h2>Predictive Anytime Matryoshka Video Encoder</h2>
-            <p class="working-title">Working title: <em>One Video, Any Budget: Predictively Sufficient Anytime Video Encoding</em></p>
+            <h2>State–Innovation Matryoshka Video Encoder</h2>
+            <p class="working-title">Working title: <em>Not Coarse-to-Fine: State–Innovation Tokens for Anytime Video Understanding</em></p>
           </div>
 
           <div class="claim-block">
             <span>한 문장 claim</span>
             <p>
-              우리는 임의의 token·FLOP budget에서 유효한 nested causal video state를 학습하며, 각 prefix가
-              현재 pixel을 복원하는 대신 여러 시간 간격의 미래 semantic state를 예측하도록 한다.
+              우리는 video representation을 지속되는 semantic state와 새로 발생한 semantic innovation으로 나누고,
+              모든 token·FLOP budget에 두 역할을 함께 주어 temporal understanding을 보존한다.
             </p>
           </div>
 
@@ -170,19 +170,19 @@
             <div class="arch-arrow" aria-hidden="true">→</div>
             <div class="encoder-stack">
               <div class="encoder-stage stage-gist">
-                <span>Shallow causal blocks</span>
-                <strong>Gist tokens</strong>
-                <small>항상 실행</small>
+                <span>Budget group 1</span>
+                <strong>State + innovation core</strong>
+                <small>모든 budget에서 실행</small>
               </div>
               <div class="encoder-stage stage-event">
-                <span>Residual gate</span>
-                <strong>Event refinement</strong>
-                <small>필요한 token만 계속</small>
+                <span>Budget group 2</span>
+                <strong>Transition residual</strong>
+                <small>앞 group이 놓친 변화</small>
               </div>
               <div class="encoder-stage stage-detail">
-                <span>Deep sparse blocks</span>
-                <strong>Object / motion detail</strong>
-                <small>high budget에서만</small>
+                <span>Budget group 3+</span>
+                <strong>Rare-event residual</strong>
+                <small>필요할 때만 깊게 실행</small>
               </div>
             </div>
             <div class="arch-arrow" aria-hidden="true">→</div>
@@ -194,24 +194,24 @@
               <small>Z¹ ⊂ Z² ⊂ Z³</small>
             </div>
             <div class="teacher-column">
-              <span class="arch-label">FROZEN TEACHER</span>
-              <strong>V-JEPA 2</strong>
-              <small>t+1 · t+4 · t+16</small>
-              <div class="teacher-link" aria-hidden="true">predict future latents</div>
+              <span class="arch-label">SEMANTIC TEACHER</span>
+              <strong>Not fixed to V-JEPA</strong>
+              <small>V-JEPA · VideoMAE · EMA</small>
+              <div class="teacher-link" aria-hidden="true">split state / innovation</div>
             </div>
           </div>
 
           <div class="budget-lab" aria-labelledby="budget-title">
             <div class="budget-copy">
               <p class="tool-label">CONCEPTUAL BUDGET LAB</p>
-              <h3 id="budget-title">Budget을 올리면 전체를 다시 계산하지 않고 unresolved state만 확장한다.</h3>
+              <h3 id="budget-title">Budget을 올리면 앞 group이 놓친 semantic residual만 확장한다.</h3>
               <p id="budget-description">
-                Gist stage는 장면과 주행동을 유지한다. 가장 작은 budget에서도 독립적으로 유효해야 한다.
+                가장 작은 budget도 persistent state와 짧은 innovation을 함께 보존해야 한다.
               </p>
               <div class="budget-stats" aria-live="polite">
                 <div><span>Output tokens</span><strong id="token-count">8</strong></div>
                 <div><span>Active stages</span><strong id="stage-count">1 / 4</strong></div>
-                <div><span>Representation</span><strong id="representation-label">Gist</strong></div>
+                <div><span>Representation</span><strong id="representation-label">State + innovation</strong></div>
               </div>
             </div>
             <div class="budget-control">
@@ -227,26 +227,24 @@
           <div class="contribution-grid">
             <div>
               <span class="contribution-number">C1</span>
-              <h3>Predictive rate–distortion</h3>
+              <h3>Video token role audit</h3>
               <p>
-                distortion을 pixel reconstruction이 아니라 multi-horizon frozen teacher latent error로 정의한다.
-                token은 미래 상태를 설명할 수 있을 때만 가치가 있다.
+                “앞 token=coarse”라는 통념을 persistence, innovation, order, rare-event intervention으로 정량 검증한다.
               </p>
             </div>
             <div>
               <span class="contribution-number">C2</span>
-              <h3>Anytime encoder execution</h3>
+              <h3>Successive semantic alignment</h3>
               <p>
-                nested output뿐 아니라 encoder 내부에서도 쉬운 token을 일찍 멈춘다. 하나의 weight로
-                token–FLOP Pareto frontier 전체를 제공한다.
+                각 budget tier가 더 작은 prefix에 남은 state·innovation residual을 설명하게 하여 token 중복을 줄인다.
               </p>
             </div>
             <div>
               <span class="contribution-number">C3</span>
-              <h3>Unknown-query sufficiency</h3>
+              <h3>Anytime encoder execution</h3>
               <p>
-                write 시점에는 질문을 보지 않고 상태를 만든다. 이후 unseen understanding query와 streaming
-                memory에서 표현의 재사용성을 검증한다.
+                nested output뿐 아니라 encoder 내부에서도 쉬운 token을 일찍 멈춘다. 하나의 weight로
+                token–FLOP Pareto frontier 전체를 제공한다.
               </p>
             </div>
           </div>
@@ -254,12 +252,12 @@
           <div class="objective-panel">
             <div>
               <p class="tool-label">TRAINING OBJECTIVE</p>
-              <h3>각 budget prefix가 서로 다른 미래 horizon을 놓치지 않게 한다.</h3>
+              <h3>각 group은 더 작은 budget이 남긴 semantic residual을 맡는다.</h3>
             </div>
             <code>
-              L = Σ<sub>b,h</sub> w<sub>b,h</sub> · d(P<sub>h</sub>(Z<sup>b</sup><sub>≤t</sub>),
-              stopgrad(E<sub>teacher</sub>(x<sub>t+h</sub>))) + λ<sub>nest</sub>L<sub>consistency</sub>
-              + λ<sub>cost</sub>E[FLOPs] + λ<sub>task</sub>L<sub>distill</sub>
+              S<sub>t</sub> = A(Y<sub>&lt;t</sub>), I<sub>t</sub> = Y<sub>t</sub> − S<sub>t</sub><br />
+              L = Σ<sub>k</sub>[d(ΔŜ<sub>k</sub>, S<sub>t</sub> − Ŝ<sub>&lt;k</sub>) +
+              d(ΔÎ<sub>k</sub>, I<sub>t</sub> − Î<sub>&lt;k</sub>)] + λ<sub>cost</sub>E[FLOPs]
             </code>
           </div>
 
@@ -268,8 +266,8 @@
               <p class="tool-label">NO-SCRATCH RECIPE</p>
               <h3>현실적인 학습 순서</h3>
               <ol>
-                <li>V-JEPA 2를 frozen teacher로 두고 pretrained video ViT student를 초기화한다.</li>
-                <li>register/proxy tokens, causal adapters, predictor, budget router만 먼저 학습한다.</li>
+                <li>기존 nested video token의 역할을 full split intervention probe로 먼저 분석한다.</li>
+                <li>V-JEPA와 control teacher의 feature를 cache하고 direct REPA와 제안 loss를 비교한다.</li>
                 <li>가능성이 확인되면 student 마지막 block과 LoRA를 점진적으로 연다.</li>
                 <li>LLM 연결은 encoder 가설이 검증된 뒤 projector/SFT 단계로 분리한다.</li>
               </ol>
@@ -279,9 +277,9 @@
               <h3>논문이 반드시 증명해야 할 것</h3>
               <ol>
                 <li>한 모델의 모든 budget이 budget별 전용 모델에 근접한다.</li>
-                <li>predictive objective가 DINO/reconstruction보다 temporal reasoning을 잘 보존한다.</li>
+                <li>명시적 role loss가 direct REPA보다 order와 state-change를 잘 보존한다.</li>
                 <li>in-encoder routing이 post-hoc pruning보다 실제 TTFT와 GFLOPs를 줄인다.</li>
-                <li>router가 oracle budget과의 간격을 의미 있게 좁힌다.</li>
+                <li>role ordering과 Pareto gain이 teacher와 dataset이 바뀌어도 유지된다.</li>
               </ol>
             </div>
           </div>
@@ -316,17 +314,17 @@
               </div>
               <p>
                 VideoFlexTok의 “generation을 understanding으로 바꾼다”만으로는 약하다. time-causal과 streaming도
-                이미 들어 있다. novelty는 <strong>future-semantic sufficiency + internal conditional compute</strong>다.
+                이미 들어 있다. novelty는 <strong>video token role audit + state–innovation successive alignment + internal conditional compute</strong>다.
               </p>
             </div>
             <div class="topic-columns">
               <section>
                 <h4>Method</h4>
                 <ul>
-                  <li>시점별 gist register를 shallow block에서 생성</li>
-                  <li>predictive residual이 큰 event/region만 deeper block으로 전달</li>
-                  <li>각 depth의 residual token을 합치면 nested representation 형성</li>
-                  <li>V-JEPA 2 teacher의 현재 및 미래 latent를 여러 horizon에서 distill</li>
+                  <li>teacher semantic target을 predictable state와 observed innovation으로 분해</li>
+                  <li>모든 budget group에 state·innovation register를 쌍으로 배치</li>
+                  <li>k번째 group은 k−1 prefix가 남긴 semantic residual만 정렬</li>
+                  <li>V-JEPA, VideoMAE 계열, EMA self-teacher에서 역할 ordering을 교차 검증</li>
                   <li>budget-conditioned stochastic training으로 하나의 weight 유지</li>
                 </ul>
               </section>
@@ -338,8 +336,8 @@
                 </p>
                 <h4>Kill criterion</h4>
                 <p>
-                  frozen proxy가 full V-JEPA feature의 temporal score를 보존하지 못하거나, routing overhead를 포함한
-                  latency가 fixed encoder 대비 줄지 않으면 구조를 축소한다.
+                  role ordering이 teacher에 따라 사라지거나 direct REPA와 같은 GFLOPs에서 temporal score 차이가 없거나,
+                  routing overhead를 포함한 latency가 fixed encoder 대비 줄지 않으면 claim을 축소한다.
                 </p>
               </section>
             </div>
@@ -510,14 +508,14 @@
                 <tr>
                   <th>Training signal</th>
                   <td>flow reconstruction + DINOv2 REPA</td>
-                  <td>multi-horizon V-JEPA latent prediction</td>
-                  <td>predictive sufficiency at every prefix</td>
+                  <td>state–innovation successive alignment</td>
+                  <td>role separation and residual gain at every budget</td>
                 </tr>
                 <tr>
                   <th>Budget structure</th>
                   <td>tail prefix over per-frame registers</td>
-                  <td>gist + learned event/region residuals</td>
-                  <td>non-linear, content-adaptive refinement</td>
+                  <td>role-paired state + innovation residual groups</td>
+                  <td>measured marginal role per token group</td>
                 </tr>
                 <tr>
                   <th>Encoder compute</th>
@@ -528,7 +526,7 @@
                 <tr>
                   <th>Streaming</th>
                   <td>sliding-window encode, decoded-frame conditioning</td>
-                  <td>causal latent state 자체를 계속 갱신</td>
+                  <td>causal state–innovation representation을 갱신</td>
                   <td>bounded state, unknown future query</td>
                 </tr>
               </tbody>
@@ -592,7 +590,7 @@
             <div class="roadmap-step">
               <span>WEEK 1–2</span>
               <h3>Falsify cheaply</h3>
-              <p>Frozen V-JEPA features, 3 budgets, tiny proxy. SSv2/TempCompass subset에서 objective 차이만 본다.</p>
+              <p>Full official split의 cached teacher features로 기존 token role audit와 direct REPA 대비 objective 차이를 본다.</p>
             </div>
             <div class="roadmap-step">
               <span>WEEK 3–5</span>
@@ -617,9 +615,8 @@
               <h3>첫 번째로 확인할 단 하나의 결과</h3>
             </div>
             <p>
-              동일 32-token budget에서 V-JEPA future-latent objective가 DINO current-frame alignment보다
-              TempCompass temporal score를 유의미하게 높이면서 appearance task를 유지하는가? 아니면 핵심 가설부터
-              다시 세운다.
+              같은 32-token·encoder GFLOPs에서 state–innovation alignment가 direct REPA보다 order·state-change를
+              유의미하게 높이고, 이 결과가 V-JEPA와 control teacher에서 모두 유지되는가? 아니면 핵심 가설부터 다시 세운다.
             </p>
           </aside>
         </div>
@@ -707,7 +704,7 @@
             <p class="tool-label">THE OPEN SPACE</p>
             <h3>세 논문이 점유할 서로 다른 공간</h3>
             <div class="open-space-list">
-              <p><strong>01 · Anytime:</strong> predictive semantics와 encoder 내부 conditional compute를 하나의 nested representation으로 묶는다.</p>
+              <p><strong>01 · Anytime:</strong> state–innovation token roles와 encoder 내부 conditional compute를 하나의 nested representation으로 묶는다.</p>
               <p><strong>02 · Multi-query:</strong> query-agnostic tree와 cumulative branch cache로 질문 수가 늘수록 평균 비용을 낮춘다.</p>
               <p><strong>03 · Predictive filtering:</strong> calibrated innovation으로 bounded state write와 recurrent correction compute를 공동 배분한다.</p>
             </div>

@@ -2,30 +2,30 @@ const budgetConfigurations = {
   1: {
     tokens: 8,
     stages: "1 / 4",
-    label: "Gist",
+    label: "State + innovation",
     active: 4,
-    description: "Gist stage는 장면과 주행동을 유지한다. 가장 작은 budget에서도 독립적으로 유효해야 한다.",
+    description: "가장 작은 budget도 persistent state와 짧은 semantic innovation을 함께 보존한다.",
   },
   2: {
     tokens: 24,
     stages: "2 / 4",
-    label: "Gist + events",
+    label: "Transition residual",
     active: 8,
-    description: "Predictive residual이 큰 event만 한 단계 더 처리해 순서와 상태 변화를 보강한다.",
+    description: "두 번째 role pair는 core token이 놓친 transition과 방향 변화를 보강한다.",
   },
   3: {
     tokens: 64,
     stages: "3 / 4",
-    label: "Events + objects",
+    label: "Rare-event residual",
     active: 12,
-    description: "선택된 event 안에서 object identity와 interaction을 위한 spatial token을 추가한다.",
+    description: "세 번째 role pair는 짧지만 결정적인 상태 변화와 희소 사건을 보강한다.",
   },
   4: {
     tokens: 128,
     stages: "4 / 4",
-    label: "Full detail",
+    label: "Full semantic residual",
     active: 16,
-    description: "가장 어려운 region만 deep sparse block까지 진행해 fine motion과 appearance detail을 복원한다.",
+    description: "가장 어려운 구간만 deep stage까지 보내 남은 state와 innovation residual을 줄인다.",
   },
 };
 

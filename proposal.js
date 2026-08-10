@@ -1,10 +1,10 @@
 const demos = document.querySelectorAll("[data-proposal-demo]");
 
 const anytimeCopy = [
-  ["Scene gist", "8 tokens", "장면과 주행동만 남기고 모든 clip이 shallow block에서 종료된다."],
-  ["Event transitions", "24 tokens", "predictive residual이 큰 짧은 사건만 event block까지 진행한다."],
-  ["Object states", "64 tokens", "선택된 사건 안에서 object identity와 state change를 보강한다."],
-  ["Fine motion", "128 tokens", "가장 어려운 region만 마지막 sparse block까지 계산한다."],
+  ["Core state + innovation", "8 tokens", "가장 작은 budget도 persistent state와 짧은 변화 anchor를 role pair로 함께 보존한다."],
+  ["Transition refinement", "24 tokens", "첫 pair가 설명하지 못한 action phase와 long-horizon state transition을 추가한다."],
+  ["Rare-event coverage", "64 tokens", "짧고 드문 contact, direction reversal, object state change의 semantic residual을 보강한다."],
+  ["Residual semantic detail", "128 tokens", "남은 object relation과 fine motion만 추가하며 앞 token의 정보를 반복하지 않는다."],
 ];
 
 const queryCopy = [
