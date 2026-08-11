@@ -1,0 +1,200 @@
+{
+  "by_dimension": {
+    "action": {
+      "accuracy": 0.8793806030969845,
+      "max_peak_memory_gib": 15.412750720977783,
+      "mean_input_tokens": 2438.4914425427874,
+      "mean_latency_seconds": 1.217504663039967,
+      "samples": 1227,
+      "valid": 1227
+    },
+    "attribute_change": {
+      "accuracy": 0.6123046875,
+      "max_peak_memory_gib": 15.4127779006958,
+      "mean_input_tokens": 2440.494140625,
+      "mean_latency_seconds": 1.1256386817216395,
+      "samples": 1024,
+      "valid": 1024
+    },
+    "direction": {
+      "accuracy": 0.5025951557093425,
+      "max_peak_memory_gib": 15.412662029266357,
+      "mean_input_tokens": 2441.7837370242214,
+      "mean_latency_seconds": 1.190892373976677,
+      "samples": 1156,
+      "valid": 1156
+    },
+    "order": {
+      "accuracy": 0.6504065040650406,
+      "max_peak_memory_gib": 15.413212299346924,
+      "mean_input_tokens": 2397.52337398374,
+      "mean_latency_seconds": 1.2109094758782637,
+      "samples": 984,
+      "valid": 984
+    },
+    "speed": {
+      "accuracy": 0.5379912663755458,
+      "max_peak_memory_gib": 15.412839412689209,
+      "mean_input_tokens": 2294.9117903930132,
+      "mean_latency_seconds": 1.176864789454757,
+      "samples": 1145,
+      "valid": 1145
+    }
+  },
+  "by_task": {
+    "caption_matching": {
+      "accuracy": 0.716566866267465,
+      "max_peak_memory_gib": 15.412957668304443,
+      "mean_input_tokens": 2416.1084497671322,
+      "mean_latency_seconds": 1.2909431824619912,
+      "samples": 1503,
+      "valid": 1503
+    },
+    "multi-choice": {
+      "accuracy": 0.579746835443038,
+      "max_peak_memory_gib": 15.413212299346924,
+      "mean_input_tokens": 2414.777848101266,
+      "mean_latency_seconds": 1.1623581565542793,
+      "samples": 1580,
+      "valid": 1580
+    },
+    "yes_no": {
+      "accuracy": 0.6318793314309009,
+      "max_peak_memory_gib": 15.411954879760742,
+      "mean_input_tokens": 2386.4141867101507,
+      "mean_latency_seconds": 1.1355219867687774,
+      "samples": 2453,
+      "valid": 2453
+    }
+  },
+  "by_task_and_dimension": {
+    "caption_matching/action": {
+      "accuracy": 0.9696969696969697,
+      "max_peak_memory_gib": 15.412573337554932,
+      "mean_input_tokens": 2452.96632996633,
+      "mean_latency_seconds": 1.330438025918723,
+      "samples": 297,
+      "valid": 297
+    },
+    "caption_matching/attribute_change": {
+      "accuracy": 0.65625,
+      "max_peak_memory_gib": 15.41260290145874,
+      "mean_input_tokens": 2454.1701388888887,
+      "mean_latency_seconds": 1.2349698620074985,
+      "samples": 288,
+      "valid": 288
+    },
+    "caption_matching/direction": {
+      "accuracy": 0.581039755351682,
+      "max_peak_memory_gib": 15.412514209747314,
+      "mean_input_tokens": 2455.2752293577983,
+      "mean_latency_seconds": 1.2856441969963344,
+      "samples": 327,
+      "valid": 327
+    },
+    "caption_matching/order": {
+      "accuracy": 0.79,
+      "max_peak_memory_gib": 15.412957668304443,
+      "mean_input_tokens": 2407.48,
+      "mean_latency_seconds": 1.320405467776242,
+      "samples": 300,
+      "valid": 300
+    },
+    "caption_matching/speed": {
+      "accuracy": 0.5945017182130584,
+      "max_peak_memory_gib": 15.412839412689209,
+      "mean_input_tokens": 2305.7044673539517,
+      "mean_latency_seconds": 1.2816113282944284,
+      "samples": 291,
+      "valid": 291
+    },
+    "multi-choice/action": {
+      "accuracy": 0.9201183431952663,
+      "max_peak_memory_gib": 15.412750720977783,
+      "mean_input_tokens": 2449.846153846154,
+      "mean_latency_seconds": 1.2046223606418054,
+      "samples": 338,
+      "valid": 338
+    },
+    "multi-choice/attribute_change": {
+      "accuracy": 0.5763888888888888,
+      "max_peak_memory_gib": 15.4127779006958,
+      "mean_input_tokens": 2451.0138888888887,
+      "mean_latency_seconds": 1.09790645468436,
+      "samples": 288,
+      "valid": 288
+    },
+    "multi-choice/direction": {
+      "accuracy": 0.36716417910447763,
+      "max_peak_memory_gib": 15.412662029266357,
+      "mean_input_tokens": 2452.4328358208954,
+      "mean_latency_seconds": 1.17062622425937,
+      "samples": 335,
+      "valid": 335
+    },
+    "multi-choice/order": {
+      "accuracy": 0.5860927152317881,
+      "max_peak_memory_gib": 15.413212299346924,
+      "mean_input_tokens": 2407.218543046358,
+      "mean_latency_seconds": 1.1779752085906676,
+      "samples": 302,
+      "valid": 302
+    },
+    "multi-choice/speed": {
+      "accuracy": 0.4384858044164038,
+      "max_peak_memory_gib": 15.412292957305908,
+      "mean_input_tokens": 2311.8738170347,
+      "mean_latency_seconds": 1.152233982297997,
+      "samples": 317,
+      "valid": 317
+    },
+    "yes_no/action": {
+      "accuracy": 0.8108108108108109,
+      "max_peak_memory_gib": 15.411654949188232,
+      "mean_input_tokens": 2424.7466216216217,
+      "mean_latency_seconds": 1.1682023141135958,
+      "samples": 592,
+      "valid": 592
+    },
+    "yes_no/attribute_change": {
+      "accuracy": 0.6071428571428571,
+      "max_peak_memory_gib": 15.411694526672363,
+      "mean_input_tokens": 2424.9397321428573,
+      "mean_latency_seconds": 1.0731822117761243,
+      "samples": 448,
+      "valid": 448
+    },
+    "yes_no/direction": {
+      "accuracy": 0.5425101214574899,
+      "max_peak_memory_gib": 15.411714553833008,
+      "mean_input_tokens": 2425.6315789473683,
+      "mean_latency_seconds": 1.1419152768671021,
+      "samples": 494,
+      "valid": 494
+    },
+    "yes_no/order": {
+      "accuracy": 0.5916230366492147,
+      "max_peak_memory_gib": 15.411954879760742,
+      "mean_input_tokens": 2382.0392670157066,
+      "mean_latency_seconds": 1.1509548977407258,
+      "samples": 382,
+      "valid": 382
+    },
+    "yes_no/speed": {
+      "accuracy": 0.5661080074487895,
+      "max_peak_memory_gib": 15.4117751121521,
+      "mean_input_tokens": 2279.050279329609,
+      "mean_latency_seconds": 1.1346426722598755,
+      "samples": 537,
+      "valid": 537
+    }
+  },
+  "overall": {
+    "accuracy": 0.639992774566474,
+    "max_peak_memory_gib": 15.413212299346924,
+    "mean_input_tokens": 2402.571170520231,
+    "mean_latency_seconds": 1.1853773345628513,
+    "samples": 5536,
+    "valid": 5536
+  }
+}

@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Gemma 4 E2B and E4B video architecture with tensor shapes</title>
+  <desc id="desc">A shape-accurate diagram of the 64-frame evaluation path through the Gemma 4 video processor, shared vision tower, multimodal projector, and E2B or E4B language decoder, followed by configuration and benchmark summaries.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#24343a"/>
+    </marker>
+    <style>
+      .title { font: 700 38px Arial, Helvetica, sans-serif; fill: #172328; }
+      .subtitle { font: 400 17px Arial, Helvetica, sans-serif; fill: #526168; }
+      .section { font: 700 13px Arial, Helvetica, sans-serif; fill: #197d78; }
+      .stage { font: 700 21px Arial, Helvetica, sans-serif; fill: #172328; }
+      .body { font: 400 15px Arial, Helvetica, sans-serif; fill: #425158; }
+      .small { font: 400 13px Arial, Helvetica, sans-serif; fill: #5a696f; }
+      .shape { font: 700 16px 'Courier New', monospace; fill: #172328; }
+      .shapeLight { font: 700 14px 'Courier New', monospace; fill: #ffffff; }
+      .label { font: 700 12px Arial, Helvetica, sans-serif; fill: #ffffff; }
+      .tableHead { font: 700 14px Arial, Helvetica, sans-serif; fill: #ffffff; }
+      .tableText { font: 400 14px Arial, Helvetica, sans-serif; fill: #34444a; }
+      .tableStrong { font: 700 14px Arial, Helvetica, sans-serif; fill: #172328; }
+      .metric { font: 700 22px Arial, Helvetica, sans-serif; fill: #172328; }
+      .arrow { stroke: #24343a; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .rule { stroke: #ccd4d5; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1000" fill="#f7f7f3"/>
+  <rect x="0" y="0" width="1600" height="12" fill="#197d78"/>
+
+  <text x="56" y="68" class="section">GEMMA 4 VIDEO PATH / OUR 64-FRAME EVALUATION</text>
+  <text x="56" y="112" class="title">Frame-wise vision encoding, temporal fusion inside the causal LLM</text>
+  <text x="56" y="142" class="subtitle">E2B and E4B share the same approximately 150M-parameter vision tower. Their language decoders differ in width and depth.</text>
+
+  <!-- Input video -->
+  <g transform="translate(56 196)">
+    <rect x="0" y="0" width="216" height="254" fill="#ffffff" stroke="#b7c3c5"/>
+    <rect x="0" y="0" width="216" height="34" fill="#24343a"/>
+    <text x="14" y="22" class="label">1 / VIDEO INPUT</text>
+    <rect x="28" y="58" width="118" height="72" fill="#d9e2e1" stroke="#7e9195"/>
+    <rect x="39" y="69" width="118" height="72" fill="#e6ecea" stroke="#7e9195"/>
+    <rect x="50" y="80" width="118" height="72" fill="#f2eee8" stroke="#7e9195"/>
+    <circle cx="89" cy="112" r="15" fill="#d66b4d"/>
+    <path d="M107 127 L144 96" stroke="#197d78" stroke-width="5"/>
+    <text x="18" y="184" class="stage">64 RGB frames</text>
+    <text x="18" y="211" class="body">uniformly sampled</text>
+    <text x="18" y="239" class="shape">[1, 64, H, W, 3]</text>
+  </g>
+
+  <path d="M276 323 H315" class="arrow"/>
+
+  <!-- Processor -->
+  <g transform="translate(324 196)">
+    <rect x="0" y="0" width="250" height="254" fill="#ffffff" stroke="#b7c3c5"/>
+    <rect x="0" y="0" width="250" height="34" fill="#197d78"/>
+    <text x="14" y="22" class="label">2 / VIDEO PROCESSOR</text>
+    <text x="18" y="69" class="stage">Patchify each frame</text>
+    <text x="18" y="99" class="body">aspect-ratio resize</text>
+    <text x="18" y="123" class="body">16 x 16 x 3 = 768 values</text>
+    <g transform="translate(18 145)">
+      <rect x="0" y="0" width="22" height="22" fill="#d9e2e1" stroke="#7e9195"/>
+      <rect x="26" y="0" width="22" height="22" fill="#d9e2e1" stroke="#7e9195"/>
+      <rect x="52" y="0" width="22" height="22" fill="#d9e2e1" stroke="#7e9195"/>
+      <rect x="0" y="26" width="22" height="22" fill="#d9e2e1" stroke="#7e9195"/>
+      <rect x="26" y="26" width="22" height="22" fill="#d66b4d" stroke="#7e9195"/>
+      <rect x="52" y="26" width="22" height="22" fill="#d9e2e1" stroke="#7e9195"/>
+      <text x="92" y="19" class="small">up to 630 patches/frame</text>
+      <text x="92" y="43" class="small">padding positions = (-1,-1)</text>
+    </g>
+    <text x="18" y="228" class="shape">[1, 64, 630, 768]</text>
+  </g>
+
+  <path d="M578 323 H617" class="arrow"/>
+
+  <!-- Vision tower -->
+  <g transform="translate(626 176)">
+    <rect x="0" y="0" width="328" height="294" fill="#eef4f3" stroke="#7ea9a6" stroke-width="2"/>
+    <rect x="0" y="0" width="328" height="34" fill="#197d78"/>
+    <text x="14" y="22" class="label">3 / SHARED VISION TOWER</text>
+    <text x="18" y="70" class="shape">flatten B,F: [64,630,768]</text>
+    <rect x="18" y="88" width="292" height="48" fill="#ffffff" stroke="#b7c3c5"/>
+    <text x="32" y="109" class="tableStrong">Patch projection + 2D position</text>
+    <text x="32" y="128" class="small">Linear 768 -> 768</text>
+    <rect x="18" y="146" width="292" height="65" fill="#ffffff" stroke="#b7c3c5"/>
+    <text x="32" y="169" class="tableStrong">16 bidirectional vision blocks</text>
+    <text x="32" y="191" class="small">D=768 / 12 heads / head=64 / MLP=3072</text>
+    <rect x="18" y="221" width="292" height="48" fill="#ffffff" stroke="#b7c3c5"/>
+    <text x="32" y="242" class="tableStrong">3 x 3 spatial average pool</text>
+    <text x="32" y="261" class="shape">[64, 70, 768]</text>
+  </g>
+
+  <rect x="674" y="486" width="232" height="34" fill="#a84336"/>
+  <text x="790" y="508" text-anchor="middle" class="shapeLight">NO CROSS-FRAME ATTENTION</text>
+
+  <path d="M958 323 H997" class="arrow"/>
+
+  <!-- Projection -->
+  <g transform="translate(1006 196)">
+    <rect x="0" y="0" width="218" height="254" fill="#ffffff" stroke="#b7c3c5"/>
+    <rect x="0" y="0" width="218" height="34" fill="#346a86"/>
+    <text x="14" y="22" class="label">4 / MM PROJECTOR</text>
+    <text x="18" y="72" class="stage">Time-order flatten</text>
+    <text x="18" y="102" class="shape">[1, 4480, 768]</text>
+    <line x1="18" y1="121" x2="200" y2="121" class="rule"/>
+    <text x="18" y="150" class="body">RMSNorm + Linear</text>
+    <text x="18" y="181" class="small">E2B: 768 -> 1536</text>
+    <text x="18" y="205" class="small">E4B: 768 -> 2560</text>
+    <text x="18" y="235" class="shape">[1, 4480, D]</text>
+  </g>
+
+  <path d="M1228 323 H1267" class="arrow"/>
+
+  <!-- Language decoder -->
+  <g transform="translate(1276 176)">
+    <rect x="0" y="0" width="268" height="294" fill="#f2eee8" stroke="#c7a997" stroke-width="2"/>
+    <rect x="0" y="0" width="268" height="34" fill="#d66b4d"/>
+    <text x="14" y="22" class="label">5 / CAUSAL LANGUAGE MODEL</text>
+    <text x="18" y="68" class="stage">Video + prompt tokens</text>
+    <text x="18" y="97" class="shape">[1, ~5019, D]</text>
+    <text x="18" y="124" class="small">mean in our Video-MME-v2 run</text>
+    <rect x="18" y="143" width="232" height="58" fill="#ffffff" stroke="#c7a997"/>
+    <text x="31" y="166" class="tableStrong">Hybrid causal attention</text>
+    <text x="31" y="188" class="small">local window 512 + periodic global</text>
+    <text x="18" y="229" class="body">Text generation head</text>
+    <text x="18" y="259" class="shape">logits [1,T,262144]</text>
+  </g>
+
+  <!-- Configuration table -->
+  <text x="56" y="588" class="section">EXACT MODEL CONFIGURATION</text>
+  <g transform="translate(56 610)">
+    <rect x="0" y="0" width="930" height="324" fill="#ffffff" stroke="#b7c3c5"/>
+    <rect x="0" y="0" width="930" height="42" fill="#24343a"/>
+    <text x="20" y="27" class="tableHead">Component</text>
+    <text x="315" y="27" class="tableHead">Gemma 4 E2B IT</text>
+    <text x="620" y="27" class="tableHead">Gemma 4 E4B IT</text>
+
+    <line x1="290" y1="0" x2="290" y2="324" class="rule"/>
+    <line x1="595" y1="0" x2="595" y2="324" class="rule"/>
+    <line x1="0" y1="96" x2="930" y2="96" class="rule"/>
+    <line x1="0" y1="150" x2="930" y2="150" class="rule"/>
+    <line x1="0" y1="204" x2="930" y2="204" class="rule"/>
+    <line x1="0" y1="258" x2="930" y2="258" class="rule"/>
+
+    <text x="20" y="70" class="tableStrong">Parameters</text>
+    <text x="315" y="70" class="tableText">2.3B effective / 5.1B total</text>
+    <text x="620" y="70" class="tableText">4.5B effective / 8.0B total</text>
+
+    <text x="20" y="124" class="tableStrong">Decoder depth / width</text>
+    <text x="315" y="124" class="tableText">35 layers / D=1536</text>
+    <text x="620" y="124" class="tableText">42 layers / D=2560</text>
+
+    <text x="20" y="178" class="tableStrong">MLP / attention heads</text>
+    <text x="315" y="178" class="tableText">6144 / 8 Q, 1 KV</text>
+    <text x="620" y="178" class="tableText">10240 / 8 Q, 2 KV</text>
+
+    <text x="20" y="232" class="tableStrong">Local / global layers</text>
+    <text x="315" y="232" class="tableText">28 local + 7 global</text>
+    <text x="620" y="232" class="tableText">35 local + 7 global</text>
+
+    <text x="20" y="286" class="tableStrong">Shared vision tower</text>
+    <text x="315" y="282" class="tableText">16L / D=768 / approximately 150M</text>
+    <text x="315" y="305" class="tableText">P16 / pool3 / at most 70 tok/frame</text>
+    <text x="620" y="282" class="tableText">same shared vision tower</text>
+    <text x="620" y="305" class="tableText">128K context / local window 512</text>
+  </g>
+
+  <!-- Benchmark summary -->
+  <text x="1020" y="588" class="section">WHAT OUR RUNS ACTUALLY SHOWED</text>
+  <g transform="translate(1020 610)">
+    <rect x="0" y="0" width="524" height="324" fill="#ffffff" stroke="#b7c3c5"/>
+    <rect x="0" y="0" width="524" height="42" fill="#197d78"/>
+    <text x="18" y="27" class="tableHead">Benchmark</text>
+    <text x="274" y="27" class="tableHead">E2B</text>
+    <text x="392" y="27" class="tableHead">E4B</text>
+
+    <text x="18" y="75" class="tableStrong">TempCompass objective</text>
+    <text x="18" y="96" class="small">32 frames / no thinking</text>
+    <text x="274" y="84" class="metric">57.79%</text>
+    <text x="392" y="84" class="metric">64.00%</text>
+    <rect x="18" y="112" width="488" height="29" fill="#dcece8"/>
+    <text x="262" y="132" text-anchor="middle" class="tableStrong">WORKING: E4B is competitive with mid-tier 7B video models</text>
+
+    <line x1="18" y1="158" x2="506" y2="158" class="rule"/>
+    <text x="18" y="190" class="tableStrong">Video-MME-v2 visual-only</text>
+    <text x="18" y="211" class="small">64 frames / no subtitle / no thinking</text>
+    <text x="274" y="199" class="metric">16.81%</text>
+    <text x="392" y="199" class="metric">21.47%</text>
+    <text x="274" y="222" class="small">NL 5.92</text>
+    <text x="392" y="222" class="small">NL 8.28</text>
+    <rect x="18" y="238" width="488" height="29" fill="#f2ddd7"/>
+    <text x="262" y="258" text-anchor="middle" class="tableStrong">WEAK: below stronger 4B peers in the same 64-frame setting</text>
+
+    <text x="18" y="292" class="small">E4B is above LLaVA-Video-7B no-sub (19.9 / NL 7.2),</text>
+    <text x="18" y="313" class="small">but below Qwen3-VL-4B no-sub (26.2 / NL 11.6).</text>
+  </g>
+
+  <text x="56" y="974" class="small">Shapes verified with the released Gemma 4 processor and config. Vision tokens from different frames first interact inside the causal language model, not inside the frame-wise vision tower.</text>
+</svg>
