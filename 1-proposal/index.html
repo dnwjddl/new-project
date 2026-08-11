@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Dual-Control State–Innovation Video Encoder 상세 연구 제안" />
-    <title>01 · Dual-Control Efficient Video Encoder</title>
+    <meta name="description" content="Adaptive Persistence–Innovation Video Encoder 상세 연구 제안" />
+    <title>01 · Adaptive Persistence–Innovation Video Encoder</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
@@ -28,14 +28,14 @@
         <div class="page-shell proposal-hero-grid">
           <div>
             <p class="proposal-kicker">PROPOSAL 01 · BROAD REPRESENTATION PROBLEM</p>
-            <h1>Dual-Control State–Innovation Video Encoder</h1>
+            <h1>Adaptive Persistence–Innovation Video Encoder</h1>
             <p class="hero-summary">
-              하나의 pretrained video encoder를 <strong>직접 지정한 hard token budget</strong>으로 실행하거나,
-              query 없이 <strong>다음 token의 marginal temporal information</strong>을 판단해 스스로 멈추게 한다.
-              모든 실행은 state와 innovation을 함께 보존하는 동일한 gist-first nested representation을 공유한다.
+              모든 video를 같은 길이로 압축하지 않는다. 최소 <strong>semantic persistence–innovation pair</strong>에서 시작해,
+              query 없이 다음 pair가 줄 semantic-temporal uncertainty를 판단하며 필요한 video에만 token을 추가한다.
+              최종 token budget은 미리 고르는 값이 아니라 이 progressive stopping 과정의 결과다.
             </p>
             <div class="hero-meta">
-              <div><span>CONTROL</span><strong>Fixed or automatic</strong></div>
+              <div><span>PRIMARY CONTROL</span><strong>Fully automatic</strong></div>
               <div><span>QUERY AT ENCODE</span><strong>Unavailable</strong></div>
               <div><span>MAIN METRIC</span><strong>Accuracy / encoder FLOPs</strong></div>
             </div>
@@ -43,8 +43,8 @@
           <div class="hero-claim">
             <span>ONE-SENTENCE CLAIM</span>
             <p>
-              각 추가 stage가 제공할 temporal utility를 예측하면, 사용자는 계산량을 정확히 지정할 수 있고
-              모델은 budget이 없을 때 video별 최소 충분 token·depth에서 멈출 수 있다.
+              Pixel motion이 아니라 아직 설명되지 않은 semantic persistence와 temporal innovation의 가치로
+              각 video의 token budget을 자동 결정한다.
             </p>
           </div>
         </div>
@@ -58,7 +58,7 @@
             <p class="section-explainer">
               image에서는 layout→object→texture가 자연스러운 해상도 축이다. 그러나 video에서 coarse token이
               평균 frame인지, 주행동인지, motion인지, 긴 시간의 요약인지는 서로 다른 주장이다. 먼저 기존 token의
-              실제 역할을 측정하고, 시간축에 고유한 state–innovation 분해를 학습 목표로 준다.
+              실제 역할을 측정하고, 시간축에 고유한 persistence–innovation 분해를 학습 목표로 준다.
             </p>
           </div>
 
@@ -117,7 +117,7 @@
             <div class="boundary-row">
               <h3>AdaCodec<span>arXiv 2026</span></h3>
               <p>I-frame과 pixel motion/residual P-token으로 video MLLM의 반복 frame encoding을 줄인다.</p>
-              <p class="missing">Codec residual은 reconstruction-oriented signal이다. 한 semantic encoder 안에서 budget별 state–innovation role을 만들거나 unknown-task frozen transfer를 목표로 하지 않는다.</p>
+              <p class="missing">Codec residual은 reconstruction-oriented signal이다. 한 semantic encoder 안에서 budget별 persistence–innovation role을 만들거나 unknown-task frozen transfer를 목표로 하지 않는다.</p>
             </div>
             <div class="boundary-row">
               <h3>M3 / MoNE / MIPIC<span>2024–2026</span></h3>
@@ -132,16 +132,16 @@
             <div class="boundary-row">
               <h3>HaltingVT / AdaptToken<span>2024–2026</span></h3>
               <p>patch별 encoder layer halting 또는 query-conditioned MLLM uncertainty로 video 계산을 입력별로 줄인다.</p>
-              <p class="missing">재사용 가능한 query-agnostic nested video state에서 다음 token group의 task-agnostic temporal marginal gain을 학습하는 문제와는 다르다.</p>
+              <p class="missing">재사용 가능한 query-agnostic nested video representation에서 다음 token group의 task-agnostic semantic-temporal marginal gain을 학습하는 문제와는 다르다.</p>
             </div>
           </div>
 
           <div class="gap-statement">
             <span>THE OPEN GAP</span>
             <p>
-              <strong>“Not coarse-to-fine, but persistence ↔ innovation.”</strong> Pixel residual이 아닌 semantic persistence와
-              innovation을 role-paired nested tokens로 만들고, 각 추가 group의 temporal marginal information을 직접 감독한다.
-              같은 prefix를 user-specified hard budget과 query-agnostic automatic stopping에서 모두 쓰는 실제 anytime encoder가 핵심 빈틈이다.
+              <strong>“Not coarse-to-fine, but persistence + innovation.”</strong> 최소 pair가 무엇이 유지되고 무엇이 변했는지를
+              함께 표현해 semantic-temporal gist가 된다. 이후 pair는 앞 prefix가 설명하지 못한 의미만 보충하고,
+              자동 모드는 다음 pair의 marginal semantic-temporal value가 계산 비용보다 작아지는 순간 멈춘다.
             </p>
           </div>
         </div>
@@ -151,10 +151,11 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">03 · VIDEO-NATIVE TOKEN ROLES</p>
-            <h2>Coarse-to-fine 대신 persistence ↔ innovation을 검증 가능한 대칭 역할로 둔다.</h2>
+            <h2>최소 persistence–innovation pair의 결합 자체가 semantic-temporal gist다.</h2>
             <p class="section-explainer">
-              상태와 변화는 반대 역할이지만 둘 다 작은 budget에서 필요하다. 따라서 state-only prefix 뒤에 motion
-              token을 붙이지 않고, 각 budget tier마다 state와 innovation token을 짝으로 추가한다.
+              Persistence는 계속 유지되는 객체·관계·상황을, innovation은 새 행동·상태 변화·사건 순서를 담는다.
+              둘 중 하나만으로는 video meaning이 불완전하므로 모든 budget tier에서 두 역할을 함께 추가한다.
+              별도의 gist token을 두지 않고 첫 pair의 결합을 최소 충분 video representation으로 학습한다.
             </p>
           </div>
 
@@ -168,29 +169,39 @@
             <div class="axis-switch" aria-hidden="true">≠</div>
             <div class="role-axis video-axis">
               <span>VIDEO AXIS</span>
-              <h3>Persistence ↔ Innovation</h3>
+              <h3>Persistence + Innovation</h3>
               <div class="axis-steps"><i>what stays</i><i>what changed</i><i>what was missed</i></div>
-              <p>semantic state와 temporal change를 모든 budget에서 함께 보존한다.</p>
+              <p>무엇이 유지되고 무엇이 변했는지를 결합해 semantic-temporal gist를 만든다.</p>
             </div>
           </div>
 
           <div class="temporal-role-figure" aria-label="시간에 따른 persistent state와 innovation spike, role-paired token 순서">
             <div class="role-figure-label"><span>OBSERVED VIDEO</span><strong>대부분 유지되지만 한순간의 변화가 의미를 바꾼다.</strong></div>
             <div class="role-frame-strip" aria-hidden="true"><i></i><i></i><i></i><i class="event"></i><i></i><i></i><i></i><i></i></div>
-            <div class="role-band state-band"><span>PERSISTENT STATE</span><div>scene · actor · object identity · ongoing activity</div></div>
+            <div class="role-band state-band"><span>SEMANTIC PERSISTENCE</span><div>scene · actor · object identity · relation · ongoing activity</div></div>
             <div class="role-band innovation-band"><span>SEMANTIC INNOVATION</span><div><i></i><i></i><i></i><i class="spike"></i><i></i><i></i><i></i><i></i></div></div>
             <div class="role-token-sequence">
-              <span>BUDGET 1</span><b class="state-token">S₁</b><b class="innovation-token">I₁</b>
-              <span>BUDGET 2</span><b class="state-token">S₂</b><b class="innovation-token">I₂</b>
-              <span>BUDGET 3</span><b class="state-token">S₃</b><b class="innovation-token">I₃</b>
+              <span>BUDGET 1 · GIST</span><b class="state-token">P₁</b><b class="innovation-token">I₁</b>
+              <span>BUDGET 2</span><b class="state-token">P₂</b><b class="innovation-token">I₂</b>
+              <span>BUDGET 3</span><b class="state-token">P₃</b><b class="innovation-token">I₃</b>
             </div>
           </div>
 
           <div class="role-audit-grid">
             <div><span>A1</span><h3>Persistence probe</h3><p>frame rate·duration·appearance perturbation에도 scene, actor, object state가 유지되는지 budget별 linear probe와 retrieval로 측정한다.</p></div>
             <div><span>A2</span><h3>Innovation probe</h3><p>같은 frame set의 reversal·local swap·brief deletion에서 order, direction, boundary, state change 민감도를 token group별로 측정한다.</p></div>
-            <div><span>A3</span><h3>Marginal role</h3><p>각 group을 단독 제거했을 때 teacher residual과 downstream score가 무엇을 잃는지 보고 token 이름이 실제 기능과 일치하는지 검증한다.</p></div>
-            <div><span>A4</span><h3>Role stability</h3><p>seed, dataset, teacher가 바뀌어도 S/I 역할과 token ordering이 유지되는지 CKA·probe·intervention attribution으로 확인한다.</p></div>
+            <div><span>A3</span><h3>Marginal role</h3><p>각 group을 단독 제거했을 때 downstream score와 temporal risk가 무엇을 잃는지 보고 token 이름이 실제 기능과 일치하는지 검증한다.</p></div>
+            <div><span>A4</span><h3>Role stability</h3><p>seed, dataset, target source가 바뀌어도 P/I 역할과 token ordering이 유지되는지 CKA·probe·intervention attribution으로 확인한다.</p></div>
+          </div>
+
+          <div class="gap-statement">
+            <span>WHAT “ORACLE K*” MEANS</span>
+            <p>
+              한 video를 <strong>K={4,8,16,32}</strong>에서 모두 평가한 뒤, 여러 semantic-temporal question에서
+              full-budget 성능을 허용 오차 안에 유지하는 최소 K를 <strong>K*</strong>로 기록한다. K*는 모든 결과를
+              사후에 본 분석용 정답이므로 inference에는 쓰지 않는다. 대신 video마다 필요한 token 수가 실제로 다른지,
+              그리고 motion·scene cut·state change·event density·uncertainty 중 무엇이 K*를 가장 잘 설명하는지 밝힌다.
+            </p>
           </div>
         </div>
       </section>
@@ -199,25 +210,25 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">04 · METHOD</p>
-            <h2>One nested encoder supports a hard budget and learned temporal stopping.</h2>
+            <h2>최소 pair에서 시작하고, 필요한 만큼만 다음 pair를 활성화한다.</h2>
             <p class="section-explainer">
-              pretrained causal encoder를 stage로 나누고 첫 stage에서 temporal gist를 만든다. 다음 stage는 앞 prefix가
-              놓친 state·innovation residual과 실제 utility가 충분할 때만 실행한다. 따라서 output token뿐 아니라
-              deeper encoder block의 FLOPs도 video별로 달라진다.
+              얕은 shared feature에서 첫 persistence–innovation pair를 만들고, 아직 설명되지 않은 semantic-temporal
+              information이 충분할 때만 다음 pair를 활성화한다. 선택된 token만 비싼 encoder block으로 보내므로
+              token output뿐 아니라 실제 vision encoder FLOPs도 video별로 달라진다.
             </p>
           </div>
 
           <div class="method-canvas">
             <div class="method-flow" aria-label="Dual-control progressive video encoder 처리 흐름">
-              <div class="method-node"><span>SHARED EARLY STAGE</span><strong>x≤t → h⁰</strong><small>patch stem + early blocks</small></div>
+              <div class="method-node"><span>SHARED SHALLOW FEATURE</span><strong>x → h⁰</strong><small>patch stem + shallow temporal blocks</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node gist"><span>MINIMUM EXIT</span><strong>(S₁, I₁)</strong><small>temporal gist prefix</small></div>
+              <div class="method-node gist"><span>MINIMUM GIST</span><strong>(P₁, I₁)</strong><small>persistence + innovation</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node event"><span>DUAL CONTROL</span><strong>Kuser or Δ̂k</strong><small>hard cap / learned continue</small></div>
+              <div class="method-node event"><span>UNRESOLVED VALUE</span><strong>Δ̂Vk+1</strong><small>benefit of the next pair</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node detail"><span>CONDITIONAL STAGE</span><strong>Block k + (Sₖ,Iₖ)</strong><small>execute only when needed</small></div>
+              <div class="method-node detail"><span>CONTINUE OR STOP</span><strong>+(Pₖ,Iₖ) or halt</strong><small>K emerges progressively</small></div>
             </div>
-            <p class="method-caption">낮은 budget에서는 뒤 stage와 residual token group을 실제로 실행하지 않는다. 모든 mode는 동일한 prefix Rₖ={(S₁,I₁),…,(Sₖ,Iₖ)}를 반환하므로 representation은 control 방식과 무관하다.</p>
+            <p class="method-caption">Automatic mode는 최종 K를 먼저 분류하지 않는다. 최소 pair에서 출발해 다음 pair의 예상 가치가 비용보다 큰 동안만 반복한다. 모든 mode는 동일한 prefix Rₖ={(P₁,I₁),…,(Pₖ,Iₖ)}를 반환한다.</p>
           </div>
 
           <div class="execution-mode-grid" aria-label="두 encoder 실행 모드">
@@ -225,13 +236,13 @@
               <span>MODE A · USER-SPECIFIED</span>
               <h3>Hard budget execution</h3>
               <code>K = Kuser</code>
-              <p>사용자가 token 수, latency tier 또는 device profile을 지정한다. encoder는 정확히 K번째 exit까지만 실행해 예측 가능한 FLOPs와 output length를 보장한다.</p>
+              <p>사용자가 token 수, latency tier 또는 device profile을 지정한다. encoder는 정확히 K번째 pair tier까지만 활성화해 예측 가능한 FLOPs와 output length를 보장한다.</p>
             </div>
             <div class="execution-mode automatic">
               <span>MODE B · BUDGET-FREE</span>
-              <h3>Marginal information stopping</h3>
+              <h3>Progressive marginal-value stopping</h3>
               <code>stop if Δ̂k+1 &lt; λ · ΔCk+1</code>
-              <p>query 없이 다음 stage가 줄 temporal error와 추가 FLOPs를 비교한다. validation에서 calibration한 λ로 각 video의 최소 충분 prefix를 선택한다.</p>
+              <p>query 없이 다음 pair가 줄 semantic-temporal risk와 추가 FLOPs를 매 단계 비교한다. 최종 K는 이 반복 과정에서 video별로 결정된다.</p>
             </div>
             <div class="execution-shared">
               <span>SHARED INVARIANT</span>
@@ -239,7 +250,7 @@
             </div>
           </div>
 
-          <div class="alignment-compare" aria-label="기존 REPA와 State Innovation Alignment 비교">
+          <div class="alignment-compare" aria-label="기존 REPA와 Persistence Innovation Alignment 비교">
             <div class="alignment-side standard">
               <p class="mini-label">STANDARD REPA</p>
               <h3>하나의 hidden state를 하나의 clean teacher feature에 정렬</h3>
@@ -249,7 +260,7 @@
             <div class="alignment-divider" aria-hidden="true">→</div>
             <div class="alignment-side proposed">
               <p class="mini-label">OURS · ROLE-AWARE SUCCESSIVE ALIGNMENT</p>
-              <h3>각 budget group을 더 작은 prefix가 놓친 state·innovation에 정렬</h3>
+              <h3>각 budget group을 더 작은 prefix가 놓친 persistence·innovation에 정렬</h3>
               <div class="alignment-equation">Gₖ → projector → teacher residual after budget k−1</div>
               <p>목표는 training acceleration이 아니라 모든 token·depth budget에서 중복 없는 video understanding representation을 만드는 것이다.</p>
             </div>
@@ -262,7 +273,7 @@
                 <button type="button" class="is-active" data-budget-mode="fixed" aria-pressed="true">Fixed budget</button>
                 <button type="button" data-budget-mode="automatic" aria-pressed="false">Automatic</button>
               </div>
-              <h3 data-demo-label>Core state + innovation</h3>
+              <h3 data-demo-label>Minimum persistence + innovation</h3>
               <p data-demo-description></p>
               <div data-budget-control>
                 <label for="anytime-budget">Hard token budget</label>
@@ -278,7 +289,7 @@
               </div>
             </div>
             <div class="demo-stage-track" aria-hidden="true">
-              <div class="demo-stage">STATE + CHANGE</div>
+              <div class="demo-stage">PERSISTENCE + INNOVATION</div>
               <div class="demo-stage">TRANSITION</div>
               <div class="demo-stage">RARE EVENT</div>
               <div class="demo-stage">RESIDUAL DETAIL</div>
@@ -286,19 +297,19 @@
           </div>
 
           <div class="module-grid">
-            <div class="module-item"><span>M1</span><h3>Stage-partitioned pretrained encoder</h3><p>초기 block은 모든 video가 공유하고, 각 exit 뒤에는 active patch를 nested하게 줄인다. 낮은 budget은 뒤 attention block을 건너뛰므로 vision FLOPs가 실제로 감소한다.</p></div>
-            <div class="module-item"><span>M2</span><h3>Role-paired residual tokens</h3><p>각 tier가 state register와 innovation register를 함께 추가한다. k번째 pair는 이전 prefix가 놓친 persistent state, order, transition, rare event만 보충한다.</p></div>
-            <div class="module-item"><span>M3</span><h3>Marginal utility head</h3><p>현재 prefix와 early features만 보고 다음 stage가 줄 temporal loss Δ̂와 비용 ΔC를 예측한다. fixed mode는 이 결정을 무시하고, automatic mode만 calibrated stopping을 사용한다.</p></div>
+            <div class="module-item"><span>M1</span><h3>Shared shallow feature</h3><p>pretrained encoder의 stem과 얕은 temporal block만 모든 video에 실행한다. progressive token selection을 여기서 끝낸 뒤 선택된 prefix만 비싼 deep blocks로 보낸다.</p></div>
+            <div class="module-item"><span>M2</span><h3>Persistence–innovation residual pairs</h3><p>첫 pair는 최소 gist이며, k번째 추가 pair는 이전 prefix가 놓친 stable semantics, order, transition, rare event만 보충한다.</p></div>
+            <div class="module-item"><span>M3</span><h3>Progressive value head</h3><p>현재 prefix와 shallow feature만 보고 다음 pair가 줄 risk Δ̂V와 비용 ΔC를 예측한다. exact K를 미리 맞히지 않고 continue/stop을 반복한다.</p></div>
           </div>
 
           <div class="objective-strip">
-            <div><p class="mini-label">DUAL-CONTROL TRAINING OBJECTIVE</p><h3>모든 prefix를 유효하게 만들고, 다음 stage의 실제 temporal gain을 예측한다.</h3></div>
-            <code>Ltemp(k) = Lstate(k) + Lorder(k) + Lfuture(k)<br />Δ*k+1 = sg([Ltemp(k) − Ltemp(k+1)]+)<br />Lgate = SmoothL1(Δ̂k+1, Δ*k+1) + Lcalibration<br />Ltotal = Σk wk Ltemp(k) + βLmonotonic + γLgate + λE[FLOPs]</code>
+            <div><p class="mini-label">DUAL-CONTROL TRAINING OBJECTIVE</p><h3>모든 prefix를 유효하게 만들고, 다음 pair의 실제 semantic-temporal gain을 예측한다.</h3></div>
+            <code>Lrisk(k) = Lsemantic(k) + Lorder(k) + Lchange(k) + Lfuture(k)<br />ΔV*k+1 = sg([Lrisk(k) − Lrisk(k+1)]+)<br />Lgate = SmoothL1(Δ̂Vk+1, ΔV*k+1) + Lcalibration<br />Ltotal = Σk wk Lrisk(k) + βLpair + γLgate + λE[FLOPs]</code>
           </div>
 
           <div class="teacher-note">
             <span>IS V-JEPA REQUIRED?</span>
-            <p><strong>No.</strong> 가장 간단한 시작은 full-budget EMA branch를 self-teacher로 쓰는 것이다. V-JEPA는 future-sensitive semantic target을 더할 수 있는 선택사항이다. 외부 teacher 없이도 action·order·future losses에서 계산한 prefix별 error 감소가 gate의 oracle marginal gain이 된다.</p>
+            <p><strong>No.</strong> 가장 간단한 시작은 같은 model의 full-budget EMA branch를 self-target으로 쓰는 것이다. V-JEPA는 future-sensitive semantic target을 더할 수 있는 선택사항이다. 외부 teacher 없이도 action·order·state-change·future losses에서 계산한 prefix별 error 감소가 gate의 analysis target이 된다.</p>
           </div>
         </div>
       </section>
@@ -307,36 +318,37 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">05 · NO-SCRATCH RECIPE</p>
-            <h2>Frozen exits에서 시작해 calibrated adaptive compute로 단계적으로 학습한다.</h2>
-            <p class="section-explainer">처음부터 backbone 전체와 discrete gate를 함께 학습하면 representation과 routing이 동시에 흔들린다. 먼저 각 prefix의 temporal utility를 만들고, 그 utility를 예측하는 gate를 학습한 뒤, 마지막에만 encoder adapter를 열어 실제 FLOPs–accuracy Pareto를 조정한다.</p>
+            <h2>Frozen backbone에서 pair roles를 만든 뒤 progressive gate를 연결한다.</h2>
+            <p class="section-explainer">처음부터 backbone 전체와 discrete gate를 함께 학습하면 representation과 routing이 동시에 흔들린다. 먼저 최소 pair가 gist가 되도록 persistence·innovation role을 학습하고, 다음 pair의 실제 utility를 예측한 뒤, 마지막에만 encoder adapter를 열어 FLOPs–accuracy Pareto를 조정한다.</p>
           </div>
           <div class="training-lanes">
-            <div class="training-lane"><span>PHASE A · ORACLE CURVES</span><h3>Measure every exit</h3><p>pretrained backbone을 stage로 나누고 모든 prefix에서 action, order, future prediction loss를 측정한다. 이 값이 video별 실제 marginal gain Δ*와 oracle minimum K를 만든다.</p></div>
-            <div class="training-lane"><span>PHASE B · FROZEN WARM-UP</span><h3>Learn gist-first exits</h3><p>backbone은 freeze하고 role registers, projection heads, nested patch router만 학습한다. mini-batch마다 여러 K를 뽑아 같은 video의 모든 선택된 prefix가 유효하도록 만든다.</p></div>
-            <div class="training-lane"><span>PHASE C · GATE DISTILLATION</span><h3>Predict the next gain</h3><p>현재 prefix와 early feature에서 Δ̂k+1을 회귀하고 oracle continue/stop label을 distill한다. gate는 validation set에서 expected calibration error와 stopping regret로 보정한다.</p></div>
-            <div class="training-lane"><span>PHASE D · JOINT EFFICIENCY</span><h3>Open adapters, then LoRA</h3><p>먼저 stage adapter만 열고 마지막에 backbone의 뒤 2–4 block LoRA를 연다. straight-through 또는 soft continue probability로 expected FLOPs penalty를 함께 최적화한다.</p></div>
+            <div class="training-lane"><span>PHASE A · K* ANALYSIS</span><h3>Measure every token tier</h3><p>각 video를 K={4,8,16,32}에서 평가해 minimum sufficient K*와 인접 tier의 실제 risk 감소 ΔV*를 만든다. 이 단계는 분석용이며 inference 방식이 아니다.</p></div>
+            <div class="training-lane"><span>PHASE B · FROZEN ROLE LEARNING</span><h3>Learn the minimum gist pair</h3><p>backbone은 freeze하고 P/I registers와 projection heads만 학습한다. semantic-preserving pair에는 같은 gist를, temporal counterfactual pair에는 다른 innovation을 요구한다.</p></div>
+            <div class="training-lane"><span>PHASE C · PROGRESSIVE GATE</span><h3>Predict one next pair at a time</h3><p>현재 prefix와 shallow feature에서 다음 pair의 Δ̂V를 회귀한다. one-shot K classifier가 아니라 continue/stop을 반복하고 calibration error와 stopping regret를 측정한다.</p></div>
+            <div class="training-lane"><span>PHASE D · JOINT EFFICIENCY</span><h3>Open adapters, then LoRA</h3><p>먼저 tokenizer와 deep-block adapter를 열고 마지막에 backbone의 뒤 2–4 block LoRA를 연다. expected FLOPs penalty로 항상 full budget을 쓰는 해를 막는다.</p></div>
           </div>
 
           <div class="training-procedure" aria-label="한 mini-batch의 학습 순서">
-            <div><span>01</span><h3>Shared early pass</h3><p>한 번의 early-stage forward로 모든 budget이 공유할 causal patch feature를 만든다.</p></div>
+            <div><span>01</span><h3>Shared shallow pass</h3><p>한 번의 저비용 forward로 모든 budget이 공유할 causal patch feature를 만든다.</p></div>
             <div><span>02</span><h3>Full path target</h3><p>no-grad EMA full path 또는 optional frozen teacher에서 semantic target을 얻는다.</p></div>
-            <div><span>03</span><h3>Random prefixes</h3><p>K를 최소 두 개 sampling하고 state–innovation role loss와 task loss를 각 exit에 적용한다.</p></div>
-            <div><span>04</span><h3>Oracle gain</h3><p>인접 exit의 temporal loss 감소를 stop-gradient target Δ*로 계산한다.</p></div>
+            <div><span>03</span><h3>Random prefixes</h3><p>K를 최소 두 개 sampling하고 persistence–innovation role loss와 task loss를 각 prefix에 적용한다.</p></div>
+            <div><span>04</span><h3>Measured next-pair gain</h3><p>인접 prefix의 semantic-temporal risk 감소를 stop-gradient target ΔV*로 계산한다.</p></div>
             <div><span>05</span><h3>Cost-aware update</h3><p>gate calibration, monotonicity, expected FLOPs를 합쳐 adapter·router를 업데이트한다.</p></div>
           </div>
 
           <div class="loss-ledger">
             <div class="loss-row header"><span>Loss</span><span>What it teaches</span><span>Minimum implementation</span></div>
-            <div class="loss-row"><strong>Temporal sufficiency</strong><p>작은 prefix도 appearance shortcut이 아니라 행동과 순서를 이해한다.</p><code>CEaction + BCEorder + Lfuture</code></div>
-            <div class="loss-row"><strong>Role residual</strong><p>추가 pair가 앞 prefix와 중복되지 않고 남은 state·innovation을 설명한다.</p><code>d(Pk, sg(Y − Ŷ&lt;k))</code></div>
+            <div class="loss-row"><strong>Persistence consistency</strong><p>appearance·frame rate·camera perturbation에도 객체·관계·상황 gist가 유지된다.</p><code>Lsame(P, Paug)</code></div>
+            <div class="loss-row"><strong>Innovation contrast</strong><p>순서·상태 결과가 달라지는 counterfactual pair에는 다른 innovation을 만든다.</p><code>Ldiff(I, Icf) + Lorder + Lchange</code></div>
+            <div class="loss-row"><strong>Role residual</strong><p>추가 pair가 앞 prefix와 중복되지 않고 아직 설명되지 않은 의미를 보충한다.</p><code>d(Gk, sg(Y − Ŷ&lt;k))</code></div>
             <div class="loss-row"><strong>Monotonic refinement</strong><p>token을 더 썼을 때 temporal loss가 악화되는 prefix collapse를 막는다.</p><code>max(0, Lk+1 − Lk + ε)</code></div>
-            <div class="loss-row"><strong>Marginal gate</strong><p>실행 전에 다음 stage의 실제 error reduction을 예측한다.</p><code>SmoothL1(Δ̂k+1, Δ*k+1)</code></div>
+            <div class="loss-row"><strong>Marginal gate</strong><p>실행 전에 다음 pair의 실제 semantic-temporal risk reduction을 예측한다.</p><code>SmoothL1(Δ̂Vk+1, ΔV*k+1)</code></div>
             <div class="loss-row"><strong>Compute regularizer</strong><p>automatic mode가 항상 full path로 가는 trivial solution을 막는다.</p><code>λ Σk pcontinue,k · ΔFLOPsk</code></div>
           </div>
 
           <div class="training-decision">
             <span>RECOMMENDED FIRST MODEL</span>
-            <p><strong>Pretrained causal video backbone + four exits + role-paired cross-attention registers + scalar marginal head.</strong> Phase B까지 backbone을 freeze하고, Phase D에서 adapter를 먼저 연다. 이 구성이 성공한 뒤에만 last-block LoRA를 사용하면 scratch training 없이 representation gain과 compute gain을 분리해 분석할 수 있다.</p>
+            <p><strong>Pretrained causal video backbone + shared shallow feature + four nested P/I token tiers + progressive value head.</strong> Phase B까지 backbone을 freeze하고, 선택된 prefix만 deep blocks로 보낸다. 이 구성이 성공한 뒤에만 last-block LoRA를 사용하면 scratch training 없이 representation gain과 compute gain을 분리해 분석할 수 있다.</p>
           </div>
         </div>
       </section>
@@ -345,21 +357,33 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">06 · EVIDENCE NEEDED</p>
-            <h2>Oral-level claim은 accuracy뿐 아니라 “각 token이 무엇을 담당하는가”까지 증명해야 한다.</h2>
+            <h2>방법을 키우기 전에 세 개의 paper-grade 실험으로 전제를 확인한다.</h2>
           </div>
+
+          <div class="module-grid">
+            <div class="module-item"><span>E1</span><h3>Equal-budget failure audit</h3><p>재현 가능한 dynamic video tokenizer를 동일 K에서 비교한다. 일반 accuracy와 함께 order·state-change·rare-event counterfactual pair의 strict accuracy를 측정해 low-budget representation이 무엇을 먼저 잃는지 밝힌다.</p></div>
+            <div class="module-item"><span>E2</span><h3>K* determinant analysis</h3><p>모든 K를 사후 평가해 video별 minimum sufficient K*를 얻고, motion-only predictor와 semantic change·event density·uncertainty predictor가 K*를 얼마나 설명하는지 held-out split에서 비교한다.</p></div>
+            <div class="module-item"><span>E3</span><h3>Automatic-budget feasibility</h3><p>shallow feature만 보는 progressive gate를 fixed K, motion heuristic, random allocation, one-shot K classifier, analysis-only oracle과 동일 평균 FLOPs에서 비교한다.</p></div>
+          </div>
+
+          <div class="teacher-note">
+            <span>GO / NO-GO BEFORE THE FULL METHOD</span>
+            <p>진행 조건은 (1) video별 K* 분산이 충분히 크고, (2) semantic-temporal factor가 raw motion보다 K*를 잘 예측하며, (3) progressive gate가 같은 평균 token의 fixed K보다 높은 paired understanding score를 내는 것이다. 이 셋이 성립한 뒤 P/I role learning을 full scale로 확장한다.</p>
+          </div>
+
           <div class="evidence-grid">
             <div class="contribution-list">
               <div class="contribution-row"><span>C1</span><div><h3>Video token role audit</h3><p>“앞 token=coarse”라는 통념을 persistence·innovation·order·rare-event intervention으로 정량 검증한다.</p></div></div>
-              <div class="contribution-row"><span>C2</span><div><h3>Dual-control nested encoder</h3><p>동일한 gist-first prefix를 user-specified hard budget과 query-agnostic automatic stopping에서 모두 실행한다.</p></div></div>
-              <div class="contribution-row"><span>C3</span><div><h3>Marginal temporal utility</h3><p>다음 stage가 줄 action·order·future error를 실행 전에 예측하고 minimum sufficient K를 calibration한다.</p></div></div>
+              <div class="contribution-row"><span>C2</span><div><h3>Persistence–innovation gist</h3><p>별도 coarse token 없이 최소 P/I pair의 결합을 semantic-temporal gist로 정의하고 이후 pair가 residual meaning만 보충하게 한다.</p></div></div>
+              <div class="contribution-row"><span>C3</span><div><h3>Progressive marginal value</h3><p>다음 pair가 줄 semantic·order·state-change·future risk를 실행 전에 예측해 exact K를 선결정하지 않고 자동으로 멈춘다.</p></div></div>
               <div class="contribution-row"><span>C4</span><div><h3>Real encoder efficiency</h3><p>output pruning이 아니라 skipped block을 포함한 encoder FLOPs, latency, throughput, VRAM과 stopping regret를 보고한다.</p></div></div>
             </div>
             <div class="decisive-figure">
               <p class="mini-label">THE DECISIVE FIGURE</p>
               <h3>Fixed and automatic accuracy vs actual encoder compute</h3>
-              <p>fixed mode는 모든 K에서 baseline Pareto를 지배하고, automatic mode는 같은 평균 GFLOPs의 fixed K보다 높아야 한다. 선택한 K가 oracle minimum K에 가까운지도 함께 보여야 한다.</p>
+              <p>fixed mode는 모든 K에서 baseline Pareto를 지배하고, automatic mode는 같은 평균 GFLOPs의 fixed K보다 높아야 한다. 사후 분석으로 구한 K*와 automatic stopping 결과의 차이도 함께 보고한다.</p>
               <div class="curve-chart" aria-label="제안법이 baseline보다 높은 정확도 계산량 곡선을 보이는 목표 그림">
-                <span class="curve-label ours">Ours: state–innovation alignment</span>
+                <span class="curve-label ours">Ours: persistence–innovation allocation</span>
                 <span class="curve-label base">same-target MRL / direct REPA</span>
                 <span class="curve-axis-x">encoder GFLOPs →</span>
               </div>
@@ -373,8 +397,8 @@
           <div class="detail-heading"><p class="detail-index">07 · KILL TESTS</p><h2>아래 셋 중 하나가 실패하면 role-aware claim을 즉시 줄인다.</h2></div>
           <div class="risk-grid">
             <div class="risk-item"><span>NO-GO 01</span><h3>Token은 줄지만 encoder FLOPs는 그대로다</h3><p>초기 dense stage가 전체 계산을 지배하거나 conditional block의 실제 latency가 줄지 않으면 efficient encoder가 아니라 output compressor로 claim을 낮춘다.</p></div>
-            <div class="risk-item"><span>NO-GO 02</span><h3>Automatic gate가 fixed K를 이기지 못한다</h3><p>동일 평균 GFLOPs에서 accuracy gain이 없거나 oracle stopping regret가 크면 auto mode를 제거하고 user-controlled anytime encoder만 남긴다.</p></div>
-            <div class="risk-item"><span>NO-GO 03</span><h3>Temporal role이 downstream gain으로 연결되지 않는다</h3><p>같은 token·FLOPs의 direct distillation과 order·state-change benchmark 차이가 없으면 state–innovation objective의 claim을 축소한다.</p></div>
+            <div class="risk-item"><span>NO-GO 02</span><h3>Automatic gate가 fixed K를 이기지 못한다</h3><p>동일 평균 GFLOPs에서 accuracy gain이 없거나 K* 대비 stopping regret가 크면 automatic allocation claim을 축소한다.</p></div>
+            <div class="risk-item"><span>NO-GO 03</span><h3>P/I role이 downstream gain으로 연결되지 않는다</h3><p>같은 token·FLOPs의 direct distillation과 order·state-change benchmark 차이가 없으면 persistence–innovation objective의 claim을 축소한다.</p></div>
           </div>
         </div>
       </section>
@@ -399,7 +423,7 @@
 
           <div class="compute-assumption">
             <p class="mini-label">PILOT VERDICT</p>
-            <p><strong>기존 순서는 understanding의 successively refinable coarse-to-fine이 아니다.</strong> Quantized concatenated probe에서 첫 8-token prefix의 action top-1은 4.10%로 256-token의 3.35%보다 높았다. 입력 차원을 모두 18로 맞춘 통제에서도 8-token prefix는 2.77±0.14%, 256-token은 1.83±0.09%였고, 첫 block은 2.69%로 이후 block의 1.15–1.63%보다 강했다. 첫 block은 reverse에도 더 민감해 action과 order 정보가 앞쪽에 섞여 몰려 있었다. 따라서 우리의 목표는 “앞=coarse”를 반복하는 것이 아니라 stable state token과 order-sensitive innovation token을 명시적으로 분리하고, 추가 group이 남은 semantic residual을 단조롭게 줄이게 만드는 것이다.</p>
+            <p><strong>기존 순서는 understanding의 successively refinable coarse-to-fine이 아니다.</strong> Quantized concatenated probe에서 첫 8-token prefix의 action top-1은 4.10%로 256-token의 3.35%보다 높았다. 입력 차원을 모두 18로 맞춘 통제에서도 8-token prefix는 2.77±0.14%, 256-token은 1.83±0.09%였고, 첫 block은 2.69%로 이후 block의 1.15–1.63%보다 강했다. 첫 block은 reverse에도 더 민감해 action과 order 정보가 앞쪽에 섞여 몰려 있었다. 따라서 우리의 목표는 “앞=coarse”를 반복하는 것이 아니라 semantic persistence와 order-sensitive innovation을 명시적으로 분리하고, 추가 pair가 남은 semantic residual을 단조롭게 줄이게 만드는 것이다.</p>
           </div>
 
           <div class="compute-assumption">
@@ -409,7 +433,7 @@
 
           <div class="compute-tier-grid">
             <div class="compute-tier"><span>LIGHT · ROLE AUDIT / PROXY</span><strong>3 × H100 80GB</strong><small>1 H100/seed · full EK100 cached features · three jobs</small></div>
-            <div class="compute-tier"><span>MEDIUM · ADAPTERS + GATES</span><strong>6 × H100 80GB</strong><small>2 H100/seed · four exits, fixed budgets, automatic stopping</small></div>
+            <div class="compute-tier"><span>MEDIUM · ADAPTERS + GATES</span><strong>6 × H100 80GB</strong><small>2 H100/seed · four P/I tiers, fixed budgets, automatic stopping</small></div>
             <div class="compute-tier"><span>HEAVY · LAST-BLOCK LORA</span><strong>12 × H100 80GB</strong><small>4 H100/seed · FSDP/DDP · 세 seed를 3시간 안에 완료</small></div>
           </div>
 
@@ -418,7 +442,7 @@
             <div class="compute-row"><div class="compute-job"><span>ONE TIME</span><strong>EK100 multi-teacher feature cache</strong><small>V-JEPA + control teacher · sharded causal chunks</small></div><div class="compute-cell"><strong>4 H100 total</strong><span>2–3h target</span></div><div class="compute-cell"><strong>Once</strong><span>seed-independent</span></div><div class="compute-cell"><strong>64 cores · 256GB</strong><span>parallel video decode</span></div><div class="compute-cell"><strong>0.6–1.5TB</strong><span>two dense BF16 teachers</span></div></div>
             <div class="compute-row"><div class="compute-job"><span>PHASE A–B</span><strong>Role audit + frozen objective comparison</strong><small>4 budgets · interventions · official metrics</small></div><div class="compute-cell"><strong>1 H100</strong><span>per configuration</span></div><div class="compute-cell"><strong>3 H100</strong><span>one per seed</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>40–120GB</strong><span>probes+attribution</span></div></div>
             <div class="compute-row"><div class="compute-job"><span>PHASE C</span><strong>Causal adapters + marginal gates</strong><small>random prefixes · fixed/auto modes · real encoder FLOPs</small></div><div class="compute-cell"><strong>2 H100</strong><span>DDP per seed</span></div><div class="compute-cell"><strong>6 H100</strong><span>three jobs</span></div><div class="compute-cell"><strong>24 cores · 192GB</strong><span>per seed</span></div><div class="compute-cell"><strong>0.15–0.3TB</strong><span>activations+ckpt</span></div></div>
-            <div class="compute-row"><div class="compute-job"><span>PHASE D</span><strong>Last 2–4 blocks LoRA</strong><small>full official train/val · all budget exits</small></div><div class="compute-cell"><strong>4 H100</strong><span>FSDP/DDP per seed</span></div><div class="compute-cell"><strong>12 H100</strong><span>heavy tier</span></div><div class="compute-cell"><strong>48 cores · 384GB</strong><span>per seed aggregate</span></div><div class="compute-cell"><strong>0.3–0.6TB</strong><span>optimizer+ckpt</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE D</span><strong>Last 2–4 blocks LoRA</strong><small>full official train/val · all P/I budget tiers</small></div><div class="compute-cell"><strong>4 H100</strong><span>FSDP/DDP per seed</span></div><div class="compute-cell"><strong>12 H100</strong><span>heavy tier</span></div><div class="compute-cell"><strong>48 cores · 384GB</strong><span>per seed aggregate</span></div><div class="compute-cell"><strong>0.3–0.6TB</strong><span>optimizer+ckpt</span></div></div>
             <div class="compute-row"><div class="compute-job"><span>EVALUATION</span><strong>All-budget Pareto + role sweep</strong><small>latency·FLOPs·VRAM·accuracy·role stability</small></div><div class="compute-cell"><strong>1 H100</strong><span>per seed shard</span></div><div class="compute-cell"><strong>3 H100</strong><span>all seed models</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>per seed</span></div><div class="compute-cell"><strong>80–180GB</strong><span>predictions+profiles</span></div></div>
           </div>
 
@@ -451,7 +475,7 @@
         <a class="proposal-next" href="../2-proposal/"><div><span>NEXT PROPOSAL</span><h2>02 · Multi-query Amortized Token Tree</h2></div><i aria-hidden="true">→</i></a>
       </div>
     </main>
-    <footer><div class="page-shell footer-inner"><span>Proposal 01 · Dual-Control Efficient Video Encoder</span><span>Research hypothesis · not a measured claim</span></div></footer>
+    <footer><div class="page-shell footer-inner"><span>Proposal 01 · Adaptive Persistence–Innovation Video Encoder</span><span>Research hypothesis · not a measured claim</span></div></footer>
     <script src="../proposal.js"></script>
   </body>
 </html>

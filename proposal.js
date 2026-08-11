@@ -1,9 +1,9 @@
 const demos = document.querySelectorAll("[data-proposal-demo]");
 
 const anytimeCopy = [
-  ["Core state + innovation", "8 tokens", "가장 작은 budget도 persistent state와 짧은 변화 anchor를 role pair로 함께 보존한다.", "Next Δ̂ = 0.31"],
-  ["Transition refinement", "24 tokens", "첫 pair가 설명하지 못한 action phase와 long-horizon state transition을 추가한다.", "Next Δ̂ = 0.14"],
-  ["Rare-event coverage", "64 tokens", "짧고 드문 contact, direction reversal, object state change의 semantic residual을 보강한다.", "Next Δ̂ = 0.03 < threshold 0.06"],
+  ["Minimum persistence + innovation", "8 tokens", "첫 pair의 결합이 객체·관계·핵심 변화와 순서를 담는 semantic-temporal gist가 된다.", "Next Δ̂V = 0.31"],
+  ["Transition refinement", "24 tokens", "첫 pair가 설명하지 못한 action phase와 long-horizon state transition을 다음 pair가 추가한다.", "Next Δ̂V = 0.14"],
+  ["Rare-event coverage", "64 tokens", "짧고 드문 contact, direction reversal, object state change의 semantic residual을 보강한다.", "Next Δ̂V = 0.03 < threshold 0.06"],
   ["Residual semantic detail", "128 tokens", "남은 object relation과 fine motion만 추가하며 앞 token의 정보를 반복하지 않는다.", "Full path · no next stage"],
 ];
 
@@ -41,7 +41,7 @@ function updateAnytime(root, value) {
   setText(root, "[data-demo-label]", label);
   setText(root, "[data-demo-value]", tokens);
   setText(root, "[data-demo-description]", description);
-  setText(root, "[data-demo-control]", mode === "automatic" ? "Auto stop · K = 3" : `Fixed K = ${index + 1}`);
+  setText(root, "[data-demo-control]", mode === "automatic" ? "Progressive stop · tier 3" : `Fixed tier = ${index + 1}`);
   setText(root, "[data-demo-marginal]", mode === "automatic" ? marginal : "Gate logged; hard budget overrides it");
 }
 
