@@ -100,16 +100,16 @@
                 <span class="topic-number">02</span>
                 <span class="status-chip caution">MULTI-QUERY</span>
               </div>
-              <h3>Amortized Queryable Token Tree</h3>
-              <p class="card-subtitle">원안 그대로: 한 번 encode하고 여러 query가 hierarchy를 누적 재사용</p>
+              <h3>Online Multi-Query Amortization</h3>
+              <p class="card-subtitle">문헌 재검토 중: 미래 질문을 모르는 sequence-level evidence acquisition</p>
               <dl class="score-list">
-                <div><dt>Potential</dt><dd>높음</dd></div>
-                <div><dt>Novelty</dt><dd>4 / 5</dd></div>
-                <div><dt>Feasibility</dt><dd>4 / 5</dd></div>
+                <div><dt>Potential</dt><dd>검증 필요</dd></div>
+                <div><dt>Novelty</dt><dd>미확정</dd></div>
+                <div><dt>Feasibility</dt><dd>Oracle audit 우선</dd></div>
               </dl>
               <p>
-                query마다 tree나 dense video tokens를 다시 만들지 않는다. 먼저 열린 branch도 cache하여 다음 질문의
-                encoder·retrieval 비용까지 함께 amortize하는 것이 핵심이다.
+                tree·cache·future-query compression은 이미 강한 선행 연구가 있다. 남은 가설은 online policy가
+                query sequence 전체의 신규 visual evidence 비용을 offline oracle에 가깝게 줄일 수 있는지다.
               </p>
             </article>
 
@@ -352,32 +352,32 @@
             <div class="topic-summary">
               <div>
                 <p class="topic-overline">TOPIC 02 · MULTI-QUERY AMORTIZATION</p>
-                <h3>한 번 encode하고, 여러 질문이 같은 tree와 열린 가지를 재사용한다</h3>
+                <h3>미래 질문을 모르는 상태에서 sequence 전체의 누적 visual cost를 줄인다</h3>
               </div>
               <p>
-                VideoTree는 query를 보며 tree를 만들고, QTS+/VideoRouter는 flat dense tokens에서 query-relevant
-                evidence를 고른다. 원안의 핵심은 처음부터 <strong>query-agnostic hierarchy의 multi-query
-                amortization</strong>이다. tree뿐 아니라 이전 질문이 이미 펼친 branch도 다음 질문이 공유한다.
+                MetaCompress는 unknown future prompt를 위한 prompt-agnostic compression을, ReKV·MuKV·OASIS는
+                persistent video memory와 repeated QA를 이미 다룬다. 따라서 새 tree나 cache를 주장하지 않고,
+                <strong>online policy와 full-sequence offline oracle의 cumulative cost gap</strong>을 연구 대상으로 둔다.
               </p>
             </div>
 
-            <div class="tree-diagram" aria-label="query-agnostic latent tree와 query router 개념도">
+            <div class="tree-diagram" aria-label="online multi-query evidence acquisition 개념도">
               <div class="tree-video">
-                <span>Encode once</span>
+                <span>Evidence index</span>
                 <div class="mini-frames"><i></i><i></i><i></i><i></i><i></i><i></i></div>
               </div>
-              <div class="tree-root">Global gist</div>
+              <div class="tree-root">Opened evidence ledger</div>
               <div class="tree-level tree-level-two">
-                <div>Event A</div><div>Event B</div><div>Event C</div>
+                <div>Reuse</div><div>Retrieve</div><div>Refine</div>
               </div>
               <div class="tree-level tree-level-three">
-                <div>A₁</div><div>A₂</div><div>B₁</div><div>B₂</div><div>C₁</div><div>C₂</div>
+                <div>Q₁</div><div>O₁</div><div>Q₂</div><div>O₂</div><div>Q₃</div><div>O₃</div>
               </div>
               <div class="query-path">
-                <span>Sequential query reuse</span>
-                <div class="query-reuse"><b>Q1</b><strong>Gist → Event B</strong><small>cache B</small></div>
-                <div class="query-reuse"><b>Q2</b><strong>reuse B → B₂</strong><small>cache B₂</small></div>
-                <div class="query-reuse"><b>Q3</b><strong>reuse B, B₂ → C</strong><small>no re-encode</small></div>
+                <span>Unknown sequential queries</span>
+                <div class="query-reuse"><b>Q1</b><strong>retrieve evidence A</strong><small>pay A</small></div>
+                <div class="query-reuse"><b>Q2</b><strong>reuse A + refine B</strong><small>pay B</small></div>
+                <div class="query-reuse"><b>Q3</b><strong>reuse A, B</strong><small>near-zero new evidence</small></div>
               </div>
             </div>
 
@@ -385,25 +385,24 @@
               <section>
                 <h4>Method</h4>
                 <ul>
-                  <li>scene/event boundary에 맞춘 temporal latent tree를 query 없이 생성</li>
-                  <li>parent token은 summary, child token은 parent가 잃은 predictive residual로 학습</li>
-                  <li>query router가 top-down beam으로 branch와 depth를 budget 안에서 결정</li>
-                  <li>global gist를 항상 남겨 잘못된 early routing의 복구 경로 제공</li>
-                  <li>펼친 branch를 cumulative cache에 남기고 후속 query에서는 추가 evidence만 연다</li>
-                  <li>동일 영상은 다시 encode하지 않고 query 수에 따른 total cost를 직접 평가</li>
+                  <li>P1·MetaCompress·StreamMem 등 기존 representation을 evidence index로 사용</li>
+                  <li>현재 query와 이미 열린 evidence를 조건으로 신규 evidence의 marginal value 예측</li>
+                  <li>전체 query sequence를 아는 offline oracle로 minimum evidence union 계산</li>
+                  <li>online policy는 미래 query 없이 reuse·retrieve·refine·evict 행동 수행</li>
+                  <li>oracle imitation 후 offline RL로 answer risk와 new compute를 공동 최적화</li>
+                  <li>query 수·순서·관련도·memory budget별 cumulative cost와 regret 평가</li>
                 </ul>
               </section>
               <section>
                 <h4>Decisive experiment</h4>
                 <p>
-                  같은 영상에 Q=1·5·10·20개의 질문이 순차적으로 들어올 때, VideoTree/QTS+/flat top-k보다 cumulative
-                  encoder+routing+LLM cost와 accuracy의 Pareto frontier가 좋아야 한다. Q가 늘수록 평균 query 비용이
-                  내려가는 곡선이 이 논문의 결정적 그림이다.
+                  SVBench·OASIS SQA의 실제 sequential queries에서 Q={1,2,4,8,16}을 평가한다. 동일 accuracy에서
+                  cumulative new visual cost가 ReKV·MuKV·OASIS·dense prefix cache보다 낮고 offline oracle에 가까워야 한다.
                 </p>
                 <h4>Kill criterion</h4>
                 <p>
-                  Q가 늘어도 average cost가 줄지 않거나, 동일 cumulative compute에서 flat cache/top-k보다 정확도가 낮으면
-                  multi-query amortization claim은 성립하지 않는다.
+                  offline oracle과 independent retrieval의 차이가 작거나, 기존 persistent cache가 같은 cumulative
+                  cost를 얻거나, gain이 exact GT overlap에만 존재하면 Proposal 2를 독립 논문으로 진행하지 않는다.
                 </p>
               </section>
             </div>
@@ -705,7 +704,7 @@
             <h3>세 논문이 점유할 서로 다른 공간</h3>
             <div class="open-space-list">
               <p><strong>01 · Anytime:</strong> state–innovation token roles와 encoder 내부 conditional compute를 하나의 nested representation으로 묶는다.</p>
-              <p><strong>02 · Multi-query:</strong> query-agnostic tree와 cumulative branch cache로 질문 수가 늘수록 평균 비용을 낮춘다.</p>
+              <p><strong>02 · Multi-query:</strong> 미래 질문을 모르는 online policy가 sequence 전체의 신규 evidence 비용과 offline-oracle regret를 줄이는지 검증한다.</p>
               <p><strong>03 · Predictive filtering:</strong> calibrated innovation으로 bounded state write와 recurrent correction compute를 공동 배분한다.</p>
             </div>
           </div>
