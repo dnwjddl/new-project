@@ -112,12 +112,12 @@
             </div>
             <div class="boundary-row">
               <h3>Future-query-safe compression<span>PROMPT AGNOSTIC</span></h3>
-              <p><strong>MetaCompress</strong>는 미래 질문이 unknown인 multi-turn VQA를 직접 문제화하고 prompt-agnostic learnable compression을 제시한다. <strong>StreamMem</strong>은 generic query tokens로 fixed-size query-agnostic KV memory를 유지한다. <strong>ObjectStream</strong>은 persistent latent objects와 state change를 bounded memory anchor로 쓴다.</p>
+              <p><strong>MetaCompress</strong>는 미래 질문이 unknown인 multi-turn VQA를 직접 문제화하고 prompt-agnostic learnable compression을 제시한다. <strong>StreamMem</strong>은 generic query tokens로 fixed-size query-agnostic KV memory를 유지한다. <strong>ObjectStream</strong>은 persistent latent objects와 state change를 bounded memory anchor로 쓴다. <strong>MemoryCard</strong>는 query 전에 event gist와 representative moments를 self-reading해 retrieval 단위로 만든다.</p>
               <p class="missing">“미래 질문을 위해 compact representation을 잘 만들자”는 주장은 이미 직접적인 선행 연구가 있다.</p>
             </div>
             <div class="boundary-row">
               <h3>Reusable video/KV memory<span>REPEATED QA</span></h3>
-              <p><strong>ReKV</strong>는 video encoding과 QA를 분리하고 query-relevant KV를 재사용한다. <strong>StreamKV</strong>는 semantic segment 단위 retrieval·compression을 결합한다. <strong>MuKV</strong>는 patch·frame·segment KV를 semi-hierarchical하게 retrieval한다. <strong>FlexMem</strong>은 compressed visual KV memory를 training-free로 읽고 쓴다.</p>
+              <p><strong>MC-ViT</strong>는 과거 activation을 non-parametric memory로 consolidate한다. <strong>ReKV</strong>는 video encoding과 QA를 분리하고 query-relevant KV를 재사용한다. <strong>StreamKV</strong>는 semantic segment 단위 retrieval·compression을 결합한다. <strong>MuKV</strong>는 patch·frame·segment KV를 semi-hierarchical하게 retrieval한다. <strong>FlexMem</strong>은 compressed visual KV memory를 training-free로 읽고 쓴다. <strong>WeaveTime</strong>은 uncertainty-triggered past-current cache로 multi-turn streaming QA를 개선한다.</p>
               <p class="missing">한 번 encode하고 이후 질문에서 KV나 segment를 재사용하는 것도 이미 강한 baseline이다.</p>
             </div>
             <div class="boundary-row">
@@ -295,6 +295,11 @@
             <a class="source-item" href="https://arxiv.org/abs/2502.10810" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>SVBench</h3><p>49,979 temporal multi-turn QA pairs for streaming video.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2603.15167" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>QViC-MF</h3><p>Question-guided compression with memory feedback.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2606.23581" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>Kamera</h3><p>Position-invariant multimodal KV cache reuse across look-backs.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2606.05917" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>MemoryCard</h3><p>Query-agnostic event gist and representative visual moments.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2602.22142" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>WeaveTime</h3><p>Temporal training and uncertainty-triggered past-current cache.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2402.05861" target="_blank" rel="noreferrer"><span>ICLR 2024</span><h3>MC-ViT</h3><p>Memory consolidation for extending pretrained video transformers.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/1907.13280" target="_blank" rel="noreferrer"><span>2019</span><h3>Multi-Turn VideoQA</h3><p>Question-guided video representation on AVSD dialogue.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2407.00023" target="_blank" rel="noreferrer"><span>MLSys 2025</span><h3>Preble</h3><p>Shared-prefix scheduling with VideoQA as a target workload.</p></a>
           </div>
         </div>
       </section>
