@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Multi-query Amortized Token Tree 상세 연구 제안" />
-    <title>02 · Multi-query Amortized Token Tree</title>
+    <meta name="description" content="Query-Evolving Video Memory 상세 연구 제안" />
+    <title>02 · Query-Evolving Video Memory</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
@@ -28,22 +28,23 @@
         <div class="page-shell proposal-hero-grid">
           <div>
             <p class="proposal-kicker">PROPOSAL 02 · REUSABLE PERCEPTION PROBLEM</p>
-            <h1>Multi-query Amortized Token Tree</h1>
+            <h1>Query-Evolving Video Memory</h1>
             <p class="hero-summary">
-              한 영상을 여러 질문이 반복해서 사용할 때, 매번 같은 evidence를 다시 찾고 계산하지 않는다. 질문 없이
-              만든 hierarchy와 이전 질문이 이미 연 branch를 persistent state로 공유해 query당 한계 비용을 낮춘다.
+              생물학적 기억은 회상될 때 그대로 읽히지 않고 다시 조직된다. query-agnostic episodic video memory에서
+              질문이 관련 사건을 활성화하면, 함께 활성화된 evidence를 semantic schema로 reconsolidate한다.
+              이후 질문은 동일 chunk가 아니어도 공유된 사건·객체·인과 구조를 통해 더 빠르게 기억을 완성한다.
             </p>
             <div class="hero-meta">
-              <div><span>PRIMARY AXIS</span><strong>Representation access</strong></div>
+              <div><span>PRIMARY AXIS</span><strong>Memory reconsolidation</strong></div>
               <div><span>QUERY SETTING</span><strong>Sequential Q₁…Qᴺ</strong></div>
-              <div><span>MAIN METRIC</span><strong>Total lifecycle cost</strong></div>
+              <div><span>MAIN METRIC</span><strong>Future-query transfer</strong></div>
             </div>
           </div>
           <div class="hero-claim">
             <span>ONE-SENTENCE CLAIM</span>
             <p>
-              query-agnostic video tree를 한 번 만들고 각 질문이 연 evidence branch를 누적 cache하면, 질문 수가
-              늘어날수록 정확도를 유지하면서 평균 encoder·retrieval·prefill 비용을 체계적으로 낮출 수 있다.
+              질문이 회상한 visual evidence로 memory structure를 reconsolidate하면, exact chunk overlap이 없는
+              후속 query도 더 적은 신규 perception으로 정확하게 답할 수 있다.
             </p>
           </div>
         </div>
@@ -53,24 +54,25 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">01 · THE PROBLEM</p>
-            <h2>현재 방법은 같은 영상을 재사용해도 각 query를 거의 독립적인 사건으로 취급한다.</h2>
+            <h2>현재 video memory는 질문으로 기억을 읽지만, 그 경험으로 기억 구조를 배우지는 않는다.</h2>
             <p class="section-explainer">
-              실제 video agent와 분석 도구에서는 한 영상에 요약, 원인, 특정 객체, 후속 확인 질문이 연속해서 들어온다.
-              Q₁에서 찾은 증거가 Q₂의 시작점이 되지 못하면 query-aware selection의 비용이 계속 반복된다.
+              실제 video agent에서는 한 사건을 둘러싼 원인·객체·순서 질문이 연속해서 들어온다. 단순 cache는 같은
+              chunk가 다시 필요할 때만 이득을 얻는다. 더 중요한 문제는 서로 다른 구간을 묻더라도 이전 회상이 만든
+              사건 구조가 다음 질문의 pattern completion을 도울 수 있는가이다.
             </p>
           </div>
 
           <div class="failure-grid">
             <div class="failure-vignette">
-              <div><p class="mini-label">REPEATED WORK</p><h3>질문은 바뀌지만, 필요한 event와 이미 본 branch는 자주 겹친다.</h3></div>
+              <div><p class="mini-label">RETRIEVAL SHOULD CHANGE MEMORY</p><h3>질문은 서로 다른 순간을 묻지만 같은 event schema를 공유할 수 있다.</h3></div>
               <div class="event-strip" aria-hidden="true"><i></i><i class="critical"></i><i></i><i class="critical"></i><i></i><i></i><i class="critical"></i><i></i></div>
               <p>Q₁ “컵을 누가 옮겼나?” → Q₂ “옮기기 전에 컵 안에는 무엇이 있었나?” → Q₃ “그 뒤 컵은 어디에 놓였나?”</p>
             </div>
             <div class="failure-list">
-              <div class="failure-item"><span>L1</span><div><h3>Per-query hierarchy construction</h3><p>query마다 tree나 ranking을 새로 만들면 같은 evidence discovery가 반복된다.</p></div></div>
-              <div class="failure-item"><span>L2</span><div><h3>Flat cache는 semantic expansion을 모른다</h3><p>KV나 dense tokens를 보관해도 parent summary에서 필요한 child detail만 점진적으로 여는 구조가 없다.</p></div></div>
-              <div class="failure-item"><span>L3</span><div><h3>Reuse가 학습 목표가 아니다</h3><p>개별 query 정확도와 latency를 최적화할 뿐 query sequence 전체의 incremental cost를 직접 줄이지 않는다.</p></div></div>
-              <div class="failure-item"><span>L4</span><div><h3>평가 단위가 Q=1에 머문다</h3><p>질문 수, 관련성, 순서가 바뀔 때 total cost와 cache growth가 어떻게 변하는지 보고되지 않는 경우가 많다.</p></div></div>
+              <div class="failure-item"><span>L1</span><div><h3>Read-only retrieval</h3><p>query는 evidence를 가져오지만 어떤 사건들이 함께 활성화됐는지를 visual memory에 다시 쓰지 않는다.</p></div></div>
+              <div class="failure-item"><span>L2</span><div><h3>Exact reuse only</h3><p>token cache는 동일 branch 재사용에는 강하지만 disjoint evidence 사이의 semantic relation을 만들지 않는다.</p></div></div>
+              <div class="failure-item"><span>L3</span><div><h3>QA summary ≠ visual reconsolidation</h3><p>질문과 답을 text로 누적해도 원래 event token의 관계와 retrieval path가 개선되는 것은 아니다.</p></div></div>
+              <div class="failure-item"><span>L4</span><div><h3>No retrieval-practice evaluation</h3><p>이전 질문을 경험한 뒤 held-out query의 정확도와 신규 visual compute가 실제로 개선되는지 거의 측정하지 않는다.</p></div></div>
             </div>
           </div>
         </div>
@@ -78,42 +80,42 @@
 
       <section class="proposal-section tinted" id="boundary">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">02 · PRIOR-WORK BOUNDARY</p><h2>Cache reuse, query routing, hierarchy는 이미 있다. 남은 것은 이 셋의 sequence-level 학습이다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">02 · PRIOR-WORK BOUNDARY</p><h2>Cache, hierarchy, consolidation은 이미 있다. 남은 것은 retrieval-induced visual reconsolidation이다.</h2></div>
           <div class="boundary-table">
             <div class="boundary-row header"><span>Work</span><span>What it already solves</span><span>What remains for this proposal</span></div>
             <div class="boundary-row">
               <h3>VideoTree<span>CVPR 2025</span></h3>
               <p>query를 사용해 long video의 hierarchical tree를 만들고 coarse-to-fine으로 관련 node를 탐색한다.</p>
-              <p class="missing">여러 다른 query가 하나의 query-agnostic tree와 과거 expansion을 누적 재사용하는 목적이 아니다.</p>
+              <p class="missing">query별 hierarchical retrieval은 수행하지만 실제 retrieval trace가 다음 query를 위한 visual schema로 reconsolidate되지는 않는다.</p>
             </div>
             <div class="boundary-row">
-              <h3>QTS+ / VideoRouter<span>arXiv 2025–2026</span></h3>
-              <p>각 query의 난이도와 관련성에 따라 visual token·frame budget을 동적으로 선택한다.</p>
-              <p class="missing">Qᵢ가 수행한 evidence discovery가 Qᵢ₊₁의 비용을 낮추도록 sequence 전체를 최적화하지 않는다.</p>
+              <h3>MC-ViT<span>ICLR 2024</span></h3>
+              <p>과거 activation을 non-parametric memory로 줄여 pretrained video transformer의 temporal context를 확장한다.</p>
+              <p class="missing">consolidation은 video encoding 중 redundancy reduction이며 질문에 의한 재활성화와 memory rewriting은 아니다.</p>
             </div>
             <div class="boundary-row">
-              <h3>SparseVILA / VLCache<span>arXiv 2025</span></h3>
-              <p>multi-turn fidelity를 위한 visual cache 보존과 동일 multimodal input의 encoder·KV 재사용을 제공한다.</p>
-              <p class="missing">semantic parent-child residual과 query-driven cumulative branch expansion을 학습하지 않는다.</p>
+              <h3>StreamMem / MuKV<span>2025–2026</span></h3>
+              <p>query-agnostic 또는 multi-grained visual KV memory를 압축하고 질문별 관련 evidence를 효율적으로 retrieval한다.</p>
+              <p class="missing">retrieval 뒤 memory는 read-oriented하며, co-activated visual episodes를 새로운 reusable schema로 다시 구성하지 않는다.</p>
             </div>
             <div class="boundary-row">
-              <h3>MuKV<span>arXiv 2026</span></h3>
-              <p>patch·frame·segment 수준의 multi-grained KV와 semi-hierarchical retrieval을 사용한다.</p>
-              <p class="missing">distinct query sequence에 대해 열린 branch를 persistent하게 확장하며 총 incremental cost를 최적화하는 설정이 아니다.</p>
+              <h3>WorldMM / OASIS<span>CVPR 2026</span></h3>
+              <p>episodic·semantic·visual memory와 hierarchical event forest, QA history를 이용해 adaptive retrieval을 수행한다.</p>
+              <p class="missing">memory consolidation은 주로 video stream에 의해 일어나고, 실제 retrieval trace가 visual event relation을 갱신하는 것이 중심은 아니다.</p>
             </div>
             <div class="boundary-row">
-              <h3>MEC<span>arXiv 2026-08</span></h3>
-              <p>한 query에서 sparse index와 evidence-to-context ranking을 만들어 여러 frame budget prefix에 재사용한다.</p>
-              <p class="missing">budget 간 prefix reuse는 해결하지만 서로 다른 query 간의 cumulative evidence reuse는 다루지 않는다.</p>
+              <h3>PMMC<span>arXiv 2026-08</span></h3>
+              <p>미래 질문 후보를 예상하고 question-conditioned multimodal memory program을 consolidation 시점에 미리 준비한다.</p>
+              <p class="missing">실제로 들어온 query sequence의 회상 결과가 memory를 재구성하고 이후 unseen query에 transfer되는 문제와는 다르다.</p>
             </div>
           </div>
 
           <div class="gap-statement">
             <span>THE OPEN GAP</span>
             <p>
-              <strong>여러 query가 공유하는 representation을 정적으로 cache하는 것</strong>을 넘어, 질문이 올 때마다
-              필요한 semantic branch만 확장하고 그 계산을 영구히 남기도록 query sequence의 총 한계 비용을 직접
-              학습하는 문제가 열려 있다.
+              <strong>Retrieval-induced video memory reconsolidation.</strong> 질문이 함께 활성화한 visual episodes의
+              관계를 bounded schema memory에 다시 쓰고, exact temporal overlap이 없는 후속 질문에도 그 구조가
+              pattern completion과 신규 perception 감소로 transfer되는지를 학습·평가하는 빈틈이다.
             </p>
           </div>
         </div>
@@ -123,24 +125,25 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">03 · METHOD</p>
-            <h2>Encode once, open evidence once, reuse it for every later question.</h2>
+            <h2>Recall, bind, and reconsolidate: 질문을 받을수록 memory가 의미 구조를 배운다.</h2>
             <p class="section-explainer">
-              initial state는 모든 query가 공유하는 global gist와 event index다. query router는 top-down으로 필요한
-              branch와 depth를 고르고, 새로 계산·회수한 residual은 cumulative cache에 합쳐진다.
+              raw event tree는 evidence를 보존하는 immutable episodic memory로 둔다. query가 여러 event를 함께
+              활성화하면 그 co-activation과 temporal relation만 작은 schema memory에 쓴다. 이후 query는 schema로
+              관련 episode를 pattern-complete하고, 불충분할 때만 새로운 visual evidence를 연다.
             </p>
           </div>
 
           <div class="method-canvas">
-            <div class="method-flow" aria-label="Multi-query amortized tree 처리 흐름">
-              <div class="method-node"><span>VIDEO ONCE</span><strong>Frozen / learned encoder</strong><small>shared input</small></div>
+            <div class="method-flow" aria-label="Retrieval-induced video memory reconsolidation 처리 흐름">
+              <div class="method-node"><span>EPISODIC MEMORY</span><strong>Event tokens E</strong><small>query agnostic · immutable</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node gist"><span>M₀</span><strong>Gist + event index</strong><small>query agnostic</small></div>
+              <div class="method-node gist"><span>Qᵢ RECALL</span><strong>Sparse activation Aᵢ</strong><small>retrieve visual episodes</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node event"><span>Qᵢ ROUTER</span><strong>Select branch + depth</strong><small>incremental retrieval</small></div>
+              <div class="method-node event"><span>RECONSOLIDATE</span><strong>Bind co-activated events</strong><small>relation · order · confidence</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node reason"><span>Mᵢ₊₁</span><strong>Persistent expanded state</strong><small>Mᵢ ∪ new evidence</small></div>
+              <div class="method-node reason"><span>SCHEMA MEMORY Sᵢ</span><strong>Pattern completion</strong><small>help the next unseen query</small></div>
             </div>
-            <p class="method-caption">2번의 contribution은 dynamic encoder 자체가 아니다. 어떤 pretrained encoder에서도 붙을 수 있는 reusable interaction layer로 설계한다.</p>
+            <p class="method-caption">Cache는 순차 query에서 latent를 유지하는 구현 요소일 뿐 contribution이 아니다. 핵심은 retrieved evidence를 그대로 쌓지 않고, 검증된 co-activation relation으로 bounded schema를 갱신해 exact-overlap 밖의 query transfer를 만드는 것이다.</p>
           </div>
 
           <div class="interactive-demo query-tree-demo" data-proposal-demo="query">
@@ -152,10 +155,10 @@
               <input id="query-count" type="range" min="1" max="4" value="1" step="1" />
               <div class="demo-readout">
                 <div><span>CURRENT QUERY</span><strong data-demo-label>Q1</strong></div>
-                <div><span>RELATIVE MARGINAL COST</span><strong data-demo-value>100%</strong></div>
+                <div><span>NEW EVIDENCE COST</span><strong data-demo-value>100%</strong></div>
               </div>
             </div>
-            <div class="query-tree" aria-label="질문이 늘며 열린 branch가 누적되는 tree">
+            <div class="query-tree" aria-label="질문이 늘며 event relation과 schema가 형성되는 memory">
               <div class="query-node root" data-open-at="1">GLOBAL GIST</div>
               <div class="query-node branch" data-open-at="3">EVENT A</div>
               <div class="query-node branch" data-open-at="1">EVENT B</div>
@@ -170,48 +173,59 @@
           </div>
 
           <div class="module-grid">
-            <div class="module-item"><span>M1</span><h3>Query-agnostic residual tree</h3><p>parent는 scene/event summary, child는 parent가 잃은 temporal·spatial evidence만 표현하도록 predictive residual로 학습한다.</p></div>
-            <div class="module-item"><span>M2</span><h3>Budgeted top-down router</h3><p>query와 현재 cache를 함께 보고 이미 열린 node는 무료로, 새 branch는 한계 비용을 반영해 선택한다.</p></div>
-            <div class="module-item"><span>M3</span><h3>Persistent cumulative state</h3><p>선택된 raw evidence, latent child, 필요한 encoder/LLM KV를 cache policy에 따라 병합하고 이후 query가 공유한다.</p></div>
+            <div class="module-item"><span>M1</span><h3>Immutable episodic tree</h3><p>query 없이 만든 event token과 temporal hierarchy가 원본 evidence를 보존한다. generated answer의 오류가 raw memory를 덮어쓰지 못하게 한다.</p></div>
+            <div class="module-item"><span>M2</span><h3>Co-activation schema slots</h3><p>한 query에서 함께 retrieval된 event의 객체·행동·순서 relation을 bounded semantic slots와 sparse edges로 압축한다.</p></div>
+            <div class="module-item"><span>M3</span><h3>Confidence-gated reconsolidation</h3><p>evidence-grounded retrieval만 schema를 갱신하고, 후속 query는 schema activation과 현재 query를 결합해 필요한 episode를 완성한다.</p></div>
           </div>
 
           <div class="objective-strip">
-            <div><p class="mini-label">SEQUENCE OBJECTIVE</p><h3>독립 query cost가 아니라 전체 workload의 추가 비용을 최소화한다.</h3></div>
-            <code>min E[q₁:Q] Σᵢ ΔC(qᵢ | Mᵢ₋₁)<br />s.t. Acc(qᵢ, Mᵢ) ≥ τ<br />Mᵢ = Mᵢ₋₁ ∪ Expand(Tree, qᵢ, Mᵢ₋₁)</code>
+            <div><p class="mini-label">SEQUENCE OBJECTIVE</p><h3>현재 답뿐 아니라 reconsolidation 뒤 held-out query의 효율과 정확도를 개선한다.</h3></div>
+            <code>Aᵢ = Retrieve(E, Sᵢ₋₁, qᵢ)<br />Sᵢ = Update(Sᵢ₋₁, Aᵢ, qᵢ, confidence)<br />L = Σᵢ LQA(qᵢ) + λΔCᵢ + βLnext(qᵢ₊₁ | Sᵢ) + γLinterference</code>
           </div>
         </div>
       </section>
 
       <section class="proposal-section tinted" id="training">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">04 · TRAINING</p><h2>한 질문씩 섞지 말고 query workload 자체를 sample한다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">04 · TRAINING</p><h2>Full method 전에 training-free spreading activation으로 가설부터 검증한다.</h2></div>
           <div class="training-lanes">
-            <div class="training-lane"><span>PHASE A · TREE</span><h3>Query-free hierarchy</h3><p>scene boundary와 teacher residual로 global → event → detail node를 만들고 모든 parent가 standalone summary가 되게 한다.</p></div>
-            <div class="training-lane"><span>PHASE B · ROUTER</span><h3>Single-query oracle</h3><p>answer loss와 evidence localization으로 branch utility를 학습한 뒤 cost-constrained beam routing을 맞춘다.</p></div>
-            <div class="training-lane"><span>PHASE C · SEQUENCE</span><h3>Cache-aware episodes</h3><p>관련·비관련 query를 섞은 episode에서 이미 열린 node의 reuse credit과 새 node의 incremental penalty를 준다.</p></div>
-            <div class="training-lane"><span>PHASE D · POLICY</span><h3>Bounded cache</h3><p>메모리 한계에서 gist·rare event·high-reuse branch를 남기는 eviction policy와 order robustness를 학습한다.</p></div>
+            <div class="training-lane"><span>PHASE A · PHENOMENON</span><h3>Separate reuse from transfer</h3><p>same-video query pair를 exact-overlap, disjoint-but-related, unrelated로 나누고 각 집단의 규모와 baseline retrieval difficulty를 측정한다.</p></div>
+            <div class="training-lane"><span>PHASE B · UPPER BOUND</span><h3>Oracle retrieval-practice gain</h3><p>이전 query의 ground-truth evidence relation만 제공했을 때 held-out query hit@K가 얼마나 오르는지 재서 가능한 transfer의 상한을 구한다.</p></div>
+            <div class="training-lane"><span>PHASE C · NO-TRAINING TEST</span><h3>Spreading activation</h3><p>과거 retrieval co-activation으로 event graph edge를 만들고 query similarity를 이 graph로 전파한다. parameter update 없이 flat retrieval보다 좋아지는지 본다.</p></div>
+            <div class="training-lane"><span>PHASE D · LEARNED UPDATE</span><h3>Bounded reconsolidation</h3><p>앞 세 실험이 통과한 뒤에만 schema slots, confidence gate, future-query transfer loss를 학습한다.</p></div>
           </div>
         </div>
       </section>
 
       <section class="proposal-section" id="evidence">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">05 · EVIDENCE NEEDED</p><h2>핵심 그림은 Q가 늘수록 내려가는 average marginal cost다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">05 · MOTIVATION-FIRST EXPERIMENTS</p><h2>Method 전에 “회상 경험이 다음 질문을 돕는가”부터 세 단계로 확인한다.</h2></div>
+          <div class="module-grid">
+            <div class="module-item"><span>E1</span><h3>Query-pair taxonomy</h3><p>Ego4D NLQ의 same-video query pairs를 temporal IoU와 semantic relation으로 분류한다. embedding으로 후보를 만들고 human-audited subset으로 검증해, window는 겹치지 않지만 동일 event·entity·causal chain을 공유하는 pair의 비율을 보고한다.</p></div>
+            <div class="module-item"><span>E2</span><h3>History utility upper bound</h3><p>첫 query의 answer text 없이 ground-truth visual evidence relation만 memory에 준다. held-out second query의 hit@K와 신규 leaf 수가 개선되면 reconsolidation의 가능한 이득이 존재한다.</p></div>
+            <div class="module-item"><span>E3</span><h3>Training-free reconsolidation</h3><p>retrieved leaves의 co-activation graph에 Hebbian-style edge update와 decay만 적용한다. 이는 생물학적 충실성 주장이 아닌 계산적 analogy다. flat CLIP, exact cache, QA-text history, shuffled history와 동일 K에서 비교한다.</p></div>
+          </div>
+
+          <div class="teacher-note">
+            <span>THE CRITICAL SLICE</span>
+            <p><strong>Disjoint-but-related query pairs.</strong> Exact temporal overlap이 없어 단순 branch cache는 도움을 주지 못하지만, 같은 event schema를 공유하는 경우다. 이 subset에서 previous-query history가 held-out accuracy를 높이고 new visual evidence를 줄여야 biological reconsolidation claim이 성립한다.</p>
+          </div>
+
           <div class="evidence-grid">
             <div class="contribution-list">
-              <div class="contribution-row"><span>C1</span><div><h3>Multi-query workload formulation</h3><p>video understanding 효율을 Q=1 latency가 아닌 representation lifecycle cost로 정의한다.</p></div></div>
-              <div class="contribution-row"><span>C2</span><div><h3>Semantic cumulative expansion</h3><p>이전 query의 evidence discovery와 branch refinement를 다음 query의 persistent computation으로 바꾼다.</p></div></div>
-              <div class="contribution-row"><span>C3</span><div><h3>Cache-aware sequence training</h3><p>query order와 relatedness를 포함해 total incremental cost를 직접 최적화한다.</p></div></div>
-              <div class="contribution-row"><span>C4</span><div><h3>Lifecycle benchmark protocol</h3><p>Q=1·5·10·20, cache budget, query diversity별 accuracy–total cost frontier를 제안한다.</p></div></div>
+              <div class="contribution-row"><span>C1</span><div><h3>Retrieval-practice formulation</h3><p>multi-query benefit을 exact token reuse가 아니라 이전 회상 뒤 unseen query의 positive transfer로 정의한다.</p></div></div>
+              <div class="contribution-row"><span>C2</span><div><h3>Episodic–schema dual memory</h3><p>immutable visual episodes와 query-induced bounded schema를 분리해 evidence fidelity와 semantic abstraction을 함께 유지한다.</p></div></div>
+              <div class="contribution-row"><span>C3</span><div><h3>Retrieval-induced reconsolidation</h3><p>co-activated event relation을 다시 써서 raw overlap이 없는 후속 query의 pattern completion을 돕는다.</p></div></div>
+              <div class="contribution-row"><span>C4</span><div><h3>Transfer and interference protocol</h3><p>related·unrelated·shuffled·adversarial history에서 future-query gain, 신규 compute, forgetting과 order robustness를 함께 측정한다.</p></div></div>
             </div>
             <div class="decisive-figure">
               <p class="mini-label">THE DECISIVE FIGURE</p>
-              <h3>Average cost per query vs number of queries</h3>
-              <p>flat cache·SparseVILA·MuKV·MEC보다 빠르게 내려가야 하며, adversarially diverse query에서도 정확도 손실 없이 이득이 남아야 한다.</p>
-              <div class="curve-chart" aria-label="질문 수가 늘수록 제안법의 평균 비용이 기준선보다 빠르게 감소하는 목표 그림">
-                <span class="curve-label ours">Ours: cumulative branch reuse</span>
-                <span class="curve-label base">Per-query routing / flat cache</span>
-                <span class="curve-axis-x">number of queries Q →</span>
+              <h3>Held-out accuracy and new evidence cost after retrieval practice</h3>
+              <p>disjoint-but-related query에서 history length가 늘수록 held-out accuracy는 올라가고 신규 visual token은 줄어야 한다. unrelated·shuffled history에서는 이득이 사라져야 한다.</p>
+              <div class="curve-chart" aria-label="관련 질문 경험이 늘수록 정확도는 높아지고 신규 evidence 비용은 낮아지는 목표 그림">
+                <span class="curve-label ours">Ours: reconsolidated schema</span>
+                <span class="curve-label base">Static retrieval / exact cache</span>
+                <span class="curve-axis-x">prior related queries →</span>
               </div>
             </div>
           </div>
@@ -220,11 +234,11 @@
 
       <section class="proposal-section tinted" id="risks">
         <div class="page-shell">
-          <div class="detail-heading"><p class="detail-index">06 · KILL TESTS</p><h2>Reuse라는 말이 실제 비용 감소로 이어지지 않으면 논문은 성립하지 않는다.</h2></div>
+          <div class="detail-heading"><p class="detail-index">06 · KILL TESTS</p><h2>Exact cache 이상의 semantic transfer가 없으면 reconsolidation 논문은 성립하지 않는다.</h2></div>
           <div class="risk-grid">
-            <div class="risk-item"><span>NO-GO 01</span><h3>Q가 늘어도 평균 비용이 평평하다</h3><p>질문 간 evidence overlap이 부족하거나 cache 조회 비용이 크면 broad interaction claim을 줄이고 특정 workload로 한정한다.</p></div>
-            <div class="risk-item"><span>NO-GO 02</span><h3>Flat cache와 차이가 없다</h3><p>동일 memory에서 단순 dense token cache/top-k가 같거나 더 좋으면 hierarchy와 residual training의 필요성이 없다.</p></div>
-            <div class="risk-item"><span>NO-GO 03</span><h3>Query order에 과민하다</h3><p>초기 질문이 cache를 오염시켜 후속 정확도가 떨어지면 immutable gist와 uncertainty-aware eviction을 강제한다.</p></div>
+            <div class="risk-item"><span>NO-GO 01</span><h3>Disjoint-related pairs가 드물다</h3><p>실제 workload에서 semantic relation은 대부분 exact temporal overlap으로 설명된다면 reconsolidation 대신 단순 cache 문제로 축소한다.</p></div>
+            <div class="risk-item"><span>NO-GO 02</span><h3>Oracle history도 future query를 돕지 못한다</h3><p>정답 evidence relation을 줘도 held-out retrieval이 개선되지 않으면 schema transfer 가정 자체를 폐기한다.</p></div>
+            <div class="risk-item"><span>NO-GO 03</span><h3>관련 history가 interference를 만든다</h3><p>positive transfer보다 잘못된 association과 order sensitivity가 크면 update를 confidence-gated read-only retrieval로 제한한다.</p></div>
           </div>
         </div>
       </section>
@@ -233,7 +247,7 @@
         <div class="page-shell">
           <div class="detail-heading">
             <p class="detail-index">07 · 2–3H COMPUTE PLAN</p>
-            <h2>Hierarchy와 router는 가볍지만, full multi-query answer evaluation이 자원의 대부분을 차지한다.</h2>
+            <h2>Motivation 분석은 cached feature로 가볍고, full reader와 learned reconsolidation이 자원의 대부분을 차지한다.</h2>
             <p class="section-explainer">아래는 H100 SXM 80GB, BF16, Ego4D NLQ official split, Q={1,2,4,8,16} workload를 가정한 초기 추정이다. A100 80GB는 H100 수의 약 1.7배를 초기값으로 잡고 5% throughput calibration 후 조정한다. 한 run은 한 configuration·한 seed이며 queue time은 제외한다.</p>
           </div>
 
@@ -244,35 +258,35 @@
 
           <div class="compute-assumption">
             <p class="mini-label">FULL-SPLIT RESULT · EGO4D NLQ · 3 SEEDS</p>
-            <p><strong>Multi-query amortization은 실제 질의에서도 성립했다.</strong> 1,271 train clips·415 val clips와 usable 13,847/4,552 queries 전체를 사용했다. budget 4에서 Q=8이면 shared cache의 total visual cost는 독립 per-query 실행의 14.7%(약 6.8× 절감)였고, query당 열린 leaf는 4.00개에서 3.27개로 줄었다. Uniform tree는 budget 8에서 flat search의 137.5회 대신 47.3회 비교(-65.6%)로 routing했다.</p>
+            <p><strong>기존 실험은 exact evidence reuse가 실제 질의에 존재함을 확인했다.</strong> 1,271 train clips·415 val clips와 usable 13,847/4,552 queries 전체를 사용했다. budget 4에서 Q=8일 때 query당 unique opened leaf는 4.00개에서 3.27개로 줄었다. Uniform tree는 budget 8에서 flat search의 137.5회 대신 47.3회 비교(-65.6%)로 routing했다. 이는 reconsolidation이 아니라 동일 leaf 재사용의 baseline이다.</p>
           </div>
 
           <div class="compute-assumption">
             <p class="mini-label">ACCURACY GAP · THE NEXT METHOD TARGET</p>
-            <p><strong>재사용 가능성만으로 hierarchy의 승리를 주장할 수는 없다.</strong> Raw CLIP의 budget-8 overlap hit는 flat 41.65% 대 uniform tree 31.88%였다. 256-d bottleneck router는 33.44%까지 악화됐고, pretrained geometry를 보존하는 residual alignment(weight 10)는 40.79%로 회복했다. 따라서 query router 자체를 novelty로 밀기보다 frozen geometry를 보존하고, flat ranking을 distill하면서 cache-aware branch utility를 학습해 이 약 10pp tree gap을 닫는 것이 다음 핵심 contribution이다.</p>
+            <p><strong>14.7% total-cost 수치는 per-query video feature recomputation을 가정한 상대값이라 최신 cache baseline 대비 novelty가 아니다.</strong> 더 중요한 결과는 Raw CLIP budget-8 overlap hit가 flat 41.65% 대 uniform tree 31.88%였고, geometry-preserving residual router가 40.79%까지 회복했다는 점이다. 새 motivation 실험은 tree 승리를 가정하지 않고 flat geometry 위에서 exact reuse와 semantic transfer를 먼저 분리한다.</p>
           </div>
 
           <div class="compute-assumption">
             <p class="mini-label">RUN DEFINITION</p>
-            <p>video feature와 query-agnostic tree는 한 번 만들어 모든 query order·cache budget·router baseline이 공유한다. router 학습은 seed별로 나누고, deterministic 7B reader 평가는 video/query shard를 여러 GPU에 data-parallel로 분산한다.</p>
+            <p>video feature와 immutable episodic tree는 한 번 만들어 모든 query order·schema budget·retrieval baseline이 공유한다. motivation E1–E3는 cached feature에서 수행하고, learned reconsolidation과 deterministic 7B reader 평가는 seed·query episode별로 분산한다.</p>
           </div>
 
           <div class="compute-tier-grid">
-            <div class="compute-tier"><span>LIGHT · TREE + ROUTER</span><strong>3 × H100 80GB</strong><small>1 H100/seed · full real-query workload training</small></div>
-            <div class="compute-tier"><span>MEDIUM · CACHE EPISODES</span><strong>3 × H100 80GB</strong><small>1 H100/seed · Q와 cache-budget sweep를 3시간 안에</small></div>
+            <div class="compute-tier"><span>LIGHT · MOTIVATION ANALYSIS</span><strong>1 × H100 80GB</strong><small>cached features · pair taxonomy + spreading activation</small></div>
+            <div class="compute-tier"><span>MEDIUM · RECONSOLIDATION EPISODES</span><strong>3 × H100 80GB</strong><small>1 H100/seed · schema and history sweep</small></div>
             <div class="compute-tier"><span>HEAVY · 7B READER EVAL</span><strong>6 × H100 80GB</strong><small>2 H100/seed model · three trained seeds simultaneous</small></div>
           </div>
 
           <div class="compute-table" aria-label="Proposal 02 작업별 계산 자원 추정">
             <div class="compute-row header"><span>Work unit</span><span>H100 / seed</span><span>3 seeds parallel</span><span>CPU · RAM</span><span>Scratch</span></div>
-            <div class="compute-row"><div class="compute-job"><span>ONE TIME</span><strong>Ego4D NLQ feature + tree cache</strong><small>video shards · temporal nodes · pooled/dense latents</small></div><div class="compute-cell"><strong>4 H100 total</strong><span>2–3h target</span></div><div class="compute-cell"><strong>Once</strong><span>shared artifact</span></div><div class="compute-cell"><strong>64 cores · 256GB</strong><span>parallel video decode</span></div><div class="compute-cell"><strong>0.5–1.5TB</strong><span>granularity dependent</span></div></div>
-            <div class="compute-row"><div class="compute-job"><span>PHASE A–B</span><strong>Tree objective + router training</strong><small>official real NLQ · branch utility · cost loss</small></div><div class="compute-cell"><strong>1 H100</strong><span>per configuration</span></div><div class="compute-cell"><strong>3 H100</strong><span>one per seed</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>40–100GB</strong><span>tree+ckpt</span></div></div>
-            <div class="compute-row"><div class="compute-job"><span>PHASE C–D</span><strong>Cache-aware episode training</strong><small>related/random order · eviction · Q sweep</small></div><div class="compute-cell"><strong>1 H100</strong><span>per seed</span></div><div class="compute-cell"><strong>3 H100</strong><span>three jobs</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>per seed</span></div><div class="compute-cell"><strong>0.1–0.25TB</strong><span>episode cache</span></div></div>
-            <div class="compute-row"><div class="compute-job"><span>RETRIEVAL EVAL</span><strong>Lifecycle cost and cache stress</strong><small>Q={1,2,4,8,16} · order · memory budget</small></div><div class="compute-cell"><strong>1 H100</strong><span>cached latents</span></div><div class="compute-cell"><strong>3 H100</strong><span>all seed models</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>50–150GB</strong><span>traces+predictions</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>ONE TIME</span><strong>Ego4D NLQ feature + episodic index</strong><small>video shards · temporal nodes · pooled/dense latents</small></div><div class="compute-cell"><strong>4 H100 total</strong><span>2–3h target</span></div><div class="compute-cell"><strong>Once</strong><span>shared artifact</span></div><div class="compute-cell"><strong>64 cores · 256GB</strong><span>parallel video decode</span></div><div class="compute-cell"><strong>0.5–1.5TB</strong><span>granularity dependent</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE A–C</span><strong>Pair taxonomy + oracle + graph diffusion</strong><small>official NLQ · disjoint-related slice · no learned method</small></div><div class="compute-cell"><strong>1 H100</strong><span>single analysis job</span></div><div class="compute-cell"><strong>1 H100</strong><span>no seed training</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>pair construction</span></div><div class="compute-cell"><strong>40–100GB</strong><span>graph+traces</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>PHASE D</span><strong>Schema update episode training</strong><small>related·unrelated·shuffled history · bounded slots</small></div><div class="compute-cell"><strong>1 H100</strong><span>per seed</span></div><div class="compute-cell"><strong>3 H100</strong><span>three jobs</span></div><div class="compute-cell"><strong>16 cores · 128GB</strong><span>per seed</span></div><div class="compute-cell"><strong>0.1–0.25TB</strong><span>episodes+ckpt</span></div></div>
+            <div class="compute-row"><div class="compute-job"><span>RETRIEVAL EVAL</span><strong>Transfer and interference sweep</strong><small>history={0,1,2,4,8} · relation · order · schema budget</small></div><div class="compute-cell"><strong>1 H100</strong><span>cached latents</span></div><div class="compute-cell"><strong>3 H100</strong><span>all seed models</span></div><div class="compute-cell"><strong>8 cores · 64GB</strong><span>per seed</span></div><div class="compute-cell"><strong>50–150GB</strong><span>traces+predictions</span></div></div>
             <div class="compute-row"><div class="compute-job"><span>FINAL ANSWER EVAL</span><strong>7B MLLM reader over full workload</strong><small>data-parallel video/query shards · no repeated encode</small></div><div class="compute-cell"><strong>2 H100</strong><span>per trained seed</span></div><div class="compute-cell"><strong>6 H100</strong><span>strict 3h target</span></div><div class="compute-cell"><strong>32 cores · 256GB</strong><span>per seed aggregate</span></div><div class="compute-cell"><strong>0.2–0.5TB</strong><span>KV+responses</span></div></div>
           </div>
 
-          <div class="compute-formula"><div><p class="mini-label">CALIBRATE BEFORE LAUNCH</p><h3>Router와 reader 시간을 분리해서 측정한다.</h3><p>retrieval-only 결과와 MLLM answer 결과를 같은 run으로 묶으면 병목을 숨기게 된다. H100과 A100 latency는 섞지 않고 paper table은 full official workload만 사용한다.</p></div><code>G_router = ceil(T_router,H100 / (2.5h × η))<br />G_reader = ceil(N_query_workloads / (query_per_sec × 2.0h × 0.8))<br />G_A100,initial ≈ ceil(1.7 × G_H100)</code></div>
+          <div class="compute-formula"><div><p class="mini-label">CALIBRATE BEFORE LAUNCH</p><h3>Retrieval, schema update, reader 시간을 분리해서 측정한다.</h3><p>retrieval-only 결과와 MLLM answer 결과를 같은 run으로 묶으면 병목을 숨기게 된다. H100과 A100 latency는 섞지 않고 paper table은 full official workload만 사용한다.</p></div><code>G_schema = ceil(T_episode,H100 / (2.5h × η))<br />G_reader = ceil(N_query_workloads / (query_per_sec × 2.0h × 0.8))<br />G_A100,initial ≈ ceil(1.7 × G_H100)</code></div>
         </div>
       </section>
 
@@ -281,13 +295,12 @@
           <div class="detail-heading"><p class="detail-index">08 · CLOSEST SOURCES</p><h2>이 proposal의 novelty를 가장 강하게 압박하는 연구</h2></div>
           <div class="source-grid">
             <a class="source-item" href="https://videotree2024.github.io/" target="_blank" rel="noreferrer"><span>CVPR 2025</span><h3>VideoTree</h3><p>query-adaptive hierarchical long-video understanding.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2511.11910" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>QTS+</h3><p>query-aware token selection과 adaptive visual budget.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2605.05848" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>VideoRouter</h3><p>query-adaptive global/detail dual routing.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2510.17777" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>SparseVILA</h3><p>query-agnostic sparsity와 multi-turn query-aware retrieval.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2402.05861" target="_blank" rel="noreferrer"><span>ICLR 2024</span><h3>MC-ViT</h3><p>past activation consolidation for long-context video.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2508.15717" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>StreamMem</h3><p>query-agnostic bounded KV memory for streaming video.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2605.22269" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>MuKV</h3><p>patch·frame·segment multi-grained KV cache.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2512.12977" target="_blank" rel="noreferrer"><span>ARXIV 2025</span><h3>VLCache</h3><p>동일 multimodal input의 encoder·KV cache 재사용.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2608.05707" target="_blank" rel="noreferrer"><span>ARXIV 2026-08</span><h3>MEC</h3><p>한 ranking을 여러 frame budget에서 재사용하는 Matryoshka selection.</p></a>
-            <a class="source-item" href="https://arxiv.org/abs/2608.03276" target="_blank" rel="noreferrer"><span>ARXIV 2026-08</span><h3>TaskPress</h3><p>downstream query 전 task-guided reusable KV compression.</p></a>
+            <a class="source-item" href="https://openaccess.thecvf.com/content/CVPR2026/html/Yeo_WorldMM_Dynamic_Multimodal_Memory_Agent_for_Long_Video_Reasoning_CVPR_2026_paper.html" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>WorldMM</h3><p>episodic·semantic·visual memory and adaptive retrieval.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2604.17052" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>OASIS</h3><p>on-demand hierarchical event memory with QA history.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2608.00962" target="_blank" rel="noreferrer"><span>ARXIV 2026-08</span><h3>PMMC</h3><p>prospective question-program compilation for multimodal memory.</p></a>
           </div>
         </div>
       </section>
@@ -296,7 +309,7 @@
         <a class="proposal-next" href="../3-proposal/"><div><span>NEXT PROPOSAL</span><h2>03 · Predictive Latent Filtering</h2></div><i aria-hidden="true">→</i></a>
       </div>
     </main>
-    <footer><div class="page-shell footer-inner"><span>Proposal 02 · Multi-query Amortization</span><span>Research hypothesis · not a measured claim</span></div></footer>
+    <footer><div class="page-shell footer-inner"><span>Proposal 02 · Query-Evolving Video Memory</span><span>Research hypothesis · measured baselines are marked</span></div></footer>
     <script src="../proposal.js"></script>
   </body>
 </html>

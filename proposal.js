@@ -8,10 +8,10 @@ const anytimeCopy = [
 ];
 
 const queryCopy = [
-  ["Q1", "100%", "처음 질문은 global gist에서 Event B를 열어 증거와 계산을 cache한다."],
-  ["Q2", "61%", "두 번째 질문은 Event B를 재사용하고 B2 leaf만 새로 연다."],
-  ["Q3", "43%", "세 번째 질문은 B와 B2를 그대로 쓰고 Event C의 summary만 추가한다."],
-  ["Q4", "34%", "관련된 후속 질문은 새 encoder 계산 없이 열린 evidence로 답한다."],
+  ["Q1", "100%", "첫 질문이 관련 visual episodes를 활성화하고 최초 retrieval trace를 만든다."],
+  ["Q2", "68%", "두 번째 질문에서 함께 활성화된 사건들을 relation과 order로 묶어 schema를 갱신한다."],
+  ["Q3", "45%", "새 질문은 exact leaf가 달라도 schema activation으로 관련 episode를 pattern-complete한다."],
+  ["Q4", "29%", "held-out 질문은 reconsolidated schema를 먼저 쓰고 아직 부족한 visual evidence만 새로 연다."],
 ];
 
 const latentCopy = [
