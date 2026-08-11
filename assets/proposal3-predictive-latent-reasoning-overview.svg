@@ -117,8 +117,8 @@
   <text x="398" y="187" class="panel-copy">Imagine the future without new pixels.</text>
 
   <rect x="438" y="235" width="246" height="84" rx="8" fill="#fff" stroke="#7198b8" stroke-width="2.5" filter="url(#shadow)"/>
-  <text x="561" y="268" text-anchor="middle" class="node-title blue">Shared recurrent core Fθ</text>
-  <text x="561" y="295" text-anchor="middle" class="node-copy">the latent reasoning operator</text>
+  <text x="561" y="268" text-anchor="middle" class="node-title blue">Shared recurrent core Rθ</text>
+  <text x="561" y="295" text-anchor="middle" class="node-copy">mode = predict</text>
   <path d="M657 237C713 205 713 325 661 307" fill="none" stroke="#3f6f9f" stroke-width="2.4" marker-end="url(#arrow-blue)"/>
   <text x="693" y="220" text-anchor="middle" class="small">shared weights</text>
 
@@ -200,8 +200,8 @@
   <text x="1494" y="290" text-anchor="middle" class="small red">HIGH</text>
   <rect x="1250" y="470" width="258" height="91" rx="8" fill="#fff0eb" stroke="#d9573f" stroke-width="2.5" filter="url(#shadow)"/>
   <text x="1379" y="500" text-anchor="middle" class="node-title red">Corrective latent reasoning</text>
-  <text x="1379" y="529" text-anchor="middle" class="math">Cθ × K(I)</text>
-  <text x="1379" y="550" text-anchor="middle" class="small">selective write · adaptive halt</text>
+  <text x="1379" y="529" text-anchor="middle" class="math">Rθ × K(I)</text>
+  <text x="1379" y="550" text-anchor="middle" class="small">same weights · mode = correct</text>
 
   <path d="M1379 561V593" stroke="#167d77" stroke-width="2.8" marker-end="url(#arrow)"/>
   <rect x="1245" y="605" width="268" height="81" rx="7" fill="#e9f6f4" stroke="#60a9a3" stroke-width="2.5" filter="url(#shadow)"/>

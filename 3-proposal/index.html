@@ -152,11 +152,11 @@
             <div class="method-flow" aria-label="Predictive latent filtering 처리 흐름">
               <div class="method-node"><span>STATE</span><strong>h⁰ₜ = Mₜ</strong><small>bounded posterior</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node gist"><span>LATENT ROLLOUT</span><strong>h¹ₜ = Fθ(h⁰ₜ)</strong><small>one step by default · optional continuation</small></div>
+              <div class="method-node gist"><span>LATENT ROLLOUT</span><strong>h¹ₜ = Rθ(h⁰ₜ; predict)</strong><small>one step by default · optional continuation</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
               <div class="method-node reason"><span>INNOVATION</span><strong>Iₜ₊₁ = d(Zₜ₊₁, Ẑₜ₊₁) / σₜ</strong><small>semantic surprise</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node event"><span>CORRECT × K</span><strong>Mₜ₊₁ = Cθ(Mₜ, Zₜ₊₁, Iₜ₊₁)</strong><small>selective write · adaptive halt</small></div>
+              <div class="method-node event"><span>CORRECT × K</span><strong>Mₜ₊₁ = Rθᴷ(Mₜ, Zₜ₊₁, Iₜ₊₁; correct)</strong><small>shared weights · selective write · halt</small></div>
             </div>
             <p class="method-caption">Core encoder는 language query나 textual CoT를 사용하지 않는다. downstream task head는 고정된 posterior state만 읽는다.</p>
           </div>
@@ -189,7 +189,7 @@
 
           <div class="objective-strip">
             <div><p class="mini-label">TRAINING OBJECTIVE</p><h3>예측은 미래를 보존하고, correction은 실제 관측 뒤의 다음 예측을 더 정확하게 만들어야 한다.</h3></div>
-            <code>S⁻ₜ = Dθ(Sₜ₋₁)<br />Iₜ = d(Zₜ, μθ(S⁻ₜ)) / σθ(S⁻ₜ)<br />Sₜ⁽ᵏ⁺¹⁾ = Cθ(Sₜ⁽ᵏ⁾, Zₜ, Iₜ)<br />L = λpred Σₕ NLL(Zₜ₊ₕ | Sₜ) + λpost Lnext(Sₜ)<br />+ λmono Σₖ max(0, ℓₖ₊₁ − ℓₖ) + λhalt E[K] + λtask Lanticipation</code>
+            <code>hₜ¹ = Rθ(Mₜ; predict), Ẑₜ₊₁ = G(hₜ¹)<br />Iₜ₊₁ = d(Zₜ₊₁, Ẑₜ₊₁) / σθ(Mₜ)<br />Mₜ₊₁⁽ᵏ⁺¹⁾ = Rθ(Mₜ₊₁⁽ᵏ⁾, Zₜ₊₁, Iₜ₊₁; correct)<br />L = λpred NLL(Zₜ₊₁ | Mₜ) + λpost Lnext(Mₜ₊₁)<br />+ λmono Σₖ max(0, ℓₖ₊₁ − ℓₖ) + λhalt E[K] + λtask Lanticipation</code>
           </div>
         </div>
       </section>
