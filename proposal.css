@@ -550,6 +550,25 @@
   background: var(--paper-bright);
 }
 
+.paper-overview {
+  margin: 0 0 30px;
+}
+
+.paper-overview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.paper-overview figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 .method-flow {
   display: grid;
   grid-template-columns: 0.72fr 18px 1fr 18px 1fr 18px 0.9fr;
@@ -1969,6 +1988,17 @@
   .method-canvas,
   .interactive-demo {
     padding: 20px;
+  }
+
+  .paper-overview {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .paper-overview img {
+    width: 960px;
+    max-width: none;
   }
 
   .method-flow {

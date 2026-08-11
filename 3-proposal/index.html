@@ -131,21 +131,32 @@
             <p class="detail-index">03 · METHOD</p>
             <h2>Predict a distribution, measure semantic innovation, then spend compute only where belief must change.</h2>
             <p class="section-explainer">
-              slow video encoder는 새 chunk를 한 번만 읽는다. bounded posterior state는 다음 teacher latent의
-              multi-horizon distribution을 예측한다. 실제 chunk가 오면 uncertainty-normalized residual을 계산하고,
-              높은 semantic innovation이 발생한 slot에만 recurrent corrector와 memory write를 집중한다.
+              slow video encoder는 새 chunk를 한 번만 읽는다. bounded posterior state에서 recurrent latent core가
+              기본적으로 다음 teacher latent 하나를 예측하고, 더 긴 anticipation이 유효할 때만 rollout을 연장한다.
+              실제 chunk가 오면 uncertainty-normalized residual을 계산하고, 높은 semantic innovation이 발생한
+              slot에만 recurrent corrector와 memory write를 집중한다.
             </p>
           </div>
 
           <div class="method-canvas">
+            <figure class="paper-overview">
+              <img
+                src="../assets/proposal3-predictive-latent-reasoning-overview.svg"
+                alt="Predictive latent reasoning pipeline with causal encoding, prospective rollout, semantic innovation, and adaptive belief correction"
+              />
+              <figcaption>
+                전체 pipeline. 기본 경로는 다음 semantic latent 하나를 예측한다. 추가 미래 rollout과 corrective reasoning은
+                uncertainty와 semantic innovation이 요구할 때만 수행한다.
+              </figcaption>
+            </figure>
             <div class="method-flow" aria-label="Predictive latent filtering 처리 흐름">
-              <div class="method-node"><span>PRIOR</span><strong>S⁻ₜ = Dθ(Sₜ₋₁)</strong><small>bounded dynamics</small></div>
+              <div class="method-node"><span>STATE</span><strong>h⁰ₜ = Mₜ</strong><small>bounded posterior</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node gist"><span>PREDICT</span><strong>p(Zₜ|S⁻ₜ) = μₜ, σₜ</strong><small>multi-horizon future</small></div>
+              <div class="method-node gist"><span>LATENT ROLLOUT</span><strong>h¹ₜ = Fθ(h⁰ₜ)</strong><small>one step by default · optional continuation</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node reason"><span>INNOVATION</span><strong>Iₜ = d(Zₜ, μₜ) / σₜ</strong><small>semantic surprise</small></div>
+              <div class="method-node reason"><span>INNOVATION</span><strong>Iₜ₊₁ = d(Zₜ₊₁, Ẑₜ₊₁) / σₜ</strong><small>semantic surprise</small></div>
               <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="method-node event"><span>CORRECT × K</span><strong>Sₜ = Cθ(S⁻ₜ, Zₜ, Iₜ)</strong><small>selective write · halt</small></div>
+              <div class="method-node event"><span>CORRECT × K</span><strong>Mₜ₊₁ = Cθ(Mₜ, Zₜ₊₁, Iₜ₊₁)</strong><small>selective write · adaptive halt</small></div>
             </div>
             <p class="method-caption">Core encoder는 language query나 textual CoT를 사용하지 않는다. downstream task head는 고정된 posterior state만 읽는다.</p>
           </div>
@@ -172,7 +183,7 @@
 
           <div class="module-grid">
             <div class="module-item"><span>M1</span><h3>Bounded posterior state</h3><p>고정된 N개 latent token이 긴 stream의 stable context와 recent event residual을 유지한다. 영상 길이가 늘어도 state 크기는 증가하지 않는다.</p></div>
-            <div class="module-item"><span>M2</span><h3>Uncertainty-aware predictor</h3><p>하나의 point future가 아니라 여러 horizon의 μ·σ 또는 bounded hypotheses를 예측해 본질적 ambiguity와 모델의 ignorance를 구분한다.</p></div>
+            <div class="module-item"><span>M2</span><h3>Prospective latent reasoner</h3><p>동일 recurrent core가 다음 semantic latent를 먼저 예측한다. multi-horizon은 기본 전제가 아니라 H={1,2,3,4} 실험에서 유효할 때만 adaptive rollout으로 채택한다.</p></div>
             <div class="module-item"><span>M3</span><h3>Innovation-gated corrector</h3><p>동일 weight-tied corrector를 K번 반복하되 calibrated innovation이 update할 slot과 halting depth를 결정한다.</p></div>
           </div>
 
