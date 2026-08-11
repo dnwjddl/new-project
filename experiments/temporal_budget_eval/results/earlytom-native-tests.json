@@ -1,0 +1,60 @@
+{
+  "/home/dnwjddl/project1_budget_eval/results/earlytom-cap-k32": {
+    "flip_families": {
+      "candidate_accuracy": 0.24937655860349128,
+      "candidate_right_reference_wrong": 41,
+      "candidate_wrong_reference_right": 40,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.24688279301745636,
+      "reference_minus_candidate": -0.002493765586034924
+    },
+    "samples": {
+      "candidate_accuracy": 0.4316455696202532,
+      "candidate_right_reference_wrong": 108,
+      "candidate_wrong_reference_right": 253,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 1.5436185792654267e-14,
+      "reference_accuracy": 0.5234177215189874,
+      "reference_minus_candidate": 0.09177215189873417
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.017456359102244388,
+      "candidate_right_reference_wrong": 5,
+      "candidate_wrong_reference_right": 22,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.0015137195587158203,
+      "reference_accuracy": 0.059850374064837904,
+      "reference_minus_candidate": 0.04239401496259351
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/vqtoken-k32": {
+    "flip_families": {
+      "candidate_accuracy": 0.2743142144638404,
+      "candidate_right_reference_wrong": 52,
+      "candidate_wrong_reference_right": 41,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.2997316968970305,
+      "reference_accuracy": 0.24688279301745636,
+      "reference_minus_candidate": -0.027431421446384052
+    },
+    "samples": {
+      "candidate_accuracy": 0.38734177215189874,
+      "candidate_right_reference_wrong": 117,
+      "candidate_wrong_reference_right": 332,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 6.609522195411886e-25,
+      "reference_accuracy": 0.5234177215189874,
+      "reference_minus_candidate": 0.1360759493670886
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.0199501246882793,
+      "candidate_right_reference_wrong": 6,
+      "candidate_wrong_reference_right": 22,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.0037191659212112427,
+      "reference_accuracy": 0.059850374064837904,
+      "reference_minus_candidate": 0.0399002493765586
+    }
+  }
+}

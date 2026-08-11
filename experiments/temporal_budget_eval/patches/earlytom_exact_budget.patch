@@ -1,0 +1,31 @@
+diff --git a/earlytom/llava_arch.py b/earlytom/llava_arch.py
+index 1cd237e..59479fa 100644
+--- a/earlytom/llava_arch.py
++++ b/earlytom/llava_arch.py
+@@ -533,6 +533,25 @@ class LlavaMetaForCausalLM_earlytom(ABC):
+         else:
+             image_features = self.encode_images(images)
+ 
++        fixed_visual_tokens = int(os.environ.get("FIXED_VISUAL_TOKENS", "0"))
++        if fixed_visual_tokens > 0:
++            capped_features = []
++            for image_feature in image_features:
++                if image_feature.shape[0] > fixed_visual_tokens:
++                    selected = torch.linspace(
++                        0,
++                        image_feature.shape[0] - 1,
++                        fixed_visual_tokens,
++                        device=image_feature.device,
++                    ).round().long()
++                    image_feature = image_feature[selected]
++                capped_features.append(image_feature)
++                rank0_print(
++                    f"EarlyTom budget cap: requested={fixed_visual_tokens} "
++                    f"realized={image_feature.shape[0]}"
++                )
++            image_features = capped_features
++
+         # TODO: image start / end is not implemented here to support pretraining.
+         if getattr(self.config, "tune_mm_mlp_adapter", False) and getattr(self.config, "mm_use_im_start_end", False):
+             raise NotImplementedError
+

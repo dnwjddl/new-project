@@ -1,0 +1,22 @@
+diff --git a/llava/model/llava_arch.py b/llava/model/llava_arch.py
+index 1f99a12..4dfe67a 100644
+--- a/llava/model/llava_arch.py
++++ b/llava/model/llava_arch.py
+@@ -275,11 +275,16 @@ class LlavaMetaForCausalLM(ABC):
+         # image_feature =  torch.cat((image_feature, self.model.image_newline[:, None, None].expand(*image_feature.shape[:-1], 1).to(image_feature.device)), dim=-1)
+         # image_feature = image_feature.permute(1, 2, 0).contiguous()
+         # return image_feature
+-        if not adaptive:
++        fixed_budget = int(os.environ.get("VQTOKEN_FIXED_BUDGET", "0"))
++        if fixed_budget > 0:
++            available_tokens = image_feature.shape[0] * image_feature.shape[1]
++            budget = min(fixed_budget, available_tokens)
++            cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=budget)
++        elif not adaptive:
+             # cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=12)
+             cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=32)
+             # cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=64)
+         else:
+             # cluster_indices, clusters = adaptive_kmeans_clustering_tokens_torch(image_feature, max_K=12, method=adaptive) # , self.config.num_iters) #image
+             # cluster_indices, clusters = adaptive_kmeans_clustering_tokens_torch(image_feature, max_K=32, method=adaptive) # , self.config.num_iters) #image
+             cluster_indices, clusters = adaptive_kmeans_clustering_tokens_torch(image_feature, max_K=32, method=adaptive) 

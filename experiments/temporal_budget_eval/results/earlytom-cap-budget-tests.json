@@ -1,0 +1,89 @@
+{
+  "/home/dnwjddl/project1_budget_eval/results/earlytom-cap-k16": {
+    "flip_families": {
+      "candidate_accuracy": 0.2119700748129676,
+      "candidate_right_reference_wrong": 14,
+      "candidate_wrong_reference_right": 29,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.03153949735315109,
+      "reference_accuracy": 0.24937655860349128,
+      "reference_minus_candidate": 0.03740648379052369
+    },
+    "samples": {
+      "candidate_accuracy": 0.3905063291139241,
+      "candidate_right_reference_wrong": 59,
+      "candidate_wrong_reference_right": 124,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 1.7594609769434598e-06,
+      "reference_accuracy": 0.4316455696202532,
+      "reference_minus_candidate": 0.04113924050632911
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.014962593516209476,
+      "candidate_right_reference_wrong": 2,
+      "candidate_wrong_reference_right": 3,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.017456359102244388,
+      "reference_minus_candidate": 0.002493765586034912
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/earlytom-cap-k4": {
+    "flip_families": {
+      "candidate_accuracy": 0.2119700748129676,
+      "candidate_right_reference_wrong": 16,
+      "candidate_wrong_reference_right": 31,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.03998605682605216,
+      "reference_accuracy": 0.24937655860349128,
+      "reference_minus_candidate": 0.03740648379052369
+    },
+    "samples": {
+      "candidate_accuracy": 0.37468354430379747,
+      "candidate_right_reference_wrong": 66,
+      "candidate_wrong_reference_right": 156,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 1.3957240455936691e-09,
+      "reference_accuracy": 0.4316455696202532,
+      "reference_minus_candidate": 0.05696202531645572
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.0199501246882793,
+      "candidate_right_reference_wrong": 3,
+      "candidate_wrong_reference_right": 2,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.017456359102244388,
+      "reference_minus_candidate": -0.0024937655860349135
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/earlytom-cap-k8": {
+    "flip_families": {
+      "candidate_accuracy": 0.2194513715710723,
+      "candidate_right_reference_wrong": 15,
+      "candidate_wrong_reference_right": 27,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.08842954698775429,
+      "reference_accuracy": 0.24937655860349128,
+      "reference_minus_candidate": 0.029925187032418976
+    },
+    "samples": {
+      "candidate_accuracy": 0.37658227848101267,
+      "candidate_right_reference_wrong": 53,
+      "candidate_wrong_reference_right": 140,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 3.0122672871316036e-10,
+      "reference_accuracy": 0.4316455696202532,
+      "reference_minus_candidate": 0.05506329113924052
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.017456359102244388,
+      "candidate_right_reference_wrong": 2,
+      "candidate_wrong_reference_right": 2,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.017456359102244388,
+      "reference_minus_candidate": 0.0
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "/home/dnwjddl/project1_budget_eval/results/earlytom-cap-k32": {
+    "flip_families": {
+      "candidate_accuracy": 0.24937655860349128,
+      "candidate_right_reference_wrong": 30,
+      "candidate_wrong_reference_right": 40,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.2819789217936561,
+      "reference_accuracy": 0.2743142144638404,
+      "reference_minus_candidate": 0.02493765586034913
+    },
+    "samples": {
+      "candidate_accuracy": 0.4316455696202532,
+      "candidate_right_reference_wrong": 175,
+      "candidate_wrong_reference_right": 105,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 3.41861240719696e-05,
+      "reference_accuracy": 0.38734177215189874,
+      "reference_minus_candidate": -0.044303797468354444
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.017456359102244388,
+      "candidate_right_reference_wrong": 4,
+      "candidate_wrong_reference_right": 5,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.0199501246882793,
+      "reference_minus_candidate": 0.0024937655860349135
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/norm_topk-k32": {
+    "flip_families": {
+      "candidate_accuracy": 0.20199501246882792,
+      "candidate_right_reference_wrong": 12,
+      "candidate_wrong_reference_right": 41,
+      "common_samples": 401,
+      "mcnemar_exact_p": 8.171334999262925e-05,
+      "reference_accuracy": 0.2743142144638404,
+      "reference_minus_candidate": 0.07231920199501249
+    },
+    "samples": {
+      "candidate_accuracy": 0.37911392405063293,
+      "candidate_right_reference_wrong": 140,
+      "candidate_wrong_reference_right": 153,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 0.4833372766244359,
+      "reference_accuracy": 0.38734177215189874,
+      "reference_minus_candidate": 0.008227848101265811
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.007481296758104738,
+      "candidate_right_reference_wrong": 1,
+      "candidate_wrong_reference_right": 6,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.125,
+      "reference_accuracy": 0.0199501246882793,
+      "reference_minus_candidate": 0.012468827930174564
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/uniform_pool-k32": {
+    "flip_families": {
+      "candidate_accuracy": 0.2144638403990025,
+      "candidate_right_reference_wrong": 12,
+      "candidate_wrong_reference_right": 36,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.0007172696733945827,
+      "reference_accuracy": 0.2743142144638404,
+      "reference_minus_candidate": 0.059850374064837925
+    },
+    "samples": {
+      "candidate_accuracy": 0.4,
+      "candidate_right_reference_wrong": 125,
+      "candidate_wrong_reference_right": 105,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 0.2101767276222432,
+      "reference_accuracy": 0.38734177215189874,
+      "reference_minus_candidate": -0.012658227848101278
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.022443890274314215,
+      "candidate_right_reference_wrong": 7,
+      "candidate_wrong_reference_right": 6,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.0199501246882793,
+      "reference_minus_candidate": -0.0024937655860349135
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/uniform_sample-k32": {
+    "flip_families": {
+      "candidate_accuracy": 0.2518703241895262,
+      "candidate_right_reference_wrong": 37,
+      "candidate_wrong_reference_right": 46,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.379999396411918,
+      "reference_accuracy": 0.2743142144638404,
+      "reference_minus_candidate": 0.022443890274314204
+    },
+    "samples": {
+      "candidate_accuracy": 0.45126582278481014,
+      "candidate_right_reference_wrong": 210,
+      "candidate_wrong_reference_right": 109,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 1.6520839138383393e-08,
+      "reference_accuracy": 0.38734177215189874,
+      "reference_minus_candidate": -0.0639240506329114
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.017456359102244388,
+      "candidate_right_reference_wrong": 5,
+      "candidate_wrong_reference_right": 6,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.0199501246882793,
+      "reference_minus_candidate": 0.0024937655860349135
+    }
+  }
+}

@@ -1,0 +1,77 @@
+diff --git a/lmms_eval/models/__init__.py b/lmms_eval/models/__init__.py
+index bf10dfd..126b3d5 100644
+--- a/lmms_eval/models/__init__.py
++++ b/lmms_eval/models/__init__.py
+@@ -37,7 +37,7 @@ AVAILABLE_SIMPLE_MODELS = {
+     "llama_vid": "LLaMAVid",
+     "llama_vision": "LlamaVision",
+     "llava_hf": "LlavaHf",
+-    "llava_onevision": "Llava_OneVision",
++    "llava_onevision": "lmms_eval.models.simple.llama_vision.Llava_OneVision",
+     "llava_onevision1_5": "Llava_OneVision1_5",
+     "llava_onevision_moviechat": "Llava_OneVision_MovieChat",
+     "llava_sglang": "LlavaSglang",
+diff --git a/lmms_eval/models/simple/llama_vision.py b/lmms_eval/models/simple/llama_vision.py
+index 97ed30e..9ed1fce 100644
+--- a/lmms_eval/models/simple/llama_vision.py
++++ b/lmms_eval/models/simple/llama_vision.py
+@@ -138,7 +138,7 @@ class Llava_OneVision(lmms):
+ 
+         import os
+         model_wrapper = os.environ.get("WRAPPER")
+-        if model_wrapper in ["visionzip", "holitom", "aloha", "fastvid", "dycoke", "tome"]:
++        if model_wrapper in ["earlytom", "visionzip", "holitom", "aloha", "fastvid", "dycoke", "tome"]:
+             wrapper_module = __import__(model_wrapper)
+             wrapper_class = getattr(wrapper_module, model_wrapper)
+             self._model = wrapper_class(self._model)
+diff --git a/lmms_eval/tasks/tempcompass/utils.py b/lmms_eval/tasks/tempcompass/utils.py
+index 8962741..d5e4d8c 100644
+--- a/lmms_eval/tasks/tempcompass/utils.py
++++ b/lmms_eval/tasks/tempcompass/utils.py
+@@ -123,6 +123,24 @@ def tempcompass_doc_to_answer(doc):
+     return doc["answer"]
+ 
+ 
++def extract_multi_choice_prediction(pred):
++    """Parse one unambiguous A-D choice without an external LLM judge."""
++    text = pred.strip()
++    patterns = [
++        r"^\s*([A-D])(?:\s*$|[.)\s:])",
++        r"\b(?:answer|option|choice)\s*(?:is|:)?\s*([A-D])\b",
++    ]
++    for pattern in patterns:
++        match = re.search(pattern, text, flags=re.IGNORECASE)
++        if match:
++            return match.group(1).upper()
++
++    candidates = set(re.findall(r"(?<![A-Za-z])([A-D])(?:[.)]|\b)", text, re.IGNORECASE))
++    if len(candidates) == 1:
++        return candidates.pop().upper()
++    return None
++
++
+ # Process result for multi_choice
+ def tempcompass_process_results_multi_choice(doc, result):
+     pred = result[0]
+@@ -130,15 +148,11 @@ def tempcompass_process_results_multi_choice(doc, result):
+     match_success = True
+     chatgpt_response = None
+ 
+-    # Some hand-crafted matching rules
+-    if pred == doc["answer"]:
+-        rating = 1
+-    elif pred in ["A", "B", "C", "D"]:
+-        rating = 1 if pred == doc["answer"][0] else 0
+-    elif any(pred.startswith(prefix) for prefix in ["A.", "B.", "C.", "D."]):
+-        rating = 1 if pred.split(".")[0] == doc["answer"][0] else 0
+-    elif any(pred.startswith(prefix) for prefix in ["A)", "B)", "C)", "D)"]):
+-        rating = 1 if pred.split(")")[0] == doc["answer"][0] else 0
++    choice = extract_multi_choice_prediction(pred)
++    if choice is not None:
++        rating = 1 if choice == doc["answer"][0] else 0
++    elif os.getenv("TEMPCOMPASS_DISABLE_GPT_JUDGE", "0") == "1":
++        match_success = False
+     else:
+         # Fail to match answer in the video-llm response. Use ChatGPT to evaluate.
+         match_success = False
+

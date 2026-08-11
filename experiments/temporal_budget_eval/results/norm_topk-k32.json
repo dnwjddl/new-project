@@ -1,0 +1,55 @@
+{
+  "answer_flip_consistency": 0.20199501246882792,
+  "budget": 32,
+  "by_aspect": {
+    "action": {
+      "counterfactual_pairs": 0,
+      "paired_accuracy": 0.0,
+      "sample_accuracy": 0.47633136094674555,
+      "samples": 338
+    },
+    "attribute_change": {
+      "counterfactual_pairs": 141,
+      "paired_accuracy": 0.02127659574468085,
+      "sample_accuracy": 0.3715277777777778,
+      "samples": 288
+    },
+    "direction": {
+      "counterfactual_pairs": 149,
+      "paired_accuracy": 0.0,
+      "sample_accuracy": 0.34328358208955223,
+      "samples": 335
+    },
+    "order": {
+      "counterfactual_pairs": 57,
+      "paired_accuracy": 0.0,
+      "sample_accuracy": 0.3211920529801324,
+      "samples": 302
+    },
+    "speed": {
+      "counterfactual_pairs": 54,
+      "paired_accuracy": 0.0,
+      "sample_accuracy": 0.3753943217665615,
+      "samples": 317
+    }
+  },
+  "confidence_intervals_95": {
+    "answer_flip_consistency": [
+      0.16458852867830423,
+      0.24189526184538654
+    ],
+    "paired_accuracy": [
+      0.0,
+      0.017456359102244388
+    ],
+    "sample_accuracy": [
+      0.3556962025316456,
+      0.40379746835443037
+    ]
+  },
+  "counterfactual_pairs": 401,
+  "paired_accuracy": 0.007481296758104738,
+  "sample_accuracy": 0.37911392405063293,
+  "samples": 1580,
+  "source": "/home/dnwjddl/project1_budget_eval/results/norm_topk-k32/lmms-lab__llava-onevision-qwen2-0.5b-ov/20260811_145958_samples_tempcompass_multi_choice.jsonl"
+}

@@ -361,9 +361,33 @@
           </div>
 
           <div class="module-grid">
-            <div class="module-item"><span>E1</span><h3>Equal-budget failure audit</h3><p>재현 가능한 dynamic video tokenizer를 동일 K에서 비교한다. 일반 accuracy와 함께 order·state-change·rare-event counterfactual pair의 strict accuracy를 측정해 low-budget representation이 무엇을 먼저 잃는지 밝힌다.</p></div>
+            <div class="module-item"><span>E1 · DONE</span><h3>Equal-budget failure audit</h3><p>5개 압축 규칙을 동일 K와 common public backbone에서 비교했다. 일반 accuracy와 changed-answer counterfactual family의 answer-flip 순위가 달랐고, low-budget representation의 temporal loss가 aggregate score에 숨는 현상을 확인했다.</p></div>
             <div class="module-item"><span>E2</span><h3>K* determinant analysis</h3><p>모든 K를 사후 평가해 video별 minimum sufficient K*를 얻고, motion-only predictor와 semantic change·event density·uncertainty predictor가 K*를 얼마나 설명하는지 held-out split에서 비교한다.</p></div>
             <div class="module-item"><span>E3</span><h3>Automatic-budget feasibility</h3><p>shallow feature만 보는 progressive gate를 fixed K, motion heuristic, random allocation, one-shot K classifier, analysis-only oracle과 동일 평균 FLOPs에서 비교한다.</p></div>
+          </div>
+
+          <div class="compute-assumption">
+            <p class="mini-label">E1 COMPLETED · FULL TEMPCOMPASS · 1,580 QUESTIONS</p>
+            <p><strong>같은 K의 일반 VideoQA 점수는 temporal evidence를 측정하지 못했다.</strong> 공개 LLaVA-OneVision 0.5B, 32 frames, 동일 prompt·decoder에서 5개 압축 규칙을 K={4,8,16,32}로 고정했다. 410 videos의 401 changed-answer counterfactual families를 별도로 묶어, 정답뿐 아니라 temporal 변형에 따라 answer가 실제로 바뀌는지 측정했다.</p>
+          </div>
+
+          <div class="loss-ledger" aria-label="고정 토큰 예산별 TempCompass 전체 실험 결과">
+            <div class="loss-row header"><span>Compression</span><span>QA accuracy · K=4 / 8 / 16 / 32</span><span>Answer flip · K=4 / 8 / 16 / 32</span></div>
+            <div class="loss-row"><strong>VQToken-style K-means</strong><p>37.34 · 38.29 · 37.78 · 38.73</p><code>23.19 · 23.19 · 25.69 · 27.43</code></div>
+            <div class="loss-row"><strong>EarlyTom + exact-K cap</strong><p>37.47 · 37.66 · 39.05 · 43.16</p><code>21.20 · 21.95 · 21.20 · 24.94</code></div>
+            <div class="loss-row"><strong>Ordered uniform sample</strong><p>38.61 · 41.96 · 43.54 · 45.13</p><code>24.94 · 25.94 · 25.19 · 25.19</code></div>
+            <div class="loss-row"><strong>Contiguous uniform pool</strong><p>37.53 · 38.16 · 39.37 · 40.00</p><code>23.19 · 23.69 · 24.19 · 21.45</code></div>
+            <div class="loss-row"><strong>Feature-norm top-K</strong><p>38.16 · 37.97 · 37.97 · 37.91</p><code>20.95 · 20.20 · 19.95 · 20.20</code></div>
+          </div>
+
+          <div class="teacher-note">
+            <span>DECISIVE RESULT</span>
+            <p><strong>더 많은 token이 QA는 개선하면서 temporal sensitivity는 악화시킬 수 있다.</strong> Contiguous pooling의 K=32는 K=8보다 QA가 +1.84pp 높았지만(p=0.006), answer-flip은 -2.24pp 낮았다(p=0.049). Uniform sampling의 K=4→32 추가 정답 103개 중 82개(79.6%)가 action subset에서 나왔고 order gain은 0개였다. 따라서 temporal gist는 token 수나 aggregate accuracy가 아니라 별도 학습 목표로 정의해야 한다.</p>
+          </div>
+
+          <div class="teacher-note">
+            <span>NATIVE-SCALE REFERENCE</span>
+            <p>EarlyTom의 원래 0.10 retain ratio는 video당 631-633 tokens를 사용해 QA 52.34, strict family 5.99, answer-flip 24.69를 기록했다. K=32 cap보다 QA는 +9.18pp 높았지만 answer-flip은 사실상 같았다(-0.25pp, p=1.0). 이 결과는 released method가 정상 규모에서는 작동한다는 기준점이며, 위 표의 K=4-32는 temporal evidence가 무너지는 extreme-budget 영역을 별도로 검증한다.</p>
           </div>
 
           <div class="teacher-note">
@@ -467,6 +491,11 @@
             <a class="source-item" href="https://openaccess.thecvf.com/content/CVPR2026/html/Li_AdapTok_Learning_Adaptive_and_Temporally_Causal_Video_Tokenization_in_a_CVPR_2026_paper.html" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>AdapTok</h3><p>reconstruction·generation을 위한 temporally causal adaptive token allocation.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2603.28696" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>AdaptToken</h3><p>MLLM uncertainty로 query-conditioned global allocation과 early stopping을 수행한다.</p></a>
             <a class="source-item" href="https://arxiv.org/abs/2401.04975" target="_blank" rel="noreferrer"><span>ICASSP 2024</span><h3>HaltingVT</h3><p>video recognition encoder 내부의 patch-wise adaptive token halting 기준점.</p></a>
+            <a class="source-item" href="https://github.com/Hai-chao-Zhang/VQToken" target="_blank" rel="noreferrer"><span>PUBLIC CODE</span><h3>VQToken</h3><p>adaptive K-means video tokenization의 공개 구현과 fixed-budget audit 기준점.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2512.00891" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>STC</h3><p>streaming framework에서 ViT caching과 frame-wise token pruning을 결합한다.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2412.09530" target="_blank" rel="noreferrer"><span>ICCV 2025</span><h3>Dynamic-VLM</h3><p>VideoLLM의 frame-wise dynamic spatial token compression 기준점.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2603.26365" target="_blank" rel="noreferrer"><span>ARXIV 2026</span><h3>SCORE</h3><p>surprise signal과 reinforcement learning을 쓰는 adaptive compression policy.</p></a>
+            <a class="source-item" href="https://arxiv.org/abs/2601.16210" target="_blank" rel="noreferrer"><span>CVPR 2026</span><h3>PyraTok</h3><p>understanding과 generation을 위한 language-aligned pyramidal discrete tokenizer.</p></a>
           </div>
         </div>
       </section>

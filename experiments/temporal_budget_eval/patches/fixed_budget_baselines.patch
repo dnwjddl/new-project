@@ -1,0 +1,32 @@
+diff --git a/llava/model/llava_arch.py b/llava/model/llava_arch.py
+--- a/llava/model/llava_arch.py
++++ b/llava/model/llava_arch.py
+@@ -279,7 +279,26 @@
+         if fixed_budget > 0:
+             available_tokens = image_feature.shape[0] * image_feature.shape[1]
+             budget = min(fixed_budget, available_tokens)
+-            cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=budget)
++            baseline = os.environ.get("VIDEO_TOKEN_BASELINE", "kmeans")
++            flat_features = image_feature.flatten(0, 1)
++            if baseline == "kmeans":
++                cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=budget)
++            elif baseline == "uniform_sample":
++                selected = torch.linspace(0, available_tokens - 1, budget, device=image_feature.device).round().long()
++                clusters = flat_features[selected]
++                cluster_indices = selected
++            elif baseline == "uniform_pool":
++                clusters = torch.nn.functional.adaptive_avg_pool1d(
++                    flat_features.float().transpose(0, 1).unsqueeze(0), budget
++                ).squeeze(0).transpose(0, 1).to(image_feature.dtype)
++                cluster_indices = torch.arange(budget, device=image_feature.device)
++            elif baseline == "norm_topk":
++                selected = flat_features.float().norm(dim=-1).topk(budget).indices.sort().values
++                clusters = flat_features[selected]
++                cluster_indices = selected
++            else:
++                raise ValueError(f"Unknown VIDEO_TOKEN_BASELINE: {baseline}")
++            print(f"Fixed-budget baseline: {baseline}")
+         elif not adaptive:
+             # cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=12)
+             cluster_indices, clusters = kmeans_clustering_tokens_torch(image_feature, K=32)
+

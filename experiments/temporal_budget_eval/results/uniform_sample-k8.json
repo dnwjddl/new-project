@@ -1,0 +1,55 @@
+{
+  "answer_flip_consistency": 0.2593516209476309,
+  "budget": 8,
+  "by_aspect": {
+    "action": {
+      "counterfactual_pairs": 0,
+      "paired_accuracy": 0.0,
+      "sample_accuracy": 0.6568047337278107,
+      "samples": 338
+    },
+    "attribute_change": {
+      "counterfactual_pairs": 141,
+      "paired_accuracy": 0.04964539007092199,
+      "sample_accuracy": 0.3888888888888889,
+      "samples": 288
+    },
+    "direction": {
+      "counterfactual_pairs": 149,
+      "paired_accuracy": 0.013422818791946308,
+      "sample_accuracy": 0.35522388059701493,
+      "samples": 335
+    },
+    "order": {
+      "counterfactual_pairs": 57,
+      "paired_accuracy": 0.0,
+      "sample_accuracy": 0.31456953642384106,
+      "samples": 302
+    },
+    "speed": {
+      "counterfactual_pairs": 54,
+      "paired_accuracy": 0.0,
+      "sample_accuracy": 0.3627760252365931,
+      "samples": 317
+    }
+  },
+  "confidence_intervals_95": {
+    "answer_flip_consistency": [
+      0.2169576059850374,
+      0.30174563591022446
+    ],
+    "paired_accuracy": [
+      0.00997506234413965,
+      0.03740648379052369
+    ],
+    "sample_accuracy": [
+      0.39556962025316456,
+      0.4443037974683544
+    ]
+  },
+  "counterfactual_pairs": 401,
+  "paired_accuracy": 0.022443890274314215,
+  "sample_accuracy": 0.419620253164557,
+  "samples": 1580,
+  "source": "/home/dnwjddl/project1_budget_eval/results/uniform_sample-k8/lmms-lab__llava-onevision-qwen2-0.5b-ov/20260811_142512_samples_tempcompass_multi_choice.jsonl"
+}

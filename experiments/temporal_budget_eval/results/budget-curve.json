@@ -1,0 +1,35 @@
+{
+  "curve": [
+    {
+      "answer_flip_consistency": 0.23192019950124687,
+      "budget": 4,
+      "counterfactual_pairs": 401,
+      "paired_accuracy": 0.014962593516209476,
+      "sample_accuracy": 0.37341772151898733
+    },
+    {
+      "answer_flip_consistency": 0.23192019950124687,
+      "budget": 8,
+      "counterfactual_pairs": 401,
+      "paired_accuracy": 0.017456359102244388,
+      "sample_accuracy": 0.3829113924050633
+    },
+    {
+      "answer_flip_consistency": 0.256857855361596,
+      "budget": 16,
+      "counterfactual_pairs": 401,
+      "paired_accuracy": 0.00997506234413965,
+      "sample_accuracy": 0.3778481012658228
+    },
+    {
+      "answer_flip_consistency": 0.2743142144638404,
+      "budget": 32,
+      "counterfactual_pairs": 401,
+      "paired_accuracy": 0.0199501246882793,
+      "sample_accuracy": 0.38734177215189874
+    }
+  ],
+  "k90": 32,
+  "largest_budget_paired_accuracy": 0.0199501246882793,
+  "largest_budget_reference": 32
+}

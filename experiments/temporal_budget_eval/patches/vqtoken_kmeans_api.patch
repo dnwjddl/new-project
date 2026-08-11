@@ -1,0 +1,12 @@
+diff --git a/VQToken/vq_token.py b/VQToken/vq_token.py
+--- a/VQToken/vq_token.py
++++ b/VQToken/vq_token.py
+@@ -74,7 +74,7 @@ def kmeans_clustering_tokens_torch(tokens: torch.Tensor, K: int):
+     x_norm = flat / flat.norm(dim=-1, keepdim=True)
+ 
+     # Run fixed-K K-means
+-    km = KMeansTorch(n_clusters=K, max_iter=50)
++    km = KMeansTorch(num_clusters=K, max_iteration=50)
+     labels, _ = km.fit(x_norm)
+ 
+     # Reshape labels back to [T, N]

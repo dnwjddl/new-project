@@ -1,0 +1,89 @@
+{
+  "/home/dnwjddl/project1_budget_eval/results/norm_topk-k16": {
+    "flip_families": {
+      "candidate_accuracy": 0.19950124688279303,
+      "candidate_right_reference_wrong": 5,
+      "candidate_wrong_reference_right": 6,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.20199501246882792,
+      "reference_minus_candidate": 0.002493765586034896
+    },
+    "samples": {
+      "candidate_accuracy": 0.379746835443038,
+      "candidate_right_reference_wrong": 38,
+      "candidate_wrong_reference_right": 37,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.37911392405063293,
+      "reference_minus_candidate": -0.0006329113924050667
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.00997506234413965,
+      "candidate_right_reference_wrong": 2,
+      "candidate_wrong_reference_right": 1,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.007481296758104738,
+      "reference_minus_candidate": -0.0024937655860349127
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/norm_topk-k4": {
+    "flip_families": {
+      "candidate_accuracy": 0.20947630922693267,
+      "candidate_right_reference_wrong": 12,
+      "candidate_wrong_reference_right": 9,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.6636238098144531,
+      "reference_accuracy": 0.20199501246882792,
+      "reference_minus_candidate": -0.007481296758104744
+    },
+    "samples": {
+      "candidate_accuracy": 0.38164556962025314,
+      "candidate_right_reference_wrong": 93,
+      "candidate_wrong_reference_right": 89,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 0.8240980930696915,
+      "reference_accuracy": 0.37911392405063293,
+      "reference_minus_candidate": -0.002531645569620211
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.012468827930174564,
+      "candidate_right_reference_wrong": 3,
+      "candidate_wrong_reference_right": 1,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.625,
+      "reference_accuracy": 0.007481296758104738,
+      "reference_minus_candidate": -0.004987531172069826
+    }
+  },
+  "/home/dnwjddl/project1_budget_eval/results/norm_topk-k8": {
+    "flip_families": {
+      "candidate_accuracy": 0.20199501246882792,
+      "candidate_right_reference_wrong": 10,
+      "candidate_wrong_reference_right": 10,
+      "common_samples": 401,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.20199501246882792,
+      "reference_minus_candidate": 0.0
+    },
+    "samples": {
+      "candidate_accuracy": 0.379746835443038,
+      "candidate_right_reference_wrong": 70,
+      "candidate_wrong_reference_right": 69,
+      "common_samples": 1580,
+      "mcnemar_exact_p": 1.0,
+      "reference_accuracy": 0.37911392405063293,
+      "reference_minus_candidate": -0.0006329113924050667
+    },
+    "strict_families": {
+      "candidate_accuracy": 0.012468827930174564,
+      "candidate_right_reference_wrong": 3,
+      "candidate_wrong_reference_right": 1,
+      "common_samples": 401,
+      "mcnemar_exact_p": 0.625,
+      "reference_accuracy": 0.007481296758104738,
+      "reference_minus_candidate": -0.004987531172069826
+    }
+  }
+}
