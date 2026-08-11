@@ -1,0 +1,556 @@
+{
+  "status": "completed",
+  "variant": "depth_only",
+  "seed": 941004,
+  "config": {
+    "slots": 16,
+    "token_dim": 18,
+    "width": 192,
+    "memory_tokens": 8,
+    "heads": 6,
+    "num_verbs": 97,
+    "num_nouns": 300,
+    "num_actions": 3568,
+    "correction_steps": 1
+  },
+  "arguments": {
+    "cache": "/scratch/dnwjddl/predictive_latent_reasoning/cache/ek100_vft_prequant_16slot.pt",
+    "output": "/scratch/dnwjddl/predictive_latent_reasoning/results/depth_only_seed941004.json",
+    "variant": "depth_only",
+    "seed": 941004,
+    "epochs": 14,
+    "batch_size": 32,
+    "window": 12,
+    "stride": 6,
+    "width": 192,
+    "memory_tokens": 8,
+    "heads": 6,
+    "correction_steps": 1,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.05,
+    "prediction_weight": 0.5,
+    "num_workers": 4,
+    "grad_clip": 1.0,
+    "patience": 4,
+    "device": "cuda",
+    "synthetic": false
+  },
+  "cache_metadata": {
+    "train_samples": 67216,
+    "validation_samples": 9657,
+    "train_videos": 495,
+    "validation_videos": 138,
+    "train_missing_annotations": 0,
+    "validation_missing_annotations": 0,
+    "validation_unknown_actions": 372
+  },
+  "parameters": 1526945,
+  "train_windows": 10809,
+  "best_epoch": 12,
+  "metrics": {
+    "verb": {
+      "count": 9519,
+      "top1": 0.2098959982395172,
+      "top5": 0.654480516910553,
+      "macro_recall5": 0.08414886133397757
+    },
+    "noun": {
+      "count": 9519,
+      "top1": 0.05053051933646202,
+      "top5": 0.1884651780128479,
+      "macro_recall5": 0.047488258293356685
+    },
+    "action": {
+      "count": 9152,
+      "top1": 0.028081294149160385,
+      "top5": 0.10664335638284683,
+      "macro_recall5": 0.012497793378589844
+    },
+    "future_cosine": 0.001445320820155477,
+    "future_nll": 1.2929280178112847,
+    "innovation_rms": 0.0,
+    "state_update_rms": 0.6969732207928351,
+    "evaluated_transitions": 9519
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train": {
+        "loss": 10.309817102533826,
+        "task_loss": 10.309817102533826,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21724970638751984,
+          "top5": 0.6387225389480591,
+          "macro_recall5": 0.06889293358515278
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.046748608350753784,
+          "top5": 0.17848514020442963,
+          "macro_recall5": 0.02631832145616882
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.022180944681167603,
+          "top5": 0.10063374042510986,
+          "macro_recall5": 0.005719976621685138
+        },
+        "future_cosine": -0.003537327651742993,
+        "future_nll": 1.0200912047051147,
+        "innovation_rms": 0.0,
+        "state_update_rms": 1.3224285312066597,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 2,
+      "train": {
+        "loss": 9.857066930398434,
+        "task_loss": 9.857066930398434,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21819518506526947,
+          "top5": 0.6455510258674622,
+          "macro_recall5": 0.0749941130937163
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.04811429604887962,
+          "top5": 0.18394789099693298,
+          "macro_recall5": 0.03213041749524007
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.027425698935985565,
+          "top5": 0.10511363297700882,
+          "macro_recall5": 0.007763180648185135
+        },
+        "future_cosine": 0.0028129983685289623,
+        "future_nll": 0.8968040762497155,
+        "innovation_rms": 0.0,
+        "state_update_rms": 1.057168914028446,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 3,
+      "train": {
+        "loss": 9.62588040786382,
+        "task_loss": 9.62588040786382,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21840529143810272,
+          "top5": 0.6412438154220581,
+          "macro_recall5": 0.07758409838424433
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.0508456788957119,
+          "top5": 0.18352767825126648,
+          "macro_recall5": 0.03478120787740632
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.027097901329398155,
+          "top5": 0.10871940851211548,
+          "macro_recall5": 0.009091943496506839
+        },
+        "future_cosine": 0.002633903631934614,
+        "future_nll": 0.9793807156810567,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.9863170897908065,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 4,
+      "train": {
+        "loss": 9.432486003672583,
+        "task_loss": 9.432486003672583,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.20937073230743408,
+          "top5": 0.6394579410552979,
+          "macro_recall5": 0.077587600113475
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.04979514703154564,
+          "top5": 0.18142661452293396,
+          "macro_recall5": 0.03308430286112277
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.026442307978868484,
+          "top5": 0.10292831808328629,
+          "macro_recall5": 0.007427801799270986
+        },
+        "future_cosine": 0.0005765145784014022,
+        "future_nll": 0.9812989816882052,
+        "innovation_rms": 0.0,
+        "state_update_rms": 1.0117004056640102,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 5,
+      "train": {
+        "loss": 9.25058457414074,
+        "task_loss": 9.25058457414074,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21084147691726685,
+          "top5": 0.6478621959686279,
+          "macro_recall5": 0.07928464291932372
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.051791153848171234,
+          "top5": 0.20086143910884857,
+          "macro_recall5": 0.037004467717593775
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.026333041489124298,
+          "top5": 0.108610138297081,
+          "macro_recall5": 0.009728861969475007
+        },
+        "future_cosine": -0.00287516506524583,
+        "future_nll": 1.2250177975161285,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.9856419149836718,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 6,
+      "train": {
+        "loss": 9.077186090706368,
+        "task_loss": 9.077186090706368,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21682949364185333,
+          "top5": 0.6582624316215515,
+          "macro_recall5": 0.07948145272127337
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.04874461516737938,
+          "top5": 0.1944531947374344,
+          "macro_recall5": 0.03543521044646384
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.0189029723405838,
+          "top5": 0.10347464680671692,
+          "macro_recall5": 0.00936256391805299
+        },
+        "future_cosine": 0.0016363226279644924,
+        "future_nll": 1.1651859141245198,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.9073610679105696,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 7,
+      "train": {
+        "loss": 8.900413188708605,
+        "task_loss": 8.900413188708605,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21493855118751526,
+          "top5": 0.6555310487747192,
+          "macro_recall5": 0.07934877698301286
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.053261898458004,
+          "top5": 0.1917218267917633,
+          "macro_recall5": 0.0400539178010444
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.028409091755747795,
+          "top5": 0.10762675106525421,
+          "macro_recall5": 0.00863499231786197
+        },
+        "future_cosine": -0.0013247995229811885,
+        "future_nll": 1.1121828800828684,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.9100740101485458,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 8,
+      "train": {
+        "loss": 8.720395660964694,
+        "task_loss": 8.720395660964694,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.2199810892343521,
+          "top5": 0.6474419832229614,
+          "macro_recall5": 0.08029354088408995
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.05168610066175461,
+          "top5": 0.1924571841955185,
+          "macro_recall5": 0.040833709400335365
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.0296110138297081,
+          "top5": 0.10249125957489014,
+          "macro_recall5": 0.010425315914366797
+        },
+        "future_cosine": 0.00016220028129436506,
+        "future_nll": 1.1523197232480935,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.8651640543743322,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 9,
+      "train": {
+        "loss": 8.537521999968579,
+        "task_loss": 8.537521999968579,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21609412133693695,
+          "top5": 0.6531147956848145,
+          "macro_recall5": 0.0831107834652271
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.05294673889875412,
+          "top5": 0.18510347604751587,
+          "macro_recall5": 0.04167222361333861
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.028846153989434242,
+          "top5": 0.10434877872467041,
+          "macro_recall5": 0.011440811788629327
+        },
+        "future_cosine": 0.004949632044650684,
+        "future_nll": 1.1640033119240032,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.8150230711598971,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 10,
+      "train": {
+        "loss": 8.343482165646977,
+        "task_loss": 8.343482165646977,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21157684922218323,
+          "top5": 0.6529046893119812,
+          "macro_recall5": 0.08418788091932981
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.047483980655670166,
+          "top5": 0.20002101361751556,
+          "macro_recall5": 0.04673921799829305
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.02622377686202526,
+          "top5": 0.10391171276569366,
+          "macro_recall5": 0.010831463014347197
+        },
+        "future_cosine": -0.005685766951619995,
+        "future_nll": 1.169857351466104,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.7741747668390828,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 11,
+      "train": {
+        "loss": 8.139374289992293,
+        "task_loss": 8.139374289992293,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.2094757854938507,
+          "top5": 0.6532198786735535,
+          "macro_recall5": 0.08539223483614161
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.05588822439312935,
+          "top5": 0.19277234375476837,
+          "macro_recall5": 0.04276319806605018
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.027425698935985565,
+          "top5": 0.1060970276594162,
+          "macro_recall5": 0.010487181122738495
+        },
+        "future_cosine": 0.0015680878287648338,
+        "future_nll": 1.244746737031078,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.7467354490283858,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 12,
+      "train": {
+        "loss": 7.924986321545211,
+        "task_loss": 7.924986321545211,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.2098959982395172,
+          "top5": 0.654480516910553,
+          "macro_recall5": 0.08414886133397757
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.05053051933646202,
+          "top5": 0.1884651780128479,
+          "macro_recall5": 0.047488258293356685
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.028081294149160385,
+          "top5": 0.10664335638284683,
+          "macro_recall5": 0.012497793378589844
+        },
+        "future_cosine": 0.001445320820155477,
+        "future_nll": 1.2929280178112847,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.6969732207928351,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 13,
+      "train": {
+        "loss": 7.7061365045739345,
+        "task_loss": 7.7061365045739345,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.2062191367149353,
+          "top5": 0.6480723023414612,
+          "macro_recall5": 0.08379124639048013
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.05116083472967148,
+          "top5": 0.19151172041893005,
+          "macro_recall5": 0.0483528332804703
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.02425699308514595,
+          "top5": 0.09615384787321091,
+          "macro_recall5": 0.010956634766776472
+        },
+        "future_cosine": -0.0008534454669504387,
+        "future_nll": 1.2589313467080658,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.6807020650351795,
+        "evaluated_transitions": 9519
+      }
+    },
+    {
+      "epoch": 14,
+      "train": {
+        "loss": 7.477853433620295,
+        "task_loss": 7.477853433620295,
+        "prediction_loss": 0.0,
+        "innovation_rms": 0.0
+      },
+      "validation": {
+        "verb": {
+          "count": 9519,
+          "top1": 0.21168190240859985,
+          "top5": 0.6564764976501465,
+          "macro_recall5": 0.08494620143500789
+        },
+        "noun": {
+          "count": 9519,
+          "top1": 0.05063557252287865,
+          "top5": 0.19266729056835175,
+          "macro_recall5": 0.046718824019180774
+        },
+        "action": {
+          "count": 9152,
+          "top1": 0.022399475798010826,
+          "top5": 0.0970279723405838,
+          "macro_recall5": 0.011333491162547376
+        },
+        "future_cosine": 0.004118510701310362,
+        "future_nll": 1.2626114422276387,
+        "innovation_rms": 0.0,
+        "state_update_rms": 0.6563496733021118,
+        "evaluated_transitions": 9519
+      }
+    }
+  ],
+  "runtime_seconds": 489.283,
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 4090"
+}

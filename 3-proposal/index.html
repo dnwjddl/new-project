@@ -197,46 +197,46 @@
       <section class="proposal-section tinted" id="pilot">
         <div class="page-shell">
           <div class="detail-heading">
-            <p class="detail-index">04 · EVIDENCE STANDARD</p>
-            <h2>작은 run은 배관만 검사한다. 가설은 정식 benchmark가 판정한다.</h2>
+            <p class="detail-index">04 · CORE VALIDATION</p>
+            <h2>미래 latent는 예측되지만, 현재 correction rule은 representation을 개선하지 못했다.</h2>
             <p class="section-explainer">
-              작은 subset과 frozen image feature는 코드·metric·step curve가 정상인지 확인하는 smoke test다.
-              성공·실패 결론은 official split 전체와 strong video backbone, matched compute, 3 seeds에서만 내린다.
+              EK100 전체 action-segment split과 frozen VideoFlexTok feature에서 matched architecture·compute, 3 paired seeds로
+              predictor, residual correction, uncertainty calibration, innovation gating을 하나씩 분리 검증했다.
             </p>
           </div>
           <div class="pilot-panel">
             <div class="pilot-header">
-              <span class="pilot-status weak" id="pilot-status">SMOKE TEST · NOT EVIDENCE</span>
+              <span class="pilot-status weak" id="pilot-status">CORE RESULT · CORRECTION NO-GO</span>
               <div>
-                <h3 id="pilot-title">작은 run으로 연구 가능성을 판정하지 않는다.</h3>
-                <p id="pilot-summary">2026-08-09의 12-video 결과는 구현 진단 기록이다. 수치의 높고 낮음, 단조성 여부 모두 논문 가설의 근거로 사용하지 않는다.</p>
+                <h3 id="pilot-title">예측 모듈은 통과했고, correction 모듈은 현재 형태로는 통과하지 못했다.</h3>
+                <p id="pilot-summary">67,216 train segment와 9,519 causal validation transition을 사용했다. 모든 비교는 같은 bounded state와 recurrent compute를 사용했다.</p>
               </div>
             </div>
             <div class="pilot-grid">
-              <div><span>HISTORICAL SMOKE RUN</span><strong id="pilot-gpu">RTX 4090 · 18 epochs</strong></div>
-              <div><span>DATA</span><strong>495 train · 230 val</strong></div>
-              <div><span>SHARED K=0→4</span><strong>30.4 → 31.3%</strong></div>
-              <div><span>K=4 COMPARISON</span><strong>31.3 vs no-loop 32.2%</strong></div>
+              <div><span>PROTOCOL</span><strong id="pilot-gpu">6 variants · 3 seeds</strong></div>
+              <div><span>DATA</span><strong>495 train · 138 val videos</strong></div>
+              <div><span>FUTURE COSINE</span><strong>≈ 0.00 → 0.44</strong></div>
+              <div><span>RUNTIME</span><strong>7–11 min / seed</strong></div>
             </div>
             <div class="pilot-verdict">
               <div>
-                <span>MEASURED STEP CURVE</span>
-                <strong>K=0: 30.4 · K=1: 32.2 · K=2: 32.2 · K=3: 31.7 · K=4: 31.3%</strong>
+                <span>PAIRED ACTION mR@5 DELTA</span>
+                <strong>raw correction +0.017%p · calibrated correction −0.168%p · innovation gate vs observation gate +0.015%p</strong>
               </div>
               <p>
-                K=1에서 잠깐 좋아졌지만 단조 증가하지 않았고 K=4는 no-reasoning보다 0.9%p 낮았다. unshared K=4와도
-                같았으며, 마지막 evidence가 틀린 prior를 고친 비율은 1.3%였다. 이 관측은 구현된 metric이 차이를
-                기록한다는 것만 확인한다. <strong>방법의 유효성에 대한 결론은 내리지 않는다.</strong>
+                미래 latent objective 자체는 분명히 학습되었다. 그러나 raw/calibrated residual을 memory correction에 직접
+                넣어도 anticipation이 개선되지 않았고, gate는 평균 0.94–1.00으로 거의 항상 update했다. 따라서
+                <strong>multi-horizon과 adaptive K는 보류하고, 실제 future risk 감소량으로 write를 감독하는 value-aligned correction을 다음에 검증한다.</strong>
               </p>
-              <a href="../experiments/latent_reasoning_pilot_results.json">Raw result JSON 보기 →</a>
+              <a href="../experiments/predictive_latent_reasoning/RESULTS.md">전체 결과와 판정 기준 보기 →</a>
             </div>
           </div>
 
           <div class="training-lanes pilot-tests">
-            <div class="training-lane"><span>TEST A</span><h3>Anytime step curve</h3><p>동일 recurrent head를 K=0·1·2·4로 평가해 추가 step이 next-action accuracy를 단조롭게 높이는지 본다.</p></div>
-            <div class="training-lane"><span>TEST B</span><h3>Matched compute</h3><p>같은 attention/MLP 연산을 쓰는 unshared depth와 비교해 recurrence 자체의 이득과 parameter efficiency를 분리한다.</p></div>
-            <div class="training-lane"><span>TEST C</span><h3>Late evidence revision</h3><p>마지막 evidence 전후 prediction을 비교해 잘못된 prior confidence가 올바른 class로 실제 이동하는지 측정한다.</p></div>
-            <div class="training-lane"><span>PAPER STANDARD</span><h3>Official splits, two datasets</h3><p>전체 evaluation set, 3 seeds와 95% CI, matched FLOPs·latency, video-native backbone, 두 benchmark에서만 가설을 판정한다.</p></div>
+            <div class="training-lane"><span>PASS</span><h3>Predictable future latent</h3><p>prediction loss가 없는 depth-only 대비 next-latent cosine이 약 0.44까지 상승했다.</p></div>
+            <div class="training-lane"><span>NO-GO</span><h3>Residual correction</h3><p>raw residual은 유의한 이득이 없었고 uncertainty-normalized residual은 평균 성능이 하락했다.</p></div>
+            <div class="training-lane"><span>NO-GO</span><h3>Innovation gating</h3><p>innovation gate는 observation-only gate를 넘지 못했고 선택적 write 대신 거의 항상 update했다.</p></div>
+            <div class="training-lane"><span>NEXT</span><h3>Value-aligned write target</h3><p>각 memory write가 실제 future semantic/task risk를 얼마나 줄이는지 측정해 gate의 직접 supervision으로 사용한다.</p></div>
           </div>
         </div>
       </section>
@@ -398,7 +398,7 @@
         <a class="proposal-next" href="../"><div><span>BACK TO OVERVIEW</span><h2>세 proposal의 경계와 전체 연구 지도</h2></div><i aria-hidden="true">↗</i></a>
       </div>
     </main>
-    <footer><div class="page-shell footer-inner"><span>Proposal 03 · Predictive Latent Filtering</span><span>Paper-grade experiments have not started yet</span></div></footer>
+    <footer><div class="page-shell footer-inner"><span>Proposal 03 · Predictive Latent Filtering</span><span>Full-split core validation complete · official benchmark pending</span></div></footer>
     <script src="../proposal.js"></script>
   </body>
 </html>
